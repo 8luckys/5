@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=2.0, user-scalable=no"/>
+    <title>luck</title>
+</head>
+<!-- 引入样式文件 -->
+<link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/vant@4/lib/index.css"/>
+<style>
+    [v-cloak] {
+        display: none;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    html {
+        touch-action: none;
+        touch-action: pan-y;
+    }
+
+    body {
+        font: normal 12px/20px '微软雅黑';
+        color: #000000;
+        margin-bottom: 100px;
+        height: 100%;
+        width: 100%;
+    }
+
+    .bot_fixed {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: ghostwhite;
+        font-size: 16px;
+    }
+
+    .bot_fixed .bot_left {
+        /* float: left; */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        clear: both;
+    }
+
+    .bot_fixed .bot_right {
+        float: right;
+        font-family: Arial, sans-serif;
+        margin: 12px 10px;
+
+    }
+
+    .kill_str {
+        height: 35px;
+    }
+
+    .kill_str2 {
+        height: 30px;
+        /*line-height: 5px;*/
+        width: 100%;
+    }
+
+    .kill_str3 {
+        /* display: inline-block;
+         width: 60%;*/
+        margin-left: 10px
+    }
+
+    .kill_input {
+        width: 14%;
+        margin-left: 7px;
+    }
+
+    .kill_input_blue {
+        color: blue;
+    }
+
+    .count_sum, .kill_input_red {
+        color: red;
+    !important;
+    }
+
+    .set-luck {
+        background-color: beige;
+        margin-left: 10px;
+        padding: 0px 15px;
+    }
+
+    .luck_num_title {
+        color: #00CED1;
+    }
+
+    .base_str_one, .base_str_two {
+        background-color: #00d0ff;
+    }
+
+    .luck_list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 25px;
+        margin-top: 20px;
+    }
+
+    .luck_list span {
+        font-size: 25px;
+        padding: 1px 2px;
+        display: inline-block;
+        width: 26px;
+    }
+
+    .number-str {
+        padding-bottom: 50px;
+    }
+
+</style>
+<body>
+
+<div id="app" v-cloak>
+    <van-pull-refresh v-model="isLoading" :pull-distance="220" @refresh="onRefresh">
+        <div v-if="show_from">
+            <van-form @submit="onSubmit">
+                <div style="padding: 8px 16px;">
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="lastNum" :class="{luck_num_title:is_before}">幸运位号</span>
+                            <span class="kill_str3">
+            <input v-for="(item,index) in 4" class="kill_input"
+                   :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
+                   v-model="luck_num_arr[index]" @click="setNum(index)"
+                   type="text">
+          </span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="reward('base_str_one')" :class="{base_str_one:is_base_str_one === 0}">第一位数</span>
+                            <span class="kill_str3">
+            <input class="kill_input" v-model="base_str_one" type="text">
+          </span>
+                            <!--<span class="set-luck" @click="setLuck('base_str_one',1)">0258</span>-->
+                            <span class="set-luck" @click="setLuck('base_str_one',2)" :class="{base_str_one:is_base_str_one === 2}">小</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',3)" :class="{base_str_one:is_base_str_one === 3}">大</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',4)" :class="{base_str_one:is_base_str_one === 4}">单</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',5)" :class="{base_str_one:is_base_str_one === 5}">双</span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="reward('base_str_two')" :class="{base_str_two:is_base_str_two === 0}">第二位数</span>
+                            <span class="kill_str3">
+            <input class="kill_input" v-model="base_str_two" type="text">
+          </span>
+                            <!--<span class="set-luck" @click="setLuck('base_str_one',1)">0258</span>-->
+                            <span class="set-luck" @click="setLuck('base_str_two',2)" :class="{base_str_one:is_base_str_two === 2}">小</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',3)" :class="{base_str_one:is_base_str_two === 3}">大</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',4)" :class="{base_str_one:is_base_str_two === 4}">单</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',5)" :class="{base_str_one:is_base_str_two === 5}">双</span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span>合值位排</span>
+                            <span class="kill_str3">
+                        <input @click="getKillHe" class="kill_input" v-model="sum_not_str" type="text">
+                    </span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span>全奇偶排</span>
+                            <span class="kill_str3">
+                        <input v-for="(item,index) in 4" class="kill_input" v-model="kill_arr[index]" type="text"
+                               @click='clickKill(index)'>
+                    </span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span style="position: relative;top: -6px">排除双重</span>
+                            <span class="kill_str3">
+                        <van-switch size="20px" v-model="kill_repeat"/>
+                    </span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span style="position: relative;top: -6px">负负得正</span>
+                            <span class="kill_str3">
+                        <van-switch size="20px" v-model="kill_back"/>
+                    </span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */">
+                    <van-field name="amount" label="中金额">
+                        <template #input>
+                            <van-stepper theme="round" min="1" button-size="20" v-model="amount" step="1"/>
+                        </template>
+                    </van-field>
+                    <div style="color: #ff0090;  flex: 0 0 auto;text-align: center;margin-right: 8px">{{sort_date}}
+                    </div>
+                </div>
+
+                <van-cell-group class="number-str">
+                    <van-field
+                            v-model="number_str"
+                            rows="1"
+                            autosize
+                            label=""
+                            type="textarea"
+                            placeholder="生成号码"
+                            show-word-limit
+                            @input="getMoneyAndCount"
+                    />
+                </van-cell-group>
+                <div class="bot_fixed">
+                    <a target=_blank href="http://datachart.500.com/plw/?expect=100&from=&to=&sort=1"><span
+                            style="color:aqua">势图</span></a>
+                    <a target=_blank href="https://www.lottery.gov.cn/kj/kjlb.html?plw"><span
+                            style="color:#2a6496;margin-left: 8px">历史</span></a>
+                    <a @click="showLuckList"><span
+                            style="color:greenyellow;margin-left: 8px">幸运</span></a>
+                    <span style="margin-left: 20px;"><van-stepper v-model="luck_num" integer theme="round"
+                                                                  button-size="18"/>
+          </span>
+                    <div class="bot_right">
+                        <span style="margin-right: 8px">总数：<span class="count_sum">{{number_count}}</span></span>
+                        <span>总额：<span
+                                class="count_sum">{{number_money}}</span></span>
+                    </div>
+                    <div class="bot_left">
+                        <van-button size="large" type="primary" native-type="submit">
+                            生成
+                        </van-button>
+                        <!--<van-button size="large" type="success" @click="copyText">
+                            复制
+                        </van-button>-->
+                         <van-button size="large" type="success" @click="download">
+                             下载
+                         </van-button>
+                    </div>
+                </div>
+            </van-form>
+        </div>
+        <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
+             @touchend="handleTouchEnd">
+            <van-list
+                    v-model="loading"
+                    :finished="finished"
+                    offset="300"
+                    immediate-check="false"
+                    finished-text="没有更多了"
+                    loading-text="加载中"
+                    @load="onLoad"
+            >
+                <div v-for="(item,index) in luck_list" :key="index">
+                <span :class="{kill_input_red:item2.red}" v-for="(item2,index2) in item"
+                      :key="index2">{{item2.num}}</span>
+                </div>
+                <div v-show="loading">加载中...</div>
+                <!-- <van-cell v-for="item in luck_list" :key="item" :title="item[0]" />-->
+            </van-list>
+            <!-- 回到顶部按钮 -->
+            <van-back-top right="0" bottom="20"/>
+        </div>
+    </van-pull-refresh>
+</div>
+</body>
+
+<!-- 引入 Vue 和 Vant 的 JS 文件 -->
+<script src="https://fastly.jsdelivr.net/npm/vue@3"></script>
+<script src="https://fastly.jsdelivr.net/npm/vant@4/lib/vant.min.js"></script>
+<script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+<script type="text/javascript">
+
+    const {createApp} = Vue;
+
+    const app = createApp({
+        data() {
+            return {
+                loading: false,
+                finished: false,
+                luck_list: [],
+                show_from: true,
+                isLoading: false,
+                pageNo: 1,
+                api_num_url: 'https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=350133&provinceId=0&pageSize=100&pageNo=',
+                num_list: [],
+                num_list2: [],
+                num_list_new: [],
+                is_before: 0,
+                is_base_str_one: false,
+                is_base_str_two: false,
+                base_str: '',
+                base_str_one: '',
+                base_str_two: '',
+                sort_number: '',
+                sort_date: '',
+                //4上一期对应号：空''-对应不排
+                luck_num_arr: ['x', 'x', 'x', 'x'],
+                red_arr: [],
+                blue_arr: [],
+
+                kill_arr: ['x', 'x', 'x', 'x'],
+
+                //和值位
+                sum_not_str: '',
+                //排号
+                kill_num_str: '',
+
+                kill_back: false,
+                kill_repeat: false,
+                touch: {
+                    startX: 0,
+                    endX: 0,
+                    threshold: 160,
+                },
+
+                //倍数
+                luck_num: 2,
+                //金额
+                amount: 10,
+
+                number_str: '',
+                number_count: 0,
+                number_money: 0,
+            };
+        },
+        async created() {
+            let luck_num_arr = ["8", "8", "8", "8"];
+            let luck_num_list = [];
+            let sort_number = '88888';
+            let sort_date = dayjs().format('YYYY-MM-DD');
+            let num_list = [];
+
+            let url = this.api_num_url + this.pageNo;
+            await axios.get(url)
+                .then((res) => {
+                    let {data} = res;
+                    if (data.success) {
+                        data.value.list.forEach(function (item) {
+                            luck_num_list = item.lotteryDrawResult.split(' ');
+                            luck_num_list.pop();
+                            num_list.push(luck_num_list)
+                        })
+                        luck_num_arr = data.value.lastPoolDraw.lotteryDrawResult.split(' ')
+                        luck_num_arr.pop();
+                        sort_number = data.value.lastPoolDraw.lotteryDrawNum
+                        sort_date = data.value.lastPoolDraw.lotteryDrawTime
+                    }
+                    //this.base_str = res.data.base_str;
+                }) // 把结果集传到info这个数组
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+            let red_arr = [];
+            let blue_arr = [];
+            let num_list_new = JSON.parse(JSON.stringify(num_list));
+            let n = 1;
+            do {
+                [blue_arr, red_arr] = this.getNotYes(n, luck_num_arr, num_list_new, blue_arr, red_arr);
+                if (blue_arr.length > 1) n = 20;
+                n++;
+            } while (n <= 20);
+            this.red_arr = red_arr;
+            this.blue_arr = blue_arr;
+            this.num_list = num_list;
+            this.num_list2 = JSON.parse(JSON.stringify(num_list));
+            this.num_list_new = JSON.parse(JSON.stringify(num_list));
+            this.luck_num_arr = luck_num_arr;
+            this.sort_number = sort_number;
+            this.sort_date = sort_date;
+        },
+        methods: {
+            onLoad() {
+                if (this.loading || this.finished) return;
+                this.loading = true;
+                console.log(11)
+                // setTimeout 仅做示例，真实场景中一般为 ajax 请求
+                setTimeout(async () => {
+                    // 异步更新数据
+                    this.pageNo++;
+                    console.log(this.pageNo)
+                    let url = this.api_num_url + this.pageNo;
+                    let luck_num_list = [];
+                    let num_list = [];
+                    await axios.get(url)
+                        .then((res) => {
+                            let {data} = res;
+                            if (data.success) {
+                                data.value.list.forEach(function (item) {
+                                    luck_num_list = item.lotteryDrawResult.split(' ');
+                                    luck_num_list.pop();
+                                    num_list.push(luck_num_list)
+                                })
+                            }
+                            //this.base_str = res.data.base_str;
+                        }) // 把结果集传到info这个数组
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                    this.num_list_new.push(...num_list);
+                    // 加载状态结束
+                    this.loading = false;
+                    // 数据全部加载完成
+                    if (!num_list) {
+                        this.finished = true;
+                    }
+                    await this.showLuckList()
+                }, 1000);
+            },
+            onRefresh() {
+                setTimeout(() => {
+                    this.isLoading = false;
+                    window.location.reload();
+                }, 1000);
+            },
+            showLuckList() {
+                this.show_from = false;
+                let n = 1;
+                do {
+                    let blue_arr = [];
+                    let red_arr = [];
+                    let num_list_new = JSON.parse(JSON.stringify(this.num_list_new));
+                    let luck_num_arr = this.num_list_new.shift();
+                    [blue_arr, red_arr] = this.getNotYes(1, this.luck_num_arr, num_list_new, blue_arr, red_arr);
+                    let luck_list_new = [];
+                    luck_num_arr.forEach(function (num, index) {
+                        luck_list_new.push({
+                            num,
+                            red: red_arr.includes(index)
+                        })
+                    })
+
+                    this.luck_list.push(luck_list_new)
+                    n++;
+                } while (n <= 50);
+
+            },
+            lastNum() {
+                let blue_arr = [];
+                let red_arr = [];
+                this.red_arr = [];
+                this.blue_arr = [];
+                this.is_before++;
+                let num_list_new = JSON.parse(JSON.stringify(this.num_list_new));
+                if(this.is_before > 1){
+                    this.num_list2.shift();
+                }
+                this.luck_num_arr = this.num_list_new.shift();
+
+                [blue_arr, red_arr] = this.getNotYes(1, this.luck_num_arr, num_list_new, blue_arr, red_arr);
+
+
+                this.red_arr = red_arr;
+                this.blue_arr = blue_arr;
+            },
+            getNotYes(n, luck_num_arr, num_list_new, blue_arr, red_arr) {
+                let num_list0 = num_list_new.shift();
+                luck_num_arr.forEach(function (item0, sort) {
+                    let new_list = [];
+                    for (let i = 0; i < 10; i++) {
+                        new_list[i] = num_list_new.findIndex(item1 => item1[sort] == i);
+                    }
+                    let new_list2 = JSON.parse(JSON.stringify(new_list));
+                    let max = Math.max.apply(null, new_list2);
+                    new_list2.sort((a, b) => a - b);
+                    let n5 = new_list2[4]
+                    let arr = []
+                    new_list.forEach(function (item, index) {
+                        if (item == 0 || (item < max && item > n5)) arr.push(index);
+                    })
+                    if (!arr.includes(parseInt(num_list0[sort])) && !blue_arr.includes(sort)) {
+                        blue_arr.push(sort)
+                        if (n === 1) red_arr.push(sort)
+                    }
+                })
+                return [blue_arr, red_arr];
+            },
+            reward(filed = 'base_str_one') {
+
+                let in_not_eq_arr = this.getInNotEq(this.luck_num_arr);
+                if (in_not_eq_arr.length != 2) {
+                    vant.showToast('先选两位');
+                    return;
+                }
+                this[`is_${filed}`] = 0;
+                let sort = filed === 'base_str_one' ? 0 : 1;
+                sort = in_not_eq_arr[sort]['sort'];
+
+                let new_list = [];
+                for (let i = 0; i < 10; i++) {
+                    new_list[i] = this.num_list2.findIndex(item => item[sort] == i);
+                }
+                let new_list2 = JSON.parse(JSON.stringify(new_list));
+                let max = Math.max.apply(null, new_list2);
+                new_list2.sort((a, b) => a - b);
+                let n5 = new_list2[4]
+                let str = ''
+                new_list.forEach(function (item, index) {
+                    if (item == 0 || (item < max && item > n5)) str += index.toString();
+                })
+                this[filed] = str
+
+            },
+            setLuck(filed = 'base_str', type = 1) {
+                switch (type) {
+                    case 1:
+                        this[filed] = '0258';
+                        break;
+                    case 2:
+                        this[filed] = '01234';
+                        break;
+                    case 3:
+                        this[filed] = '56789';
+                        break;
+                    case 4:
+                        this[filed] = '13579';
+                        break;
+                    case 5:
+                        this[filed] = '02468';
+                        break;
+                }
+                this[`is_${filed}`] = type;
+            },
+            setNum(index) {
+                this.luck_num_arr[index] = 'x';
+            },
+
+            getKillHe() {
+                if (this.sum_not_str) {
+                    return;
+                }
+                let num = 0;
+                this.luck_num_arr.forEach((not_kill_arrV) => {
+                    if (not_kill_arrV != 'x') {
+                        num += parseInt(not_kill_arrV);
+                    }
+                });
+                this.sum_not_str = num.toString();
+            },
+            onSubmit(values) {
+                console.log('submit', values);
+                if (this.is_before > 1) {
+                    vant.showToast('历史');
+                    return;
+                }
+                let base_list = [];
+                if (!this.base_str) {
+                    for (let n = 0; n < 10; n++) {
+                        base_list.push(n);
+                    }
+                } else {
+                    base_list = Array.from(this.base_str).map(val => parseInt(val));
+                }
+                let base_one_list = [];
+                let base_two_list = [];
+                let base_one_two_type = false;
+                if (this.base_str_one && this.base_str_two) {
+                    base_one_list = Array.from(this.base_str_one).map(val => parseInt(val));
+                    base_two_list = Array.from(this.base_str_two).map(val => parseInt(val));
+                    base_one_two_type = true;
+                }
+                let num_arr = [];
+                let base_num_arr = [];
+                let money_sum = 0;
+                let in_not_eq_arr = this.getInNotEq(this.luck_num_arr);
+                if (in_not_eq_arr.length != 2) {
+                    vant.showToast('只能选两位');
+                    return;
+                }
+                /*if (base_one_two_type === false) {
+                    this.chekNum(in_not_eq_arr);
+                }*/
+                for (let i1i = 0; i1i < 10; i1i++) {
+
+                    for (let i2i = 0; i2i < 10; i2i++) {
+
+                        for (let i3i = 0; i3i < 10; i3i++) {
+
+                            for (let i4i = 0; i4i < 10; i4i++) {
+
+                                let money = this.amount;
+                                //重置号码
+                                const i_arr = [i1, i2, i3, i4] = this.resetNum(in_not_eq_arr, [i1i, i2i, i3i, i4i]);
+                                let type = true;
+
+                                if (base_one_two_type) {
+                                    if (!base_one_list.includes(parseInt(i_arr[in_not_eq_arr[0]['sort']])) && !base_two_list.includes(parseInt(i_arr[in_not_eq_arr[1]['sort']]))) continue;
+                                } else {
+                                    i_arr.forEach(i_arr_v => {
+                                        if (base_list.includes(parseInt(i_arr_v))) type = false;
+                                    });
+                                    if (type) continue;
+                                }
+                                //除重
+                                if (this.kill_repeat && i_arr[in_not_eq_arr[0]['sort']] == i_arr[in_not_eq_arr[1]['sort']]) continue;
+
+                                //和值排
+                                type = this.kilSumNot(i_arr);
+                                if (type) continue;
+                                //1排除
+                                type = this.killAll(i_arr);
+                                if (type) continue;
+
+                                let num = i_arr.join('', '');
+                                if (this.kill_num_str) {
+                                    let kill_num_arr = this.kill_num_str.split(',');
+                                    let kill_num_arrs = this.kill_num_strs.split(',');
+                                    if (kill_num_arrs.includes(num) && this.amount_num_str > 0) money = this.amount_num_str;
+                                    else if (kill_num_arr.includes(num)) continue;
+                                }
+                                money *= this.luck_num;
+                                let str_num = `${num}=${money}`;
+                                if (num_arr.includes(str_num)) continue;
+                                money_sum += money;
+                                num_arr.push(str_num);
+                                base_num_arr.push(num)
+                            }
+                        }
+                    }
+                }
+
+                if (this.kill_back) {
+                    num_arr = [];
+                    money_sum = 0;
+                    for (let i1i = 0; i1i < 10; i1i++) {
+
+                        for (let i2i = 0; i2i < 10; i2i++) {
+
+                            for (let i3i = 0; i3i < 10; i3i++) {
+
+                                for (let i4i = 0; i4i < 10; i4i++) {
+
+                                    let money = this.amount;
+                                    //重置号码
+                                    const i_arr = [i1, i2, i3, i4] = this.resetNum(in_not_eq_arr, [i1i, i2i, i3i, i4i]);
+                                    let num = i_arr.join('', '');
+
+                                    if (base_num_arr.includes(num)) continue;
+
+                                    money *= this.luck_num;
+                                    let str_num = `${num}=${money}`;
+                                    if (num_arr.includes(str_num)) continue;
+                                    money_sum += money;
+                                    num_arr.push(str_num);
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                this.number_str = num_arr.join(',');
+                this.number_count = num_arr.length;
+                this.number_money = money_sum;
+                this.chekMoney();
+
+            },
+            chekNum(in_not_eq_arr) {
+                let small = big = 0;
+                in_not_eq_arr.forEach((item) => {
+                    if (parseInt(item.num) < 5) {
+                        small++;
+                    } else {
+                        big++;
+                    }
+                });
+                if (small > 1 && this.base_str === '01234') {
+                    vant.showToast('小-小');
+                } else if (big > 1 && this.base_str === '56789') {
+                    vant.showToast('大-大');
+                }
+            },
+            chekMoney() {
+                if (this.number_money > 5000) {
+                    vant.showToast('中大了');
+                }
+            },
+            handleTouchStart(event) {
+                this.touch.startX = event.touches[0].clientX;
+            },
+
+            handleTouchMove(event) {
+                this.touch.endX = event.touches[0].clientX;
+            },
+
+            handleTouchEnd() {
+                if (this.touch.endX - this.touch.startX > this.touch.threshold) {
+                    // 右滑触发
+                    console.log('右滑触发');
+                    // 在这里执行你想要的操作，比如导航到上一页
+                    this.show_from = true;
+                }
+            },
+            getInNotEq(luck_num_arr) {
+
+                let in_not_eq = [];
+                luck_num_arr.forEach((not_kill_arrV, not_kill_arrK) => {
+                    if (not_kill_arrV != 'x') {
+                        in_not_eq.push({
+                            sort: not_kill_arrK,
+                            num: not_kill_arrV,
+                        });
+                    }
+                });
+                return in_not_eq;
+            },
+            resetNum(in_not_eq_arr, i_arr) {
+
+                let in_not_eq_sort = [];
+                in_not_eq_arr.forEach(item => {
+                    in_not_eq_sort.push(item.sort);
+                });
+                for (let i = 0; i < 4; i++) {
+                    if (!in_not_eq_sort.includes(i)) {
+                        i_arr[i] = 'x';
+                    }
+                }
+                return i_arr;
+            },
+            killAll(i_arr) {
+                let type = false;
+                //1排除
+                this.kill_arr.forEach((kill_arrV, kill_arrK) => {
+                    let ii = i_arr[kill_arrK];
+                    if (kill_arrV != 'x' && kill_arrV.indexOf(ii.toString()) != -1) {
+                        type = true;
+                    }
+                });
+                return type;
+            },
+
+            kilRepeat(i_arr) {
+                let sum_not_arr = this.sum_not_str.split(",");
+
+                let num = 0;
+                i_arr.forEach((i_arrV) => {
+                    if (i_arrV != 'x') {
+                        num += parseInt(i_arrV);
+                    }
+                });
+                return sum_not_arr.includes(num.toString());
+            },
+            kilSumNot(i_arr) {
+                let sum_not_arr = this.sum_not_str.split(",");
+
+                let num = 0;
+                i_arr.forEach((i_arrV) => {
+                    if (i_arrV != 'x') {
+                        num += parseInt(i_arrV);
+                    }
+                });
+                return sum_not_arr.includes(num.toString());
+            },
+            clickKill(index) {
+                this.kill_arr[index] = Math.floor(Math.random() * 10).toString();
+            },
+            copyText() {
+                // 要保存的字符串
+                navigator.clipboard.writeText(this.number_str).then(function () {
+                    vant.showToast('复制成功');
+                }, function (err) {
+                    vant.showToast('复制失败');
+                });
+            },
+            download() {
+                // 要保存的字符串
+                const stringData = this.number_str;
+                // dada 表示要转换的字符串数据，type 表示要转换的数据格式
+                const blob = new Blob([stringData], {
+                    type: "text/plain;charset=utf-8"
+                });
+                // 根据 blob生成 url链接
+                const objectURL = URL.createObjectURL(blob);
+                // 创建一个 a 标签Tag
+                const aTag = document.createElement('a');
+                // 设置文件的下载地址
+                aTag.href = objectURL;
+                // 设置保存后的文件名称
+                let fileName = this.getFileName();
+                aTag.download = `${fileName}.txt`;
+                // 给 a 标签添加点击事件
+                aTag.click();
+                // 释放一个之前已经存在的、通过调用 URL.createObjectURL() 创建的 URL 对象。
+                // 当你结束使用某个 URL 对象之后，应该通过调用这个方法来让浏览器知道不用在内存中继续保留对这个文件的引用了。
+                URL.revokeObjectURL(objectURL);
+                vant.showToast('下载成功');
+            },
+            getFileName() {
+                let h = dayjs().format('HH');
+                let time = dayjs().format('MM-DD');
+                if (h >= 22) {
+                    time = dayjs().add(1, 'day').format('MM-DD');
+                }
+                return `${this.number_money}_${this.number_count}_${this.sort_number}_${time}`;
+            },
+            getMoneyAndCount() {
+                let number_money = 0;
+                let number_arr = this.number_str.split(',');
+                let number_count = number_arr.length;
+                let num_arr = [];
+                number_arr.forEach((item) => {
+                    num_arr = item.split('=');
+                    if (num_arr.length > 1) {
+                        let value = num_arr[1];
+                        if (!isNaN(value) && value.trim() !== '') {
+                            number_money += Number(value);
+                        }
+                    }
+
+                })
+                this.number_count = number_count;
+                this.number_money = number_money;
+            },
+
+        }
+
+    });
+    app.use(vant);
+    app.use(vant.Lazyload);
+    app.mount('#app');
+</script>
+</html>
