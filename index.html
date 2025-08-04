@@ -799,7 +799,8 @@
                 if (h >= 22) {
                     time = dayjs().add(1, 'day').format('MM-DD');
                 }
-                return `${this.number_money}_${this.number_count}_${this.sort_number}_${time}`;
+                let sort_number = parseInt(this.sort_number) + 1;
+                return `${this.number_money}_${this.number_count}_${sort_number}_${time}`;
             },
             getMoneyAndCount() {
                 let number_money = 0;
