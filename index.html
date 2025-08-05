@@ -105,15 +105,27 @@
         margin-top: 20px;
     }
 
-    .luck_list span {
+    .luck_list_span {
         font-size: 25px;
         padding: 1px 2px;
         display: inline-block;
         width: 26px;
     }
 
+    .luck_list2 {
+        display: inline-block;
+    }
+    .luck_list2 span {
+        font-size: 12px;
+        color: #5fb878;
+        padding: 1px 2px;
+    }
+
     .number-str {
         padding-bottom: 50px;
+    }
+    .kill_input_opacity{
+        opacity: 0.5; /* 50% 透明度 */
     }
 
 </style>
@@ -137,28 +149,38 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="reward('base_str_one')" :class="{base_str_one:is_base_str_one === 0}">第一位数</span>
+                            <span @click="reward('base_str_one')"
+                                  :class="{base_str_one:is_base_str_one === 0}">第一位数</span>
                             <span class="kill_str3">
             <input class="kill_input" v-model="base_str_one" type="text">
           </span>
                             <!--<span class="set-luck" @click="setLuck('base_str_one',1)">0258</span>-->
-                            <span class="set-luck" @click="setLuck('base_str_one',2)" :class="{base_str_one:is_base_str_one === 2}">小</span>
-                            <span class="set-luck" @click="setLuck('base_str_one',3)" :class="{base_str_one:is_base_str_one === 3}">大</span>
-                            <span class="set-luck" @click="setLuck('base_str_one',4)" :class="{base_str_one:is_base_str_one === 4}">单</span>
-                            <span class="set-luck" @click="setLuck('base_str_one',5)" :class="{base_str_one:is_base_str_one === 5}">双</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',2)"
+                                  :class="{base_str_one:is_base_str_one === 2}">小</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',3)"
+                                  :class="{base_str_one:is_base_str_one === 3}">大</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',4)"
+                                  :class="{base_str_one:is_base_str_one === 4}">单</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',5)"
+                                  :class="{base_str_one:is_base_str_one === 5}">双</span>
                         </div>
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="reward('base_str_two')" :class="{base_str_two:is_base_str_two === 0}">第二位数</span>
+                            <span @click="reward('base_str_two')"
+                                  :class="{base_str_two:is_base_str_two === 0}">第二位数</span>
                             <span class="kill_str3">
             <input class="kill_input" v-model="base_str_two" type="text">
           </span>
                             <!--<span class="set-luck" @click="setLuck('base_str_one',1)">0258</span>-->
-                            <span class="set-luck" @click="setLuck('base_str_two',2)" :class="{base_str_one:is_base_str_two === 2}">小</span>
-                            <span class="set-luck" @click="setLuck('base_str_two',3)" :class="{base_str_one:is_base_str_two === 3}">大</span>
-                            <span class="set-luck" @click="setLuck('base_str_two',4)" :class="{base_str_one:is_base_str_two === 4}">单</span>
-                            <span class="set-luck" @click="setLuck('base_str_two',5)" :class="{base_str_one:is_base_str_two === 5}">双</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',2)"
+                                  :class="{base_str_one:is_base_str_two === 2}">小</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',3)"
+                                  :class="{base_str_one:is_base_str_two === 3}">大</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',4)"
+                                  :class="{base_str_one:is_base_str_two === 4}">单</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',5)"
+                                  :class="{base_str_one:is_base_str_two === 5}">双</span>
                         </div>
                     </div>
                     <div class="kill_str">
@@ -220,8 +242,8 @@
                 <div class="bot_fixed">
                     <a target=_blank href="http://datachart.500.com/plw/?expect=100&from=&to=&sort=1"><span
                             style="color:aqua">势图</span></a>
-                    <a target=_blank href="https://www.lottery.gov.cn/kj/kjlb.html?plw"><span
-                            style="color:#2a6496;margin-left: 8px">历史</span></a>
+                    <!--<a target=_blank href="https://www.lottery.gov.cn/kj/kjlb.html?plw"><span
+                            style="color:#2a6496;margin-left: 8px">历史</span></a>-->
                     <a @click="showLuckList"><span
                             style="color:greenyellow;margin-left: 8px">幸运</span></a>
                     <span style="margin-left: 20px;"><van-stepper v-model="luck_num" integer theme="round"
@@ -239,9 +261,9 @@
                         <!--<van-button size="large" type="success" @click="copyText">
                             复制
                         </van-button>-->
-                         <van-button size="large" type="success" @click="download">
-                             下载
-                         </van-button>
+                        <van-button size="large" type="success" @click="download">
+                            下载
+                        </van-button>
                     </div>
                 </div>
             </van-form>
@@ -258,11 +280,14 @@
                     @load="onLoad"
             >
                 <div v-for="(item,index) in luck_list" :key="index">
-                <span :class="{kill_input_red:item2.red}" v-for="(item2,index2) in item"
+                <span class="luck_list_span" :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}" v-for="(item2,index2) in item.data"
                       :key="index2">{{item2.num}}</span>
+                <div class="luck_list2">
+                    <span>{{number_lists[item.num].sort}}</span>
+                    <span>{{number_lists[item.num].data.slice(-5)}}</span>
+                </div>
                 </div>
                 <div v-show="loading">加载中...</div>
-                <!-- <van-cell v-for="item in luck_list" :key="item" :title="item[0]" />-->
             </van-list>
             <!-- 回到顶部按钮 -->
             <van-back-top right="0" bottom="20"/>
@@ -292,7 +317,9 @@
                 api_num_url: 'https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=350133&provinceId=0&pageSize=100&pageNo=',
                 num_list: [],
                 num_list2: [],
+                num_list3: [],
                 num_list_new: [],
+                number_lists: [],
                 is_before: 0,
                 is_base_str_one: false,
                 is_base_str_two: false,
@@ -334,9 +361,12 @@
         async created() {
             let luck_num_arr = ["8", "8", "8", "8"];
             let luck_num_list = [];
+            let luck_num_list2 = [];
             let sort_number = '88888';
             let sort_date = dayjs().format('YYYY-MM-DD');
             let num_list = [];
+            let num_list2 = [];
+            let number_lists = [];
 
             let url = this.api_num_url + this.pageNo;
             await axios.get(url)
@@ -345,8 +375,17 @@
                     if (data.success) {
                         data.value.list.forEach(function (item) {
                             luck_num_list = item.lotteryDrawResult.split(' ');
+                            luck_num_list2 = item.lotteryDrawResult.split(' ');
+                            let num = luck_num_list2.join('');
                             luck_num_list.pop();
                             num_list.push(luck_num_list)
+                            num_list2.push(luck_num_list2)
+
+                            number_lists[num] = {
+                                num,
+                                sort: item.lotteryDrawNum,
+                                data: item.lotteryDrawTime
+                            };
                         })
                         luck_num_arr = data.value.lastPoolDraw.lotteryDrawResult.split(' ')
                         luck_num_arr.pop();
@@ -358,10 +397,11 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+            this.number_lists = number_lists;
 
             let red_arr = [];
             let blue_arr = [];
-            let num_list_new = JSON.parse(JSON.stringify(num_list));
+            let num_list_new = JSON.parse(JSON.stringify(num_list2));
             let n = 1;
             do {
                 [blue_arr, red_arr] = this.getNotYes(n, luck_num_arr, num_list_new, blue_arr, red_arr);
@@ -372,7 +412,8 @@
             this.blue_arr = blue_arr;
             this.num_list = num_list;
             this.num_list2 = JSON.parse(JSON.stringify(num_list));
-            this.num_list_new = JSON.parse(JSON.stringify(num_list));
+            this.num_list3 = JSON.parse(JSON.stringify(num_list));
+            this.num_list_new = JSON.parse(JSON.stringify(num_list2));
             this.luck_num_arr = luck_num_arr;
             this.sort_number = sort_number;
             this.sort_date = sort_date;
@@ -381,7 +422,7 @@
             onLoad() {
                 if (this.loading || this.finished) return;
                 this.loading = true;
-                console.log(11)
+
                 // setTimeout 仅做示例，真实场景中一般为 ajax 请求
                 setTimeout(async () => {
                     // 异步更新数据
@@ -389,15 +430,26 @@
                     console.log(this.pageNo)
                     let url = this.api_num_url + this.pageNo;
                     let luck_num_list = [];
+                    let luck_num_list2 = [];
                     let num_list = [];
+                    let num_list2 = [];
+                    let number_lists = [];
                     await axios.get(url)
                         .then((res) => {
                             let {data} = res;
                             if (data.success) {
                                 data.value.list.forEach(function (item) {
                                     luck_num_list = item.lotteryDrawResult.split(' ');
+                                    luck_num_list2 = item.lotteryDrawResult.split(' ');
+                                    let num = luck_num_list2.join('');
                                     luck_num_list.pop();
                                     num_list.push(luck_num_list)
+                                    num_list2.push(luck_num_list2)
+                                    number_lists[num] = {
+                                        num,
+                                        sort: item.lotteryDrawNum,
+                                        data: item.lotteryDrawTime
+                                    };
                                 })
                             }
                             //this.base_str = res.data.base_str;
@@ -405,7 +457,9 @@
                         .catch(function (error) {
                             console.log(error);
                         });
-                    this.num_list_new.push(...num_list);
+                    this.num_list_new.push(...num_list2);
+                    Object.assign(this.number_lists, number_lists);
+                    //this.number_lists.push(...number_lists);
                     // 加载状态结束
                     this.loading = false;
                     // 数据全部加载完成
@@ -429,7 +483,7 @@
                     let red_arr = [];
                     let num_list_new = JSON.parse(JSON.stringify(this.num_list_new));
                     let luck_num_arr = this.num_list_new.shift();
-                    [blue_arr, red_arr] = this.getNotYes(1, this.luck_num_arr, num_list_new, blue_arr, red_arr);
+                    [blue_arr, red_arr] = this.getNotYes(1, luck_num_arr, num_list_new, blue_arr, red_arr);
                     let luck_list_new = [];
                     luck_num_arr.forEach(function (num, index) {
                         luck_list_new.push({
@@ -437,8 +491,7 @@
                             red: red_arr.includes(index)
                         })
                     })
-
-                    this.luck_list.push(luck_list_new)
+                    this.luck_list.push({num: luck_num_arr.join(''), data: luck_list_new})
                     n++;
                 } while (n <= 50);
 
@@ -450,10 +503,10 @@
                 this.blue_arr = [];
                 this.is_before++;
                 let num_list_new = JSON.parse(JSON.stringify(this.num_list_new));
-                if(this.is_before > 1){
+                if (this.is_before > 1) {
                     this.num_list2.shift();
                 }
-                this.luck_num_arr = this.num_list_new.shift();
+                this.luck_num_arr = this.num_list3.shift();
 
                 [blue_arr, red_arr] = this.getNotYes(1, this.luck_num_arr, num_list_new, blue_arr, red_arr);
 
@@ -462,6 +515,7 @@
                 this.blue_arr = blue_arr;
             },
             getNotYes(n, luck_num_arr, num_list_new, blue_arr, red_arr) {
+
                 let num_list0 = num_list_new.shift();
                 luck_num_arr.forEach(function (item0, sort) {
                     let new_list = [];
