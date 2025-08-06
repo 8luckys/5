@@ -61,6 +61,7 @@
         height: 30px;
         /*line-height: 5px;*/
         width: 100%;
+        min-width: 360px;
     }
 
     .kill_str3 {
@@ -140,7 +141,7 @@
                 <div style="padding: 8px 16px;">
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="lastNum" :class="{luck_num_title:is_before}">幸运位号</span>
+                            <span @click="lastNum" :class="{luck_num_title:is_before}">幸运号</span>
                             <span class="kill_str3">
             <input v-for="(item,index) in 4" class="kill_input"
                    :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
@@ -152,7 +153,7 @@
                     <div class="kill_str">
                         <div class="kill_str2">
                             <span @click="reward('base_str_one')"
-                                  :class="{base_str_one:is_base_str_one === 0}">第一位数</span>
+                                  :class="{base_str_one:is_base_str_one === 0}">幸位集</span>
                             <span class="kill_str3">
             <input class="kill_input" v-model="base_str_one" type="text">
           </span>
@@ -170,7 +171,7 @@
                     <div class="kill_str">
                         <div class="kill_str2">
                             <span @click="reward('base_str_two')"
-                                  :class="{base_str_two:is_base_str_two === 0}">第二位数</span>
+                                  :class="{base_str_two:is_base_str_two === 0}">运位集</span>
                             <span class="kill_str3">
             <input class="kill_input" v-model="base_str_two" type="text">
           </span>
@@ -187,24 +188,36 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span>合值位排</span>
-                            <span class="kill_str3">
-                        <input @click="getKillHe" class="kill_input" v-model="sum_not_str" type="text">
-                    </span>
-                        </div>
-                    </div>
-                    <div class="kill_str">
-                        <div class="kill_str2">
-                            <span>全奇偶排</span>
+                            <span>排位集</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4" class="kill_input" v-model="kill_arr[index]" type="text"
                                @click='clickKill(index)'>
                     </span>
                         </div>
                     </div>
+<!--                    <div class="kill_str" style="display: flex">
+                        <div class="">
+                            <span>合值</span>
+                            <span class="kill_str3"><input @click="getKillHe" class="" v-model="sum_not_str" type="text"></span>
+                        </div>
+                        <div class="">
+                            <span>双重</span>
+                            <span class="kill_str3"><van-switch size="20px" v-model="kill_repeat"/></span>
+                        </div>
+                        <div class="">
+                            <span>反向</span>
+                            <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
+                        </div>
+                    </div>-->
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span style="position: relative;top: -6px">排除双重</span>
+                            <span>排合值</span>
+                            <span class="kill_str3"><input @click="getKillHe" class="kill_input" v-model="sum_not_str" type="text"></span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span style="position: relative;top: -6px">排双重</span>
                             <span class="kill_str3">
                         <van-switch size="20px" v-model="kill_repeat"/>
                     </span>
@@ -212,10 +225,8 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span style="position: relative;top: -6px">负负得正</span>
-                            <span class="kill_str3">
-                        <van-switch size="20px" v-model="kill_back"/>
-                    </span>
+                            <span style="position: relative;top: -6px">正得正</span>
+                            <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
                         </div>
                     </div>
                 </div>
@@ -352,9 +363,9 @@
                 },
 
                 //倍数
-                luck_num: 2,
+                luck_num: 8,
                 //金额
-                amount: 10,
+                amount: 5,
 
                 number_str: '',
                 number_count: 0,
