@@ -34,6 +34,7 @@
         position: fixed;
         bottom: 0;
         width: 100%;
+        min-width: 360px;
         background-color: ghostwhite;
         font-size: 16px;
     }
@@ -230,7 +231,7 @@
                         </div>
                     </div>
                 </div>
-                <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */">
+                <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
                     <van-field name="amount" label="中金额">
                         <template #input>
                             <van-stepper theme="round" min="1" button-size="20" v-model="amount" step="1"/>
