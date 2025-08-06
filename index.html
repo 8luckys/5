@@ -75,7 +75,7 @@
     }
 
     .kill_input_blue {
-        color: blue;
+        color: #00ff4e;
     }
 
     .count_sum, .kill_input_red {
@@ -115,6 +115,7 @@
     .luck_list2 {
         display: inline-block;
     }
+
     .luck_list2 span {
         font-size: 12px;
         color: #5fb878;
@@ -124,7 +125,8 @@
     .number-str {
         padding-bottom: 50px;
     }
-    .kill_input_opacity{
+
+    .kill_input_opacity {
         opacity: 0.5; /* 50% 透明度 */
     }
 
@@ -280,12 +282,13 @@
                     @load="onLoad"
             >
                 <div v-for="(item,index) in luck_list" :key="index">
-                <span class="luck_list_span" :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}" v-for="(item2,index2) in item.data"
+                <span class="luck_list_span" :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
+                      v-for="(item2,index2) in item.data"
                       :key="index2">{{item2.num}}</span>
-                <div class="luck_list2">
-                    <span>{{number_lists[item.num].sort}}</span>
-                    <span>{{number_lists[item.num].data.slice(-5)}}</span>
-                </div>
+                    <div class="luck_list2">
+                        <span>{{number_lists[item.num].sort}}</span>
+                        <span>{{number_lists[item.num].data.slice(-5)}}</span>
+                    </div>
                 </div>
                 <div v-show="loading">加载中...</div>
             </van-list>
@@ -360,12 +363,13 @@
         },
         async created() {
             let luck_num_arr = ["8", "8", "8", "8"];
+            let this_num_arr = [];
             let luck_num_list = [];
             let luck_num_list2 = [];
             let sort_number = '88888';
             let sort_date = dayjs().format('YYYY-MM-DD');
             let num_list = [];
-            let num_list2 = [];
+            let num_list_news = [];
             let number_lists = [];
 
             let url = this.api_num_url + this.pageNo;
@@ -379,7 +383,7 @@
                             let num = luck_num_list2.join('');
                             luck_num_list.pop();
                             num_list.push(luck_num_list)
-                            num_list2.push(luck_num_list2)
+                            num_list_news.push(luck_num_list2)
 
                             number_lists[num] = {
                                 num,
@@ -401,7 +405,7 @@
 
             let red_arr = [];
             let blue_arr = [];
-            let num_list_new = JSON.parse(JSON.stringify(num_list2));
+            let num_list_new = JSON.parse(JSON.stringify(num_list_news));
             let n = 1;
             do {
                 [blue_arr, red_arr] = this.getNotYes(n, luck_num_arr, num_list_new, blue_arr, red_arr);
@@ -413,8 +417,9 @@
             this.num_list = num_list;
             this.num_list2 = JSON.parse(JSON.stringify(num_list));
             this.num_list3 = JSON.parse(JSON.stringify(num_list));
-            this.num_list_new = JSON.parse(JSON.stringify(num_list2));
+            this.num_list_new = JSON.parse(JSON.stringify(num_list_news));
             this.luck_num_arr = luck_num_arr;
+            this.this_num_arr = JSON.parse(JSON.stringify(luck_num_arr));
             this.sort_number = sort_number;
             this.sort_date = sort_date;
         },
@@ -432,7 +437,7 @@
                     let luck_num_list = [];
                     let luck_num_list2 = [];
                     let num_list = [];
-                    let num_list2 = [];
+                    let num_list_news = [];
                     let number_lists = [];
                     await axios.get(url)
                         .then((res) => {
@@ -444,7 +449,7 @@
                                     let num = luck_num_list2.join('');
                                     luck_num_list.pop();
                                     num_list.push(luck_num_list)
-                                    num_list2.push(luck_num_list2)
+                                    num_list_news.push(luck_num_list2)
                                     number_lists[num] = {
                                         num,
                                         sort: item.lotteryDrawNum,
@@ -457,7 +462,7 @@
                         .catch(function (error) {
                             console.log(error);
                         });
-                    this.num_list_new.push(...num_list2);
+                    this.num_list_new.push(...num_list_news);
                     Object.assign(this.number_lists, number_lists);
                     //this.number_lists.push(...number_lists);
                     // 加载状态结束
@@ -502,14 +507,20 @@
                 this.red_arr = [];
                 this.blue_arr = [];
                 this.is_before++;
-                let num_list_new = JSON.parse(JSON.stringify(this.num_list_new));
+                let num_list_new = JSON.parse(JSON.stringify(this.num_list3));
                 if (this.is_before > 1) {
                     this.num_list2.shift();
                 }
-                this.luck_num_arr = this.num_list3.shift();
-
-                [blue_arr, red_arr] = this.getNotYes(1, this.luck_num_arr, num_list_new, blue_arr, red_arr);
-
+                let luck_num_arr = this.num_list3.shift();
+                this.this_num_arr =  luck_num_arr;
+                this.luck_num_arr = JSON.parse(JSON.stringify(luck_num_arr));
+                //[blue_arr, red_arr] = this.getNotYes(1, this.luck_num_arr, num_list_new, blue_arr, red_arr);
+                let n = 1;
+                do {
+                    [blue_arr, red_arr] = this.getNotYes(n, luck_num_arr, num_list_new, blue_arr, red_arr);
+                    if (blue_arr.length > 1) n = 20;
+                    n++;
+                } while (n <= 20);
 
                 this.red_arr = red_arr;
                 this.blue_arr = blue_arr;
@@ -584,7 +595,7 @@
                 this[`is_${filed}`] = type;
             },
             setNum(index) {
-                this.luck_num_arr[index] = 'x';
+                this.luck_num_arr[index] = this.luck_num_arr[index] == 'x' ? this.this_num_arr[index] : 'x';
             },
 
             getKillHe() {
@@ -603,7 +614,7 @@
                 console.log('submit', values);
                 if (this.is_before > 1) {
                     vant.showToast('历史');
-                    return;
+                    //return;
                 }
                 let base_list = [];
                 if (!this.base_str) {
