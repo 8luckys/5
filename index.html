@@ -196,24 +196,25 @@
                     </span>
                         </div>
                     </div>
-<!--                    <div class="kill_str" style="display: flex">
-                        <div class="">
-                            <span>合值</span>
-                            <span class="kill_str3"><input @click="getKillHe" class="" v-model="sum_not_str" type="text"></span>
-                        </div>
-                        <div class="">
-                            <span>双重</span>
-                            <span class="kill_str3"><van-switch size="20px" v-model="kill_repeat"/></span>
-                        </div>
-                        <div class="">
-                            <span>反向</span>
-                            <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
-                        </div>
-                    </div>-->
+                    <!--                    <div class="kill_str" style="display: flex">
+                                            <div class="">
+                                                <span>合值</span>
+                                                <span class="kill_str3"><input @click="getKillHe" class="" v-model="sum_not_str" type="text"></span>
+                                            </div>
+                                            <div class="">
+                                                <span>双重</span>
+                                                <span class="kill_str3"><van-switch size="20px" v-model="kill_repeat"/></span>
+                                            </div>
+                                            <div class="">
+                                                <span>反向</span>
+                                                <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
+                                            </div>
+                                        </div>-->
                     <div class="kill_str">
                         <div class="kill_str2">
                             <span>排合值</span>
-                            <span class="kill_str3"><input @click="getKillHe" class="kill_input" v-model="sum_not_str" type="text"></span>
+                            <span class="kill_str3"><input @click="getKillHe" class="kill_input" v-model="sum_not_str"
+                                                           type="text"></span>
                         </div>
                     </div>
                     <div class="kill_str">
@@ -260,6 +261,8 @@
                             style="color:#2a6496;margin-left: 8px">历史</span></a>-->
                     <a @click="showLuckList"><span
                             style="color:greenyellow;margin-left: 8px">幸运</span></a>
+                    <a @click="random"><span
+                            style="color: gold;margin-left: 8px">财神</span></a>
                     <span style="margin-left: 20px;"><van-stepper v-model="luck_num" integer theme="round"
                                                                   button-size="18"/>
           </span>
@@ -513,6 +516,43 @@
                 } while (n <= 50);
 
             },
+
+            setNum(index = 'all') {
+                if (index == 'all') {
+                    this.luck_num_arr = JSON.parse(JSON.stringify(this.this_num_arr));
+                } else {
+                    this.luck_num_arr[index] = this.luck_num_arr[index] == 'x' ? this.this_num_arr[index] : 'x';
+                }
+            },
+            async random() {
+                this.setNum('all');
+                this.clickKill('all');
+                let clicks = [0, 1, 2, 3];
+                for (let i = 0; i < 2; i++) {
+
+                    const find = function () {
+                        let r = Math.round(Math.random() * 3);
+                        let index = clicks.findIndex(v => v == r);
+                        if (index !== -1) {
+                            return {r, index};
+                        }
+                        return find();
+                    };
+
+                    const {r, index} = find();
+                    clicks.splice(index, 1);
+
+                    await this.setNum(r)
+                }
+                let r = Math.round(Math.random() * 1);
+                for (let i = 0; i < 2; i++) {
+                    let num = r == i ? 2 : 1;
+                    await this.clickKill(clicks[i], num);
+                }
+                setTimeout(() => {
+                    this.onSubmit('random')
+                }, 100)
+            },
             lastNum() {
                 let blue_arr = [];
                 let red_arr = [];
@@ -524,7 +564,7 @@
                     this.num_list2.shift();
                 }
                 let luck_num_arr = this.num_list3.shift();
-                this.this_num_arr =  luck_num_arr;
+                this.this_num_arr = luck_num_arr;
                 this.luck_num_arr = JSON.parse(JSON.stringify(luck_num_arr));
                 //[blue_arr, red_arr] = this.getNotYes(1, this.luck_num_arr, num_list_new, blue_arr, red_arr);
                 let n = 1;
@@ -606,9 +646,6 @@
                 }
                 this[`is_${filed}`] = type;
             },
-            setNum(index) {
-                this.luck_num_arr[index] = this.luck_num_arr[index] == 'x' ? this.this_num_arr[index] : 'x';
-            },
 
             getKillHe() {
                 if (this.sum_not_str) {
@@ -622,7 +659,7 @@
                 });
                 this.sum_not_str = num.toString();
             },
-            onSubmit(values) {
+            onSubmit(values = '') {
                 console.log('submit', values);
                 if (this.is_before > 1) {
                     vant.showToast('历史');
@@ -836,8 +873,24 @@
                 });
                 return sum_not_arr.includes(num.toString());
             },
-            clickKill(index) {
-                this.kill_arr[index] = Math.floor(Math.random() * 10).toString();
+            clickKill(index = 'all', num = 1) {
+                if (index == 'all') {
+                    this.kill_arr = ['x', 'x', 'x', 'x'];
+                } else {
+                    let k_arr = [];
+                    for (let i = 0; i < num; i++) {
+                        let fun = function () {
+                            let r = Math.round(Math.random() * 9).toString();
+                            if (k_arr.includes(r)) {
+                                return fun();
+                            }
+                            return r;
+                        }
+                        k_arr.push(fun());
+
+                    }
+                    this.kill_arr[index] = k_arr.join('');
+                }
             },
             copyText() {
                 // 要保存的字符串
