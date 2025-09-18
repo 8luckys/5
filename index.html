@@ -191,8 +191,7 @@
                         <div class="kill_str2">
                             <span>排位集</span>
                             <span class="kill_str3">
-                        <input v-for="(item,index) in 4" class="kill_input" v-model="kill_arr[index]" type="text"
-                               @click='clickKill(index)'>
+                        <input v-for="(item,index) in 4" class="kill_input" v-model="kill_arr[index]" type="text">
                     </span>
                         </div>
                     </div>
@@ -238,7 +237,10 @@
                             <van-stepper theme="round" min="1" button-size="20" v-model="amount" step="1"/>
                         </template>
                     </van-field>
+
                     <div style="color: #ff0090;  flex: 0 0 auto;text-align: center;margin-right: 8px">{{sort_date}}
+                        <a @click="random"><span
+                                style="color: gold;margin-left: 8px">财神</span></a>
                     </div>
                 </div>
 
@@ -261,8 +263,6 @@
                             style="color:#2a6496;margin-left: 8px">历史</span></a>-->
                     <a @click="showLuckList"><span
                             style="color:greenyellow;margin-left: 8px">幸运</span></a>
-                    <a @click="random"><span
-                            style="color: gold;margin-left: 8px">财神</span></a>
                     <span style="margin-left: 20px;"><van-stepper v-model="luck_num" integer theme="round"
                                                                   button-size="18"/>
           </span>
