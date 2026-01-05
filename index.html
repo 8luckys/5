@@ -90,6 +90,7 @@
         margin-left: 10px;
         padding: 0px 15px;
     }
+
     .set-luck6 {
         background-color: beige;
         margin-left: 10px;
@@ -122,9 +123,16 @@
         display: inline-block;
     }
 
+    .luck_list3 {
+        font-size: 12px;
+        color: #00AB85;
+        padding: 1px 2px;
+        display: inline-block;
+    }
+
     .luck_list2 span {
         font-size: 12px;
-        color: #5fb878;
+        color: #6dbfff;
         padding: 1px 2px;
     }
 
@@ -197,6 +205,22 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
+                            <span>八卦阵</span>
+                            <span class="kill_str3">
+            <input class="kill_input" v-model="bgz" type="text">
+          </span>
+                            <span class="set-luck" @click="bgz = '东'"
+                                  :class="{base_str_one:bgz === '东'}">东</span>
+                            <span class="set-luck" @click="bgz = '西'"
+                                  :class="{base_str_one:bgz === '西'}">西</span>
+                            <span class="set-luck" @click="bgz = '南'"
+                                  :class="{base_str_one:bgz === '南'}">南</span>
+                            <span class="set-luck" @click="bgz = '北'"
+                                  :class="{base_str_one:bgz === '北'}">北</span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
                             <span>排位集</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4" class="kill_input" v-model="kill_arr[index]" type="text">
@@ -246,9 +270,10 @@
                         </template>
                     </van-field>
 
-                    <div @click="random" style="color: #ff0090;  flex: 0 0 auto;text-align: center;margin-right: 8px">{{sort_date}}
-                       <!-- <a @click="random"><span
-                                style="color: gold;margin-left: 8px">财神</span></a>-->
+                    <div @click="random" style="color: #ff0090;  flex: 0 0 auto;text-align: center;margin-right: 8px">
+                        {{sort_date}}
+                        <!-- <a @click="random"><span
+                                 style="color: gold;margin-left: 8px">财神</span></a>-->
                     </div>
                 </div>
 
@@ -308,6 +333,9 @@
                 <span class="luck_list_span" :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
                       v-for="(item2,index2) in item.data"
                       :key="index2">{{item2.num}}</span>
+                    <div class="luck_list3">
+                        <span>{{getBgz(item.num)}}</span>
+                    </div>
                     <div class="luck_list2">
                         <span>{{number_lists[item.num].sort}}</span>
                         <span>{{number_lists[item.num].data.slice(-5)}}</span>
@@ -365,6 +393,8 @@
                 sum_not_str: '',
                 //排号
                 kill_num_str: '',
+                //八卦阵
+                bgz: '',
 
                 kill_back: false,
                 kill_repeat: false,
@@ -424,6 +454,27 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+
+
+            luck_num_list = [0, 0, 3, 4];
+            luck_num_list2 = [0, 0, 3, 4];
+            let num = '0034';
+            luck_num_list.pop();
+            num_list.push(luck_num_list)
+            num_list_news.push(luck_num_list2)
+
+            number_lists[num] = {
+                num,
+                sort: 11,
+                data: '2025-01-23'
+            };
+
+            luck_num_arr = [0, 0, 3, 4]
+            luck_num_arr.pop();
+            sort_number = 11
+            sort_date = '2025-01-23'
+
+
             this.number_lists = number_lists;
 
             let red_arr = [];
@@ -654,8 +705,8 @@
                     case 6:
                         var str = this[filed];
                         var arr = [];
-                        for (let i= 0;i<10;i++){
-                            if(str.indexOf(i) === -1) arr.push(i)
+                        for (let i = 0; i < 10; i++) {
+                            if (str.indexOf(i) === -1) arr.push(i)
                         }
                         this[filed] = arr.join('');
                         break;
@@ -740,6 +791,9 @@
                                 if (type) continue;
 
                                 let num = i_arr.join('', '');
+                                //八卦阵
+                                if (this.bgz && this.getBgz(num) == this.bgz) continue;
+
                                 if (this.kill_num_str) {
                                     let kill_num_arr = this.kill_num_str.split(',');
                                     let kill_num_arrs = this.kill_num_strs.split(',');
@@ -888,6 +942,20 @@
                     }
                 });
                 return sum_not_arr.includes(num.toString());
+            },
+            getBgz(num) {
+                var n = parseInt(num.slice(0, 2));
+                var str = ''
+                if (n <= 24) {
+                    str = '东';
+                } else if (n <= 49) {
+                    str = '西';
+                } else if (n <= 74) {
+                    str = '南';
+                } else if (n <= 99) {
+                    str = '北';
+                }
+                return str;
             },
             clickKill(index = 'all', num = 1) {
                 if (index == 'all') {
