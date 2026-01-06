@@ -461,6 +461,7 @@
                     console.log(error);
                 });
 
+
             this.number_lists = number_lists;
 
             let red_arr = [];
@@ -936,7 +937,6 @@
                 }else {
                     n = this.getTwoDigitPairs(num,i);
                 }
-                console.log(n,99)
                 //var n = parseInt(num.slice(0, 2));
 
                 var str = ''
@@ -949,6 +949,7 @@
                 } else if (n <= 99) {
                     str = '北';
                 }
+                console.log(n,str)
                 return str;
             },
             getTwoDigitPairs(str, index) {
