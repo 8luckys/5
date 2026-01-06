@@ -320,6 +320,9 @@
         </div>
         <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
              @touchend="handleTouchEnd">
+            <a style="color: gold" @click="is_bgz = !is_bgz">
+                八卦阵
+            </a>
             <van-list
                     v-model="loading"
                     :finished="finished"
@@ -330,11 +333,13 @@
                     @load="onLoad"
             >
                 <div v-for="(item,index) in luck_list" :key="index">
-                <span class="luck_list_span" :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
+                <span v-if="!is_bgz" class="luck_list_span"
+                      :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
                       v-for="(item2,index2) in item.data"
                       :key="index2">{{item2.num}}</span>
-                    <div class="luck_list3">
-                        <span>{{getBgz(item.num)}}</span>
+                    <div v-else="is_bgz" class="luck_list3">
+                        <span style="font-size: 20px!important;" class="luck_list_span" v-for="(item3,index3) in 6"
+                              :key="index3">{{getBgz(item.num,index3)}}</span>
                     </div>
                     <div class="luck_list2">
                         <span>{{number_lists[item.num].sort}}</span>
@@ -366,6 +371,7 @@
                 finished: false,
                 luck_list: [],
                 show_from: true,
+                is_bgz: false,
                 isLoading: false,
                 pageNo: 1,
                 api_num_url: 'https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=350133&provinceId=0&pageSize=100&pageNo=',
@@ -922,9 +928,17 @@
                     }
                 });
                 return sum_not_arr.includes(num.toString());
-            },
-            getBgz(num) {
-                var n = parseInt(num.slice(0, 2));
+            },// 1234  12 13 14 23 24 34
+            getBgz(num, i = false) {
+                var n = '';
+                if(num.includes('x')){
+                    n = num.replace(/x/g, '');
+                }else {
+                    n = this.getTwoDigitPairs(num,i);
+                }
+                console.log(n,99)
+                //var n = parseInt(num.slice(0, 2));
+
                 var str = ''
                 if (n <= 24) {
                     str = '东';
@@ -936,6 +950,20 @@
                     str = '北';
                 }
                 return str;
+            },
+            getTwoDigitPairs(str, index) {
+                const result = [];
+
+                for (let i = 0; i < str.length; i++) {
+                    for (let j = i + 1; j < str.length; j++) {
+                        const pair = str[i] + str[j];
+                        result.push(pair);
+                        // 如果不包含排除数字，加入结果
+                        if (result[index]) {
+                            return result[index];
+                        }
+                    }
+                }
             },
             clickKill(index = 'all', num = 1) {
                 if (index == 'all') {
