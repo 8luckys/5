@@ -461,7 +461,6 @@
                     console.log(error);
                 });
 
-
             this.number_lists = number_lists;
 
             let red_arr = [];
@@ -954,9 +953,9 @@
             },
             getTwoDigitPairs(str, index) {
                 const result = [];
-
-                for (let i = 0; i < str.length; i++) {
-                    for (let j = i + 1; j < str.length; j++) {
+                const len = str.length - 1;
+                for (let i = 0; i < len; i++) {
+                    for (let j = i + 1; j < len; j++) {
                         const pair = str[i] + str[j];
                         result.push(pair);
                         // 如果不包含排除数字，加入结果
