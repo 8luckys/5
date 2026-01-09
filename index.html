@@ -205,22 +205,6 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span>八卦阵</span>
-                            <span class="kill_str3">
-            <input class="kill_input" v-model="bgz" type="text">
-          </span>
-                            <span class="set-luck" @click="bgz = '东'"
-                                  :class="{base_str_one:bgz === '东'}">东</span>
-                            <span class="set-luck" @click="bgz = '西'"
-                                  :class="{base_str_one:bgz === '西'}">西</span>
-                            <span class="set-luck" @click="bgz = '南'"
-                                  :class="{base_str_one:bgz === '南'}">南</span>
-                            <span class="set-luck" @click="bgz = '北'"
-                                  :class="{base_str_one:bgz === '北'}">北</span>
-                        </div>
-                    </div>
-                    <div class="kill_str">
-                        <div class="kill_str2">
                             <span>排位集</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4" class="kill_input" v-model="kill_arr[index]" type="text">
@@ -256,6 +240,27 @@
                     </span>
                         </div>
                     </div>
+
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span>八卦阵</span>
+
+          </span>
+                            <span class="set-luck" @click="bgz = '1'"
+                                  :class="{base_str_one:bgz === '1'}">1</span>
+                            <span class="set-luck" @click="bgz = '2'"
+                                  :class="{base_str_one:bgz === '2'}">2</span>
+                            <span class="set-luck" @click="bgz = '3'"
+                                  :class="{base_str_one:bgz === '3'}">3</span>
+                            <span class="set-luck" @click="bgz = '4'"
+                                  :class="{base_str_one:bgz === '4'}">4</span>
+                            <span class="set-luck" @click="setBgz('大小')"
+                                  :class="{base_str_one:bgz_type === '大小'}">大小</span>
+                            <span class="set-luck" @click="setBgz('单双')"
+                                  :class="{base_str_one:bgz_type === '单双'}">单双</span>
+                        </div>
+                    </div>
+
                     <div class="kill_str">
                         <div class="kill_str2">
                             <span style="position: relative;top: -6px">正得正</span>
@@ -320,9 +325,14 @@
         </div>
         <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
              @touchend="handleTouchEnd">
-            <a style="color: gold" @click="is_bgz = !is_bgz">
-                八卦阵
-            </a>
+           <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px">
+               <a style="color: salmon" @click="setBgz('大小')">
+                   大小
+               </a>
+               <a style="color: magenta" @click="setBgz('单双')">
+                   单双
+               </a>
+           </div>
             <van-list
                     v-model="loading"
                     :finished="finished"
@@ -372,6 +382,7 @@
                 luck_list: [],
                 show_from: true,
                 is_bgz: false,
+                bgz_type: '',
                 isLoading: false,
                 pageNo: 1,
                 api_num_url: 'https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=350133&provinceId=0&pageSize=100&pageNo=',
@@ -460,6 +471,7 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+
 
             this.number_lists = number_lists;
 
@@ -882,6 +894,10 @@
                 });
                 return in_not_eq;
             },
+            setBgz(type){
+                this.is_bgz = !this.is_bgz
+                this.bgz_type = type;
+            },
             resetNum(in_not_eq_arr, i_arr) {
 
                 let in_not_eq_sort = [];
@@ -931,24 +947,45 @@
             },// 1234  12 13 14 23 24 34
             getBgz(num, i = false) {
                 var n = '';
-                if(num.includes('x')){
+                if (num.includes('x')) {
                     n = num.replace(/x/g, '');
-                }else {
-                    n = this.getTwoDigitPairs(num,i);
+                } else {
+                    n = this.getTwoDigitPairs(num, i);
                 }
                 //var n = parseInt(num.slice(0, 2));
+                if (this.bgz_type == '大小'){
+                    let v = (n[0] < 5 ?'小':'大') + (n[1] < 5 ?'小':'大')
+                    let dx_arr = {
+                        '小小': 1,
+                        '小大': 2,
+                        '大小': 3,
+                        '大大': 4,
+                    }
+                    return dx_arr[v]
+                };
+                if (this.bgz_type == '单双'){
+                    let v = ['双', '单'][n[0] % 2] + ['双', '单'][n[1] % 2]
+                    let ds_arr = {
+                        '单单': 1,
+                        '单双': 2,
+                        '双双': 3,
+                        '双单': 4,
+                    }
+                    return ds_arr[v];
+                }
+
 
                 var str = ''
                 if (n <= 24) {
-                    str = '东';
+                    str = '1';
                 } else if (n <= 49) {
-                    str = '西';
+                    str = '2';
                 } else if (n <= 74) {
-                    str = '南';
+                    str = '3';
                 } else if (n <= 99) {
-                    str = '北';
+                    str = '4';
                 }
-                console.log(n,str)
+                console.log(n, str)
                 return str;
             },
             getTwoDigitPairs(str, index) {
