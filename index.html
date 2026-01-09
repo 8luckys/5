@@ -243,7 +243,7 @@
 
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span>八卦阵</span>
+                            <span @click="delBgz">八卦阵</span>
 
                             </span>
                             <span class="set-luck" @click="bgz = '1'"
@@ -478,7 +478,6 @@
                 .catch(function (error) {
                     console.log(error);
                 });
-
 
             this.number_lists = number_lists;
 
@@ -904,6 +903,10 @@
             setBgz(type) {
                 this.is_bgz = !this.is_bgz
                 this.bgz_type = type;
+            },
+            delBgz() {
+                this.bgz = ''
+                this.bgz_type = '';
             },
             resetNum(in_not_eq_arr, i_arr) {
 
