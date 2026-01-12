@@ -342,16 +342,16 @@
                     loading-text="加载中"
                     @load="onLoad"
             >
+                <div v-if="is_bgz" class="luck_list3" style="display: block !important;">
+                        <span style="font-size: 12px !important;color: #00FF00" class="luck_list_span" v-for="(item3,index3) in 6"
+                              :key="index3">{{wz_arr[index3]}}</span>
+                </div>
                 <div v-for="(item,index) in luck_list" :key="index">
                     <span v-if="!is_bgz" class="luck_list_span"
                           :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
                           v-for="(item2,index2) in item.data"
                           :key="index2">{{item2.num}}
                     </span>
-                    <div v-if="is_bgz && index == 0" class="luck_list3" style="display: block !important;">
-                        <span style="font-size: 12px !important;color: #00FF00" class="luck_list_span" v-for="(item3,index3) in 6"
-                              :key="index3">{{wz_arr[index3]}}</span>
-                    </div>
                     <div v-if="is_bgz" class="luck_list3">
                         <span style="font-size: 20px!important;" class="luck_list_span" v-for="(item3,index3) in 6"
                               :key="index3">{{getBgz(item.num,index3)}}</span>
