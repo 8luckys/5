@@ -364,6 +364,7 @@
                 <div v-show="loading">加载中...</div>
             </van-list>
             <!-- 回到顶部按钮 -->
+            <div @click="show_from = true" style="position: fixed;bottom: 30px;left: 0px;color: #1e9fff">返回</div>
             <van-back-top right="0" bottom="20"/>
         </div>
     </van-pull-refresh>
@@ -478,6 +479,8 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+
+
 
             this.number_lists = number_lists;
 
@@ -884,7 +887,7 @@
                     // 右滑触发
                     console.log('右滑触发');
                     // 在这里执行你想要的操作，比如导航到上一页
-                    this.show_from = true;
+                    //this.show_from = true;
                 }
             },
             getInNotEq(luck_num_arr) {
@@ -979,8 +982,8 @@
                     let ds_arr = {
                         '单单': 1,
                         '单双': 2,
-                        '双双': 3,
-                        '双单': 4,
+                        '双单': 3,
+                        '双双': 4,
                     }
                     return ds_arr[v];
                 }
