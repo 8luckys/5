@@ -343,7 +343,8 @@
                     @load="onLoad"
             >
                 <div v-if="is_bgz" class="luck_list3" style="display: block !important;">
-                        <span style="font-size: 12px !important;color: #00FF00" class="luck_list_span" v-for="(item3,index3) in 6"
+                        <span style="font-size: 12px !important;color: #00FF00" class="luck_list_span"
+                              v-for="(item3,index3) in 6"
                               :key="index3">{{wz_arr[index3]}}</span>
                 </div>
                 <div v-for="(item,index) in luck_list" :key="index">
@@ -364,7 +365,9 @@
                 <div v-show="loading">加载中...</div>
             </van-list>
             <!-- 回到顶部按钮 -->
-            <div @click="show_from = true" style="position: fixed;bottom: 28%;left: 0px;color: #1e9fff">返回</div>
+            <div @click="show_from = true" style="position: fixed;bottom: 28%;left: 0px;color: #1e9fff;font-size: 20px">
+                返回
+            </div>
             <van-back-top right="0" bottom="20"/>
         </div>
     </van-pull-refresh>
@@ -412,8 +415,19 @@
 
                 kill_arr: ['x', 'x', 'x', 'x'],
 
-                wz_arr: ['12', '13', '14', '23','24','34'],
-
+                wz_arr: ['12', '13', '14', '23', '24', '34'],
+                dx_arr : {
+                    '小小': 1,
+                    '小大': 2,
+                    '大小': 3,
+                    '大大': 4,
+                },
+                ds_arr : {
+                    '单单': 1,
+                    '单双': 2,
+                    '双单': 3,
+                    '双双': 4,
+                },
                 //和值位
                 sum_not_str: '',
                 //排号
@@ -967,24 +981,12 @@
                 //var n = parseInt(num.slice(0, 2));
                 if (this.bgz_type == '大小') {
                     let v = (n[0] < 5 ? '小' : '大') + (n[1] < 5 ? '小' : '大')
-                    let dx_arr = {
-                        '小小': 1,
-                        '小大': 2,
-                        '大小': 3,
-                        '大大': 4,
-                    }
-                    return dx_arr[v]
+                    return this.dx_arr[v]
                 }
                 ;
                 if (this.bgz_type == '单双') {
                     let v = ['双', '单'][n[0] % 2] + ['双', '单'][n[1] % 2]
-                    let ds_arr = {
-                        '单单': 1,
-                        '单双': 2,
-                        '双单': 3,
-                        '双双': 4,
-                    }
-                    return ds_arr[v];
+                    return this.ds_arr[v];
                 }
 
 
