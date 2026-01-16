@@ -446,7 +446,7 @@
                 //倍数
                 luck_num: 8,
                 //金额
-                amount: 5,
+                amount: 10,
 
                 number_str: '',
                 number_count: 0,
@@ -455,7 +455,6 @@
         },
         async created() {
             let luck_num_arr = ["8", "8", "8", "8"];
-            let this_num_arr = [];
             let luck_num_list = [];
             let luck_num_list2 = [];
             let sort_number = '88888';
@@ -493,6 +492,7 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+
 
 
             this.number_lists = number_lists;
