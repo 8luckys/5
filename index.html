@@ -241,25 +241,25 @@
                         </div>
                     </div>
 
-                 <!--   <div class="kill_str">
-                        <div class="kill_str2">
-                            <span @click="delBgz">八卦阵</span>
+                    <!--   <div class="kill_str">
+                           <div class="kill_str2">
+                               <span @click="delBgz">八卦阵</span>
 
-                            </span>
-                            <span class="set-luck" @click="bgz = '1'"
-                                  :class="{base_str_one:bgz === '1'}">1</span>
-                            <span class="set-luck" @click="bgz = '2'"
-                                  :class="{base_str_one:bgz === '2'}">2</span>
-                            <span class="set-luck" @click="bgz = '3'"
-                                  :class="{base_str_one:bgz === '3'}">3</span>
-                            <span class="set-luck" @click="bgz = '4'"
-                                  :class="{base_str_one:bgz === '4'}">4</span>
-                            <span class="set-luck" @click="setBgz('大小')"
-                                  :class="{base_str_one:bgz_type === '大小'}">大小</span>
-                            <span class="set-luck" @click="setBgz('单双')"
-                                  :class="{base_str_one:bgz_type === '单双'}">单双</span>
-                        </div>
-                    </div>-->
+                               </span>
+                               <span class="set-luck" @click="bgz = '1'"
+                                     :class="{base_str_one:bgz === '1'}">1</span>
+                               <span class="set-luck" @click="bgz = '2'"
+                                     :class="{base_str_one:bgz === '2'}">2</span>
+                               <span class="set-luck" @click="bgz = '3'"
+                                     :class="{base_str_one:bgz === '3'}">3</span>
+                               <span class="set-luck" @click="bgz = '4'"
+                                     :class="{base_str_one:bgz === '4'}">4</span>
+                               <span class="set-luck" @click="setBgz('大小')"
+                                     :class="{base_str_one:bgz_type === '大小'}">大小</span>
+                               <span class="set-luck" @click="setBgz('单双')"
+                                     :class="{base_str_one:bgz_type === '单双'}">单双</span>
+                           </div>
+                       </div>-->
 
                     <div class="kill_str">
                         <div class="kill_str2">
@@ -325,7 +325,7 @@
         </div>
         <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
              @touchend="handleTouchEnd">
-            <!--<div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
+           <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
                 <a :class="{base_str_one:bgz_type === '大小'}" @click="setBgz('大小')">
                     大小
                 </a>
@@ -342,21 +342,26 @@
                     loading-text="加载中"
                     @load="onLoad"
             >
-                <div v-if="is_bgz" class="luck_list3" style="display: block !important;">
+                <!--<div v-if="is_bgz" class="luck_list3" style="display: block !important;">
                         <span style="font-size: 12px !important;color: #00FF00" class="luck_list_span"
                               v-for="(item3,index3) in 6"
                               :key="index3">{{wz_arr[index3]}}</span>
-                </div>
+                </div>-->
                 <div v-for="(item,index) in luck_list" :key="index">
                     <span v-if="!is_bgz" class="luck_list_span"
                           :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
                           v-for="(item2,index2) in item.data"
                           :key="index2">{{item2.num}}
                     </span>
-                    <div v-if="is_bgz" class="luck_list3">
+                    <span v-if="is_bgz" class="luck_list_span"
+                          v-for="(item2,index2) in item.data"
+                          :class="{kill_input_red:getShowColor(item2.num),kill_input_opacity:index2 === 4}"
+                          :key="index2">{{getShow(item2.num)}}
+                    </span>
+                   <!--<div v-if="is_bgz" class="luck_list3">
                         <span style="font-size: 20px!important;" class="luck_list_span" v-for="(item3,index3) in 6"
                               :key="index3">{{getBgz(item.num,index3)}}</span>
-                    </div>
+                    </div>-->
                     <div class="luck_list2">
                         <span>{{number_lists[item.num].sort}}</span>
                         <span>{{number_lists[item.num].data.slice(-5)}}</span>
@@ -364,6 +369,18 @@
                 </div>
                 <div v-show="loading">加载中...</div>
             </van-list>
+
+            <div class="bot_fixed">
+                <div class="bot_left">
+                    <van-button size="large" type="primary" @click="setBgz('大小')">
+                        大小
+                    </van-button>
+                    <van-button size="large" type="success" @click="setBgz('单双')">
+                        单双
+                    </van-button>
+                </div>
+            </div>
+
             <!-- 回到顶部按钮 -->
             <div @click="show_from = true" style="position: fixed;bottom: 28%;left: 0px;color: #1e9fff;font-size: 20px">
                 返回
@@ -416,13 +433,13 @@
                 kill_arr: ['x', 'x', 'x', 'x'],
 
                 wz_arr: ['12', '13', '14', '23', '24', '34'],
-                dx_arr : {
+                dx_arr: {
                     '小小': 1,
                     '小大': 2,
                     '大小': 3,
                     '大大': 4,
                 },
-                ds_arr : {
+                ds_arr: {
                     '单单': 1,
                     '单双': 2,
                     '双单': 3,
@@ -969,7 +986,29 @@
                     }
                 });
                 return sum_not_arr.includes(num.toString());
-            },// 1234  12 13 14 23 24 34
+            },
+            getShowColor(num){
+
+                if (this.bgz_type == '大小') {
+                    return num < 5 ? true : false
+                }
+                ;
+                if (this.bgz_type == '单双') {
+                    return [false, true][num % 2]
+                }
+
+            },
+            getShow(num){
+                if (this.bgz_type == '大小') {
+                    return num < 5 ? '小' : '大'
+                }
+                ;
+                if (this.bgz_type == '单双') {
+                    return ['双', '单'][num % 2]
+                }
+
+            },
+            // 1234  12 13 14 23 24 34
             getBgz(num, i = false) {
                 var n = '';
                 if (num.includes('x')) {
