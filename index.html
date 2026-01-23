@@ -356,6 +356,7 @@
                     <span v-if="is_bgz" class="luck_list_span"
                           v-for="(item2,index2) in item.data"
                           :class="{kill_input_red:getShowColor(item2.num),kill_input_opacity:index2 === 4}"
+                          style="font-size: 20px!important;"
                           :key="index2">{{getShow(item2.num)}}
                     </span>
                    <!--<div v-if="is_bgz" class="luck_list3">
@@ -509,7 +510,7 @@
                 .catch(function (error) {
                     console.log(error);
                 });
-
+            
 
             this.number_lists = number_lists;
 
