@@ -241,7 +241,7 @@
                         </div>
                     </div>
 
-                    <div class="kill_str">
+                 <!--   <div class="kill_str">
                         <div class="kill_str2">
                             <span @click="delBgz">八卦阵</span>
 
@@ -259,7 +259,7 @@
                             <span class="set-luck" @click="setBgz('单双')"
                                   :class="{base_str_one:bgz_type === '单双'}">单双</span>
                         </div>
-                    </div>
+                    </div>-->
 
                     <div class="kill_str">
                         <div class="kill_str2">
@@ -325,14 +325,14 @@
         </div>
         <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
              @touchend="handleTouchEnd">
-            <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
+            <!--<div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
                 <a :class="{base_str_one:bgz_type === '大小'}" @click="setBgz('大小')">
                     大小
                 </a>
                 <a :class="{base_str_one:bgz_type === '单双'}" @click="setBgz('单双')">
                     单双
                 </a>
-            </div>
+            </div>-->
             <van-list
                     v-model="loading"
                     :finished="finished"
@@ -492,7 +492,6 @@
                 .catch(function (error) {
                     console.log(error);
                 });
-
 
 
             this.number_lists = number_lists;
