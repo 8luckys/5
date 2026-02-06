@@ -227,7 +227,7 @@
                                         </div>-->
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span>排合值</span>
+                            <span @click="sum_not_str = 9">排合值</span>
                             <span class="kill_str3"><input @click="getKillHe" class="kill_input" v-model="sum_not_str"
                                                            type="text"></span>
                         </div>
@@ -510,7 +510,6 @@
                 .catch(function (error) {
                     console.log(error);
                 });
-            
 
             this.number_lists = number_lists;
 
