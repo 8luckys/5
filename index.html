@@ -227,23 +227,27 @@
                                         </div>-->
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="sum_not_str = '9'">排合值</span>
-                            <span class="kill_str3"><input @click="getKillHe" class="kill_input" v-model="sum_not_str"
+                            <span @click="getKillHe">排合值</span>
+                            <span class="kill_str3"><input class="kill_input" v-model="sum_not_str"
                                                            type="text"></span>
                         </div>
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span style="position: relative;top: -6px">排双重</span>
-                            <span class="kill_str3">
-                        <van-switch size="20px" v-model="kill_repeat"/>
-                    </span>
+                            <div style="display: inline-block">
+                                <span style="position: relative;top: -6px">排双重</span>
+                                <span class="kill_str3"><van-switch size="20px" v-model="kill_repeat"/></span>
+                            </div>
+                            <div style="display: inline-block;margin-left: 10px">
+                                <span style="position: relative;top: -6px">正得正</span>
+                                <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
+                            </div>
                         </div>
                     </div>
 
                     <!--   <div class="kill_str">
                            <div class="kill_str2">
-                               <span @click="delBgz">八卦阵</span>
+                               <span @click="delBgz">双排</span>
 
                                </span>
                                <span class="set-luck" @click="bgz = '1'"
@@ -260,13 +264,6 @@
                                      :class="{base_str_one:bgz_type === '单双'}">单双</span>
                            </div>
                        </div>-->
-
-                    <div class="kill_str">
-                        <div class="kill_str2">
-                            <span style="position: relative;top: -6px">正得正</span>
-                            <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
-                        </div>
-                    </div>
                 </div>
                 <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
                     <van-field name="amount" label="中金额">
@@ -325,14 +322,14 @@
         </div>
         <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
              @touchend="handleTouchEnd">
-           <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
-                <a :class="{base_str_one:bgz_type === '大小'}" @click="setBgz('大小')">
-                    大小
-                </a>
-                <a :class="{base_str_one:bgz_type === '单双'}" @click="setBgz('单双')">
-                    单双
-                </a>
-            </div>-->
+            <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
+                 <a :class="{base_str_one:bgz_type === '大小'}" @click="setBgz('大小')">
+                     大小
+                 </a>
+                 <a :class="{base_str_one:bgz_type === '单双'}" @click="setBgz('单双')">
+                     单双
+                 </a>
+             </div>-->
             <van-list
                     v-model="loading"
                     :finished="finished"
@@ -359,10 +356,10 @@
                           style="font-size: 20px!important;"
                           :key="index2">{{getShow(item2.num)}}
                     </span>
-                   <!--<div v-if="is_bgz" class="luck_list3">
-                        <span style="font-size: 20px!important;" class="luck_list_span" v-for="(item3,index3) in 6"
-                              :key="index3">{{getBgz(item.num,index3)}}</span>
-                    </div>-->
+                    <!--<div v-if="is_bgz" class="luck_list3">
+                         <span style="font-size: 20px!important;" class="luck_list_span" v-for="(item3,index3) in 6"
+                               :key="index3">{{getBgz(item.num,index3)}}</span>
+                     </div>-->
                     <div class="luck_list2">
                         <span>{{number_lists[item.num].sort}}</span>
                         <span>{{number_lists[item.num].data.slice(-5)}}</span>
@@ -431,7 +428,7 @@
                 red_arr: [],
                 blue_arr: [],
 
-                kill_arr: ['x', 'x', 'x', 'x'],
+                kill_arr: ['', '', '', ''],
 
                 wz_arr: ['12', '13', '14', '23', '24', '34'],
                 dx_arr: {
@@ -450,7 +447,7 @@
                 sum_not_str: '',
                 //排号
                 kill_num_str: '',
-                //八卦阵
+                //双排
                 bgz: '',
 
                 kill_back: false,
@@ -481,35 +478,58 @@
             let num_list_news = [];
             let number_lists = [];
 
-            let url = this.api_num_url + this.pageNo;
-            await axios.get(url)
-                .then((res) => {
-                    let {data} = res;
-                    if (data.success) {
-                        data.value.list.forEach(function (item) {
-                            luck_num_list = item.lotteryDrawResult.split(' ');
-                            luck_num_list2 = item.lotteryDrawResult.split(' ');
-                            let num = luck_num_list2.join('');
-                            luck_num_list.pop();
-                            num_list.push(luck_num_list)
-                            num_list_news.push(luck_num_list2)
 
-                            number_lists[num] = {
-                                num,
-                                sort: item.lotteryDrawNum,
-                                data: item.lotteryDrawTime
-                            };
-                        })
-                        luck_num_arr = data.value.lastPoolDraw.lotteryDrawResult.split(' ')
-                        luck_num_arr.pop();
-                        sort_number = data.value.lastPoolDraw.lotteryDrawNum
-                        sort_date = data.value.lastPoolDraw.lotteryDrawTime
-                    }
-                    //this.base_str = res.data.base_str;
-                }) // 把结果集传到info这个数组
-                .catch(function (error) {
-                    console.log(error);
-                });
+            if(0){
+                luck_num_list = [0, 8, 6, 8, 9];
+                luck_num_list2 = [0, 8, 6, 8, 9];
+                let num = '08689';
+                luck_num_list.pop();
+                num_list.push(luck_num_list)
+                num_list_news.push(luck_num_list2)
+                num_list.push(luck_num_list)
+                num_list_news.push(luck_num_list2)
+
+                number_lists[num] = {
+                    num,
+                    sort: 11,
+                    data: '2026-01-01'
+                };
+                luck_num_arr = [0, 8, 6, 8, 9];
+                luck_num_arr.pop();
+                sort_number = 11
+                sort_date = '2026-01-01'
+            }else{
+
+                let url = this.api_num_url + this.pageNo;
+                await axios.get(url)
+                    .then((res) => {
+                        let {data} = res;
+                        if (data.success) {
+                            data.value.list.forEach(function (item) {
+                                luck_num_list = item.lotteryDrawResult.split(' ');
+                                luck_num_list2 = item.lotteryDrawResult.split(' ');
+                                let num = luck_num_list2.join('');
+                                luck_num_list.pop();
+                                num_list.push(luck_num_list)
+                                num_list_news.push(luck_num_list2)
+
+                                number_lists[num] = {
+                                    num,
+                                    sort: item.lotteryDrawNum,
+                                    data: item.lotteryDrawTime
+                                };
+                            })
+                            luck_num_arr = data.value.lastPoolDraw.lotteryDrawResult.split(' ')
+                            luck_num_arr.pop();
+                            sort_number = data.value.lastPoolDraw.lotteryDrawNum
+                            sort_date = data.value.lastPoolDraw.lotteryDrawTime
+                        }
+                        //this.base_str = res.data.base_str;
+                    }) // 把结果集传到info这个数组
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
 
             this.number_lists = number_lists;
 
@@ -760,7 +780,11 @@
                         num += parseInt(not_kill_arrV);
                     }
                 });
+                num = this.getUnitsDigit(num);
                 this.sum_not_str = num.toString();
+            },
+            getUnitsDigit(num) {
+                return Math.abs(Math.floor(num)) % 10;
             },
             onSubmit(values = '') {
                 console.log('submit', values);
@@ -819,7 +843,7 @@
                                 //除重
                                 if (this.kill_repeat && i_arr[in_not_eq_arr[0]['sort']] == i_arr[in_not_eq_arr[1]['sort']]) continue;
 
-                                //和值排
+                                //排合值
                                 type = this.kilSumNot(i_arr);
                                 if (type) continue;
                                 //1排除
@@ -827,7 +851,7 @@
                                 if (type) continue;
 
                                 let num = i_arr.join('', '');
-                                //八卦阵
+                                //双排
                                 if (this.bgz && this.bgz_type && this.getBgz(num) == this.bgz) continue;
 
                                 if (this.kill_num_str) {
@@ -883,7 +907,7 @@
                 this.chekMoney();
 
             },
-            chekNum(in_not_eq_arr) {
+            /*chekNum(in_not_eq_arr) {
                 let small = big = 0;
                 in_not_eq_arr.forEach((item) => {
                     if (parseInt(item.num) < 5) {
@@ -897,10 +921,10 @@
                 } else if (big > 1 && this.base_str === '56789') {
                     vant.showToast('大-大');
                 }
-            },
+            },*/
             chekMoney() {
                 if (this.number_money > 5000) {
-                    vant.showToast('中大了');
+                    vant.showToast('✅');
                 }
             },
             handleTouchStart(event) {
@@ -958,7 +982,7 @@
                 //1排除
                 this.kill_arr.forEach((kill_arrV, kill_arrK) => {
                     let ii = i_arr[kill_arrK];
-                    if (kill_arrV != 'x' && kill_arrV.indexOf(ii.toString()) != -1) {
+                    if (kill_arrV != '' && kill_arrV.indexOf(ii.toString()) != -1) {
                         type = true;
                     }
                 });
@@ -985,9 +1009,10 @@
                         num += parseInt(i_arrV);
                     }
                 });
+                num = this.getUnitsDigit(num);
                 return sum_not_arr.includes(num.toString());
             },
-            getShowColor(num){
+            getShowColor(num) {
 
                 if (this.bgz_type == '大小') {
                     return num < 5 ? true : false
@@ -998,7 +1023,7 @@
                 }
 
             },
-            getShow(num){
+            getShow(num) {
                 if (this.bgz_type == '大小') {
                     return num < 5 ? '小' : '大'
                 }
@@ -1057,7 +1082,7 @@
             },
             clickKill(index = 'all', num = 1) {
                 if (index == 'all') {
-                    this.kill_arr = ['x', 'x', 'x', 'x'];
+                    this.kill_arr = ['', '', '', ''];
                 } else {
                     let k_arr = [];
                     for (let i = 0; i < num; i++) {
