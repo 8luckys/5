@@ -165,10 +165,27 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
+                            <span>排位集</span>
+                            <span class="kill_str3">
+                        <input v-for="(item,index) in 4"
+                               :placeholder="index == 0?'万':(index == 1?'千':(index == 2?'百':'十'))" class="kill_input"
+                               v-model="kill_arr[index]" type="text">
+                    </span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="getKillHe">排合值</span>
+                            <span class="kill_str3"><input placeholder="个" class="kill_input" v-model="sum_not_str" type="text"></span>
+                            <span class="kill_str3"><input @click="getKillHe(false)" class="kill_input" v-model="sum_not_str2" type="text" placeholder="合"></span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
                             <span @click="reward('base_str_one')"
                                   :class="{base_str_one:is_base_str_one === 0}">幸位集</span>
                             <span class="kill_str3">
-            <input class="kill_input" v-model="base_str_one" type="text">
+            <input placeholder="头" class="kill_input" v-model="base_str_one" type="text">
           </span>
                             <!--<span class="set-luck" @click="setLuck('base_str_one',1)">0258</span>-->
                             <span class="set-luck" @click="setLuck('base_str_one',2)"
@@ -188,7 +205,7 @@
                             <span @click="reward('base_str_two')"
                                   :class="{base_str_two:is_base_str_two === 0}">运位集</span>
                             <span class="kill_str3">
-            <input class="kill_input" v-model="base_str_two" type="text">
+            <input placeholder="尾" class="kill_input" v-model="base_str_two" type="text">
           </span>
                             <!--<span class="set-luck" @click="setLuck('base_str_one',1)">0258</span>-->
                             <span class="set-luck" @click="setLuck('base_str_two',2)"
@@ -201,14 +218,6 @@
                                   :class="{base_str_one:is_base_str_two === 5}">双</span>
                             <span class="set-luck6" @click="setLuck('base_str_two',6)"
                                   :class="{base_str_one:is_base_str_two === 6}">正</span>
-                        </div>
-                    </div>
-                    <div class="kill_str">
-                        <div class="kill_str2">
-                            <span>排位集</span>
-                            <span class="kill_str3">
-                        <input v-for="(item,index) in 4" class="kill_input" v-model="kill_arr[index]" type="text">
-                    </span>
                         </div>
                     </div>
                     <!--                    <div class="kill_str" style="display: flex">
@@ -225,13 +234,6 @@
                                                 <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
                                             </div>
                                         </div>-->
-                    <div class="kill_str">
-                        <div class="kill_str2">
-                            <span @click="getKillHe">排合值</span>
-                            <span class="kill_str3"><input class="kill_input" v-model="sum_not_str"
-                                                           type="text"></span>
-                        </div>
-                    </div>
                     <div class="kill_str">
                         <div class="kill_str2">
                             <div style="display: inline-block">
@@ -443,8 +445,9 @@
                     '双单': 3,
                     '双双': 4,
                 },
-                //和值位
+                //合值
                 sum_not_str: '',
+                sum_not_str2: '',
                 //排号
                 kill_num_str: '',
                 //双排
@@ -479,7 +482,7 @@
             let number_lists = [];
 
 
-            if(0){
+            if (0) {
                 luck_num_list = [0, 8, 6, 8, 9];
                 luck_num_list2 = [0, 8, 6, 8, 9];
                 let num = '08689';
@@ -498,7 +501,7 @@
                 luck_num_arr.pop();
                 sort_number = 11
                 sort_date = '2026-01-01'
-            }else{
+            } else {
 
                 let url = this.api_num_url + this.pageNo;
                 await axios.get(url)
@@ -770,7 +773,7 @@
                 this[`is_${filed}`] = type;
             },
 
-            getKillHe() {
+            getKillHe(type = true) {
                 if (this.sum_not_str) {
                     return;
                 }
@@ -780,8 +783,13 @@
                         num += parseInt(not_kill_arrV);
                     }
                 });
-                num = this.getUnitsDigit(num);
-                this.sum_not_str = num.toString();
+                if (type) {
+                    num = this.getUnitsDigit(num);
+                    this.sum_not_str = num.toString();
+                }else {
+                    this.sum_not_str2 = num.toString();
+                }
+
             },
             getUnitsDigit(num) {
                 return Math.abs(Math.floor(num)) % 10;
@@ -845,6 +853,8 @@
 
                                 //排合值
                                 type = this.kilSumNot(i_arr);
+                                if (type) continue;
+                                type = this.kilRepeat(i_arr);
                                 if (type) continue;
                                 //1排除
                                 type = this.killAll(i_arr);
@@ -990,7 +1000,7 @@
             },
 
             kilRepeat(i_arr) {
-                let sum_not_arr = this.sum_not_str.split(",");
+                let sum_not_arr = this.sum_not_str2.split(",");
 
                 let num = 0;
                 i_arr.forEach((i_arrV) => {
@@ -1001,7 +1011,7 @@
                 return sum_not_arr.includes(num.toString());
             },
             kilSumNot(i_arr) {
-                let sum_not_arr = this.sum_not_str.split(",");
+                let sum_not_arr = this.sum_not_str.split("");
 
                 let num = 0;
                 i_arr.forEach((i_arrV) => {
