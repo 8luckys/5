@@ -177,7 +177,7 @@
                         <div class="kill_str2">
                             <span @click="getKillHe">排合值</span>
                             <span class="kill_str3"><input placeholder="个" class="kill_input" v-model="sum_not_str" type="text"></span>
-                            <span class="kill_str3"><input @click="getKillHe(false)" class="kill_input" v-model="sum_not_str2" type="text" placeholder="合"></span>
+                            <span class="kill_str3"><input @click="getKillHe2" class="kill_input" v-model="sum_not_str2" type="text" placeholder="合"></span>
                         </div>
                     </div>
                     <div class="kill_str">
@@ -773,7 +773,7 @@
                 this[`is_${filed}`] = type;
             },
 
-            getKillHe(type = true) {
+            getKillHe() {
                 if (this.sum_not_str) {
                     return;
                 }
@@ -783,13 +783,20 @@
                         num += parseInt(not_kill_arrV);
                     }
                 });
-                if (type) {
-                    num = this.getUnitsDigit(num);
-                    this.sum_not_str = num.toString();
-                }else {
-                    this.sum_not_str2 = num.toString();
+                num = this.getUnitsDigit(num);
+                this.sum_not_str = num.toString();
+            },
+            getKillHe2() {
+                if (this.sum_not_str2) {
+                    return;
                 }
-
+                let num = 0;
+                this.luck_num_arr.forEach((not_kill_arrV) => {
+                    if (not_kill_arrV != 'x') {
+                        num += parseInt(not_kill_arrV);
+                    }
+                });
+                this.sum_not_str2 = num.toString();
             },
             getUnitsDigit(num) {
                 return Math.abs(Math.floor(num)) % 10;
