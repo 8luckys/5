@@ -717,7 +717,8 @@
                     let n5 = new_list2[4]
                     let arr = []
                     new_list.forEach(function (item, index) {
-                        if (item == 0 || (item < max && item > n5)) arr.push(index);
+                        if (item < max) arr.push(index);
+                        //if (item == 0 || (item < max && item > n5)) arr.push(index);
                     })
                     if (!arr.includes(parseInt(num_list0[sort])) && !blue_arr.includes(sort)) {
                         blue_arr.push(sort)
@@ -747,7 +748,8 @@
                 let n5 = new_list2[4]
                 let str = ''
                 new_list.forEach(function (item, index) {
-                    if (item == 0 || (item < max && item > n5)) str += index.toString();
+                    if (item < max) str += index.toString();
+                    //if (item == 0 || (item < max && item > n5)) str += index.toString();
                 })
                 this[filed] = str
 
