@@ -735,9 +735,9 @@
                     return;
                 }
                 this[`is_${filed}`] = 0;
-                let sort = filed === 'base_str_one' ? 0 : 1;
+                let s = filed === 'base_str_one' ? 0 : 1;
 
-                sort = in_not_eq_arr[sort]['sort'];
+                let sort = in_not_eq_arr[s]['sort'];
 
                 let new_list = [];
                 for (let i = 0; i < 10; i++) {
@@ -762,9 +762,9 @@
                     return;
                 }
 
-                [0, 1].forEach((sort) => {
+                [0, 1].forEach((s) => {
 
-                    sort = in_not_eq_arr[sort]['sort'];
+                    let sort = in_not_eq_arr[s]['sort'];
 
                     let new_list = [];
                     for (let i = 0; i < 10; i++) {
