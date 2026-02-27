@@ -1037,30 +1037,29 @@
                 num = this.getUnitsDigit(num);
                 return sum_not_arr.includes(num.toString());
             },
-            getShowColor(num, i = 0,index = 0) {
+            getShowColor(nums, i = 0,index = 0) {
 
                 if (this.show_type == '双重') {
                     for (var i2= 0;i2<5;i2++){
-                        if(i != i2 && number == num[i2].num) return true;
+                        if(i != i2 && nums[i].num == nums[i2].num) return true;
                     }
                 }
                 if (this.show_type == '合值') {
                     if(this.luck_list[index+1]){
-                        var last_num = this.luck_list[index+1].data;
+                        var last_nums = this.luck_list[index+1].data;
                         for (var i2=0;i2<5;i2++){
-                            if(i != i2){
-                                if((parseInt(num[i].num) + parseInt(num[i2].num)) == (parseInt(last_num[i].num) + parseInt(last_num[i2].num))) return true;
-                            }
+                            if(i != i2) continue;
+                            if((parseInt(nums[i].num) + parseInt(nums[i2].num)) == (parseInt(last_nums[i].num) + parseInt(last_nums[i2].num))) return true;
                         }
                     }
                 }
 
                 if (this.show_type == '大小') {
-                    return num < 5 ? true : false
+                    return nums < 5 ? true : false
                 }
                 ;
                 if (this.show_type == '单双') {
-                    return [false, true][num % 2]
+                    return [false, true][nums % 2]
                 }
                 return false;
 
