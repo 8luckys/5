@@ -176,8 +176,10 @@
                     <div class="kill_str">
                         <div class="kill_str2">
                             <span @click="getKillHe">排合值</span>
-                            <span class="kill_str3"><input placeholder="个" class="kill_input" v-model="sum_not_str" type="text"></span>
-                            <span class="kill_str3"><input @click="getKillHe2" class="kill_input" v-model="sum_not_str2" type="text" placeholder="合"></span>
+                            <span class="kill_str3"><input placeholder="个" class="kill_input" v-model="sum_not_str"
+                                                           type="text"></span>
+                            <span class="kill_str3"><input @click="getKillHe2" class="kill_input" v-model="sum_not_str2"
+                                                           type="text" placeholder="合"></span>
                         </div>
                     </div>
                     <div class="kill_str">
@@ -261,9 +263,9 @@
                                <span class="set-luck" @click="bgz = '4'"
                                      :class="{base_str_one:bgz === '4'}">4</span>
                                <span class="set-luck" @click="setBgz('大小')"
-                                     :class="{base_str_one:bgz_type === '大小'}">大小</span>
+                                     :class="{base_str_one:show_type === '大小'}">大小</span>
                                <span class="set-luck" @click="setBgz('单双')"
-                                     :class="{base_str_one:bgz_type === '单双'}">单双</span>
+                                     :class="{base_str_one:show_type === '单双'}">单双</span>
                            </div>
                        </div>-->
                 </div>
@@ -325,10 +327,10 @@
         <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
              @touchend="handleTouchEnd">
             <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
-                 <a :class="{base_str_one:bgz_type === '大小'}" @click="setBgz('大小')">
+                 <a :class="{base_str_one:show_type === '大小'}" @click="setBgz('大小')">
                      大小
                  </a>
-                 <a :class="{base_str_one:bgz_type === '单双'}" @click="setBgz('单双')">
+                 <a :class="{base_str_one:show_type === '单双'}" @click="setBgz('单双')">
                      单双
                  </a>
              </div>-->
@@ -354,7 +356,7 @@
                     </span>
                     <span v-if="is_bgz" class="luck_list_span"
                           v-for="(item2,index2) in item.data"
-                          :class="{kill_input_red:getShowColor(item2.num),kill_input_opacity:index2 === 4}"
+                          :class="{kill_input_red:getShowColor(item.data,index2,index),kill_input_opacity:index2 === 4}"
                           style="font-size: 20px!important;"
                           :key="index2">{{getShow(item2.num)}}
                     </span>
@@ -372,12 +374,18 @@
 
             <div class="bot_fixed">
                 <div class="bot_left">
-                    <van-button size="large" type="primary" @click="setBgz('大小')">
-                        大小
+                    <van-button size="large" type="primary" @click="setBgz('重')">
+                        重
                     </van-button>
-                    <van-button size="large" type="success" @click="setBgz('单双')">
-                        单双
+                    <van-button size="large" type="success" @click="setBgz('合')">
+                        合
                     </van-button>
+                    <!-- <van-button size="large" type="primary" @click="setBgz('大小')">
+                         大小
+                     </van-button>
+                     <van-button size="large" type="success" @click="setBgz('单双')">
+                         单双
+                     </van-button>-->
                 </div>
             </div>
 
@@ -408,7 +416,7 @@
                 luck_list: [],
                 show_from: true,
                 is_bgz: false,
-                bgz_type: '',
+                show_type: '',
                 isLoading: false,
                 pageNo: 1,
                 api_num_url: 'https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=350133&provinceId=0&pageSize=100&pageNo=',
@@ -869,7 +877,7 @@
 
                                 let num = i_arr.join('', '');
                                 //双排
-                                if (this.bgz && this.bgz_type && this.getBgz(num) == this.bgz) continue;
+                                if (this.bgz && this.show_type && this.getBgz(num) == this.bgz) continue;
 
                                 if (this.kill_num_str) {
                                     let kill_num_arr = this.kill_num_str.split(',');
@@ -975,11 +983,11 @@
             },
             setBgz(type) {
                 this.is_bgz = !this.is_bgz
-                this.bgz_type = type;
+                this.show_type = type;
             },
             delBgz() {
                 this.bgz = ''
-                this.bgz_type = '';
+                this.show_type = '';
             },
             resetNum(in_not_eq_arr, i_arr) {
 
@@ -1029,25 +1037,47 @@
                 num = this.getUnitsDigit(num);
                 return sum_not_arr.includes(num.toString());
             },
-            getShowColor(num) {
+            getShowColor(num, i = 0,i0 = 0) {
 
-                if (this.bgz_type == '大小') {
+
+                var number = num[i].num;
+
+                if (this.show_type == '重') {
+                    for (var i2= 0;i2<5;i2++){
+                        if(i != i2 && number == num[i2].num) return true;
+                    }
+                }
+                if (this.show_type == '合') {
+                    if(this.luck_list[i0+1]){
+                        var last_num = this.luck_list[i0+1].data;
+                        for (var i2= 0;i2<5;i2++){
+                            if(i != i2){
+                                if((num[i].num + num[i2].num) == (last_num[i].num + last_num[i2].num)) return true;
+                            }
+                        }
+                    }
+                }
+
+                if (this.show_type == '大小') {
                     return num < 5 ? true : false
                 }
                 ;
-                if (this.bgz_type == '单双') {
+                if (this.show_type == '单双') {
                     return [false, true][num % 2]
                 }
+                return false;
 
             },
             getShow(num) {
-                if (this.bgz_type == '大小') {
+                if (this.show_type == '大小') {
                     return num < 5 ? '小' : '大'
                 }
                 ;
-                if (this.bgz_type == '单双') {
+                if (this.show_type == '单双') {
                     return ['双', '单'][num % 2]
                 }
+
+                return num;
 
             },
             // 1234  12 13 14 23 24 34
@@ -1059,12 +1089,12 @@
                     n = this.getTwoDigitPairs(num, i);
                 }
                 //var n = parseInt(num.slice(0, 2));
-                if (this.bgz_type == '大小') {
+                if (this.show_type == '大小') {
                     let v = (n[0] < 5 ? '小' : '大') + (n[1] < 5 ? '小' : '大')
                     return this.dx_arr[v]
                 }
                 ;
-                if (this.bgz_type == '单双') {
+                if (this.show_type == '单双') {
                     let v = ['双', '单'][n[0] % 2] + ['双', '单'][n[1] % 2]
                     return this.ds_arr[v];
                 }
