@@ -1040,16 +1040,14 @@
             getShowColor(num, i = 0,i0 = 0) {
 
 
-                var number = num[i].num;
-
                 if (this.show_type == '双重') {
                     for (var i2= 0;i2<5;i2++){
                         if(i != i2 && number == num[i2].num) return true;
                     }
                 }
                 if (this.show_type == '合值') {
-                    if(this.luck_list[i0+1]){
-                        var last_num = this.luck_list[i0+1].data;
+                    if(this.luck_list[i0-1]){
+                        var last_num = this.luck_list[i0-1].data;
                         for (var i2= 0;i2<5;i2++){
                             if(i != i2){
                                 if((num[i].num + num[i2].num) == (last_num[i].num + last_num[i2].num)) return true;
