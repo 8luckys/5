@@ -1048,8 +1048,7 @@
                     if(this.luck_list[index+1]){
                         var last_nums = this.luck_list[index+1].data;
                         for (var i2=0;i2<5;i2++){
-                            if(i != i2) continue;
-                            if((parseInt(nums[i].num) + parseInt(nums[i2].num)) == (parseInt(last_nums[i].num) + parseInt(last_nums[i2].num))) return true;
+                            if(i != i2 && (parseInt(nums[i].num) + parseInt(nums[i2].num)) == (parseInt(last_nums[i].num) + parseInt(last_nums[i2].num))) return true;
                         }
                     }
                 }
