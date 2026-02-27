@@ -380,12 +380,12 @@
                     <van-button size="large" type="success" @click="setBgz('合值')">
                         合值
                     </van-button>
-                     <van-button size="large" type="primary" @click="setBgz('大小')">
-                         大小
-                     </van-button>
-                     <van-button size="large" type="success" @click="setBgz('单双')">
-                         单双
-                     </van-button>
+                    <van-button size="large" type="primary" @click="setBgz('大小')">
+                        大小
+                    </van-button>
+                    <van-button size="large" type="success" @click="setBgz('单双')">
+                        单双
+                    </van-button>
                 </div>
             </div>
 
@@ -1037,18 +1037,18 @@
                 num = this.getUnitsDigit(num);
                 return sum_not_arr.includes(num.toString());
             },
-            getShowColor(nums, i = 0,index = 0) {
+            getShowColor(nums, i = 0, index = 0) {
 
                 if (this.show_type == '双重') {
-                    for (var i2= 0;i2<5;i2++){
-                        if(i != i2 && nums[i].num == nums[i2].num) return true;
+                    for (var i2 = 0; i2 < 5; i2++) {
+                        if (i != i2 && nums[i].num == nums[i2].num) return true;
                     }
                 }
                 if (this.show_type == '合值') {
-                    if(this.luck_list[index+1]){
-                        var last_nums = this.luck_list[index+1].data;
-                        for (var i2=0;i2<5;i2++){
-                            if(i != i2 && (parseInt(nums[i].num) + parseInt(nums[i2].num)) == (parseInt(last_nums[i].num) + parseInt(last_nums[i2].num))) return true;
+                    if (this.luck_list[index + 1]) {
+                        var last_nums = this.luck_list[index + 1].data;
+                        for (var i2 = 0; i2 < 5; i2++) {
+                            if (i != i2 && (parseInt(nums[i].num) + parseInt(nums[i2].num)) == (parseInt(last_nums[i].num) + parseInt(last_nums[i2].num))) return true;
                         }
                     }
                 }
