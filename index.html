@@ -374,18 +374,18 @@
 
             <div class="bot_fixed">
                 <div class="bot_left">
-                    <van-button size="large" type="primary" @click="setBgz('重')">
-                        重
+                    <van-button size="large" type="primary" @click="setBgz('双重')">
+                        双重
                     </van-button>
-                    <van-button size="large" type="success" @click="setBgz('合')">
-                        合
+                    <van-button size="large" type="success" @click="setBgz('合值')">
+                        合值
                     </van-button>
-                    <!-- <van-button size="large" type="primary" @click="setBgz('大小')">
+                     <van-button size="large" type="primary" @click="setBgz('大小')">
                          大小
                      </van-button>
                      <van-button size="large" type="success" @click="setBgz('单双')">
                          单双
-                     </van-button>-->
+                     </van-button>
                 </div>
             </div>
 
@@ -1042,12 +1042,12 @@
 
                 var number = num[i].num;
 
-                if (this.show_type == '重') {
+                if (this.show_type == '双重') {
                     for (var i2= 0;i2<5;i2++){
                         if(i != i2 && number == num[i2].num) return true;
                     }
                 }
-                if (this.show_type == '合') {
+                if (this.show_type == '合值') {
                     if(this.luck_list[i0+1]){
                         var last_num = this.luck_list[i0+1].data;
                         for (var i2= 0;i2<5;i2++){
