@@ -165,7 +165,7 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span>排位集</span>
+                            <span @click="setKill()">排位集</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'万':(index == 1?'千':(index == 2?'百':'十'))" class="kill_input"
@@ -736,6 +736,7 @@
                 }
                 this[`is_${filed}`] = 0;
                 let sort = filed === 'base_str_one' ? 0 : 1;
+
                 sort = in_not_eq_arr[sort]['sort'];
 
                 let new_list = [];
@@ -752,6 +753,29 @@
                     //if (item == 0 || (item < max && item > n5)) str += index.toString();
                 })
                 this[filed] = str
+
+            },
+            setKill() {
+                let in_not_eq_arr = this.getInNotEq(this.luck_num_arr);
+                if (in_not_eq_arr.length != 2) {
+                    vant.showToast('先选两位');
+                    return;
+                }
+
+                [0, 1].forEach((sort) => {
+
+                    sort = in_not_eq_arr[sort]['sort'];
+
+                    let new_list = [];
+                    for (let i = 0; i < 10; i++) {
+                        new_list[i] = this.num_list2.findIndex(item => item[sort] == i);
+                    }
+                    let new_list2 = JSON.parse(JSON.stringify(new_list));
+                    let max = Math.max.apply(null, new_list2);
+                    new_list2.sort((a, b) => a - b);
+
+                    this.kill_arr[sort] = new_list.findIndex(v => v == max).toString()
+                })
 
             },
             setLuck(filed = 'base_str', type = 1) {
