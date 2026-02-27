@@ -380,10 +380,10 @@
                     <van-button size="large" type="primary" @click="setBgz('双重')">
                         双重
                     </van-button>
-                    <van-button size="large" type="primary" @click="setBgz('大小')">
+                    <van-button size="large" type="success" @click="setBgz('大小')">
                         大小
                     </van-button>
-                    <van-button size="large" type="success" @click="setBgz('单双')">
+                    <van-button size="large" type="primary" @click="setBgz('单双')">
                         单双
                     </van-button>
                 </div>
@@ -1056,11 +1056,11 @@
                 }
 
                 if (this.show_type == '大小') {
-                    return nums < 5 ? true : false
+                    return nums[i].num < 5 ? true : false
                 }
                 ;
                 if (this.show_type == '单双') {
-                    return [false, true][nums % 2]
+                    return [false, true][nums[i].num % 2]
                 }
                 return false;
 
