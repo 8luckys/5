@@ -326,6 +326,9 @@
         </div>
         <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
              @touchend="handleTouchEnd">
+            <div @click="show_from = true" style="position: fixed;top: 2%;left: 0px;color: #1e9fff;font-size: 20px">
+                返回
+            </div>
             <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
                  <a :class="{base_str_one:show_type === '大小'}" @click="setBgz('大小')">
                      大小
@@ -390,9 +393,6 @@
             </div>
 
             <!-- 回到顶部按钮 -->
-            <div @click="show_from = true" style="position: fixed;bottom: 28%;left: 0px;color: #1e9fff;font-size: 20px">
-                返回
-            </div>
             <van-back-top right="0" bottom="20"/>
         </div>
     </van-pull-refresh>
