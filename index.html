@@ -175,11 +175,11 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="getKillHe">排合值</span>
-                            <span class="kill_str3"><input placeholder="个" class="kill_input" v-model="sum_not_str"
+                            <span>排合值</span>
+                            <span class="kill_str3"><input @click="getKillHe" placeholder="个" class="kill_input" v-model="sum_not_str"
                                                            type="text"></span>
-                            <span class="kill_str3"><input @click="getKillHe2" class="kill_input" v-model="sum_not_str2"
-                                                           type="text" placeholder="合"></span>
+                            <span class="kill_str3"><input @click="getKillHe2" placeholder="合" class="kill_input" v-model="sum_not_str2"
+                                                           type="text"></span>
                         </div>
                     </div>
                     <div class="kill_str">
@@ -222,20 +222,7 @@
                                   :class="{base_str_one:is_base_str_two === 6}">正</span>
                         </div>
                     </div>
-                    <!--                    <div class="kill_str" style="display: flex">
-                                            <div class="">
-                                                <span>合值</span>
-                                                <span class="kill_str3"><input @click="getKillHe" class="" v-model="sum_not_str" type="text"></span>
-                                            </div>
-                                            <div class="">
-                                                <span>双重</span>
-                                                <span class="kill_str3"><van-switch size="20px" v-model="kill_repeat"/></span>
-                                            </div>
-                                            <div class="">
-                                                <span>反向</span>
-                                                <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
-                                            </div>
-                                        </div>-->
+
                     <div class="kill_str">
                         <div class="kill_str2">
                             <div style="display: inline-block">
