@@ -1052,18 +1052,19 @@
             },
             getShowColor(nums, i = 0, index = 0) {
 
-                if (this.show_type == '双重') {
-                    for (var i2 = 0; i2 < 5; i2++) {
-                        if (i != i2 && nums[i].num == nums[i2].num) return true;
-                    }
-                }
                 if (this.show_type == '合值') {
                     if (this.luck_list[index + 1]) {
                         var last_nums = this.luck_list[index + 1].data;
                         for (var i2 = 0; i2 < 5; i2++) {
-                            if (i != i2) continue;
+                            if (i == i2) continue;
                             if ((parseInt(nums[i].num) + parseInt(nums[i2].num))%10 == (parseInt(last_nums[i].num) + parseInt(last_nums[i2].num))%10) return true;
                         }
+                    }
+                }
+
+                if (this.show_type == '双重') {
+                    for (var i2 = 0; i2 < 5; i2++) {
+                        if (i != i2 && nums[i].num == nums[i2].num) return true;
                     }
                 }
 
