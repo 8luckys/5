@@ -351,7 +351,9 @@
                           :key="index2">{{getShow(item2.num)}}
                     </span>
                     <div v-if="is_bgz && show_type == '合'" class="luck_list3">
-                         <span style="font-size: 20px!important;" class="luck_list_span" v-for="(item3,index3) in 6"
+                         <span style="font-size: 20px!important;" class="luck_list_span"
+                               v-for="(item3,index3) in 6"
+                               :class="{kill_input_red:getBgzColor(item.num,index3,index),kill_input_opacity:index2 === 4}"
                                :key="index3">{{getBgz(item.num,index3)}}</span>
                      </div>
                     <div class="luck_list2">
@@ -1103,30 +1105,29 @@
                     n = this.getTwoDigitPairs(num, i);
                 }
                 return (parseInt(n[0])+parseInt(n[1]))%10;
-                //var n = parseInt(num.slice(0, 2));
-                if (this.show_type == '大小') {
-                    let v = (n[0] < 5 ? '小' : '大') + (n[1] < 5 ? '小' : '大')
-                    return this.dx_arr[v]
-                }
-                ;
-                if (this.show_type == '单双') {
-                    let v = ['双', '单'][n[0] % 2] + ['双', '单'][n[1] % 2]
-                    return this.ds_arr[v];
-                }
+
+            },
+            getBgzColor(num, i = 0, index = 0) {
 
 
-                var str = ''
-                if (n <= 24) {
-                    str = '1';
-                } else if (n <= 49) {
-                    str = '2';
-                } else if (n <= 74) {
-                    str = '3';
-                } else if (n <= 99) {
-                    str = '4';
+                if (this.luck_list[index + 1]) {
+                    var num2 = this.luck_list[index + 1].num;
+
+                    var n , n2 = '';
+                    if (num.includes('x')) {
+                        n = num.replace(/x/g, '');
+                    } else {
+                        n = this.getTwoDigitPairs(num, i);
+                    }
+                    if (num2.includes('x')) {
+                        n2 = num2.replace(/x/g, '');
+                    } else {
+                        n2 = this.getTwoDigitPairs(num2, i);
+                    }
+
+                    return (parseInt(n[0])+parseInt(n[1]))%10 == (parseInt(n2[0])+parseInt(n2[1]))%10 ;
                 }
-                console.log(n, str)
-                return str;
+                return false;
             },
             getTwoDigitPairs(str, index) {
                 const result = [];
