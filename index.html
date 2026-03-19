@@ -176,9 +176,11 @@
                     <div class="kill_str">
                         <div class="kill_str2">
                             <span>排合值</span>
-                            <span class="kill_str3"><input @click="getKillHe" placeholder="个" class="kill_input" v-model="sum_not_str"
+                            <span class="kill_str3"><input @click="getKillHe" placeholder="个" class="kill_input"
+                                                           v-model="sum_not_str"
                                                            type="text"></span>
-                            <span class="kill_str3"><input @click="getKillHe2" placeholder="合" class="kill_input" v-model="sum_not_str2"
+                            <span class="kill_str3"><input @click="getKillHe2" placeholder="合" class="kill_input"
+                                                           v-model="sum_not_str2"
                                                            type="text"></span>
                         </div>
                     </div>
@@ -333,29 +335,48 @@
                     loading-text="加载中"
                     @load="onLoad"
             >
-                <div v-if="is_bgz && show_type == '合'" class="luck_list3" style="display: block !important;">
-                        <span style="font-size: 12px !important;color: #00FF00" class="luck_list_span"
+                <div v-if="is_bgz && in_he.includes(show_type)" class="luck_list3" style="display: block !important;">
+                        <span v-if="show_type == '二合'" style="font-size: 12px !important;color: #00FF00"
+                              class="luck_list_span"
                               v-for="(item3,index3) in 6"
                               :key="index3">{{wz_arr[index3]}}</span>
+
+                    <span v-if="show_type == '三合'" style="font-size: 12px !important;color: #00FF00"
+                          class="luck_list_span"
+                          v-for="(item3,index3) in 4"
+                          :key="index3">{{wz_arr3[index3]}}</span>
+                    <span v-if="show_type == '四合'" style="font-size: 12px !important;color: #00FF00"
+                          class="luck_list_span"
+                          :key="index3">1234</span>
                 </div>
                 <div v-for="(item,index) in luck_list" :key="index">
-                    <span v-if="!is_bgz" class="luck_list_span"
-                          :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
-                          v-for="(item2,index2) in item.data"
-                          :key="index2">{{item2.num}}
-                    </span>
-                    <span v-if="is_bgz && show_type != '合'" class="luck_list_span"
+                    <span v-if="is_bgz && !in_he.includes(show_type)" class="luck_list_span"
                           v-for="(item2,index2) in item.data"
                           :class="{kill_input_red:getShowColor(item.data,index2,index),kill_input_opacity:index2 === 4}"
                           style="font-size: 20px!important;"
                           :key="index2">{{getShow(item2.num)}}
                     </span>
-                    <div v-if="is_bgz && show_type == '合'" class="luck_list3">
-                         <span style="font-size: 20px!important;" class="luck_list_span"
+                    <div v-if="is_bgz && in_he.includes(show_type)" class="luck_list3">
+                         <span v-if="show_type == '二合'" style="font-size: 20px!important;" class="luck_list_span"
                                v-for="(item3,index3) in 6"
                                :class="{kill_input_red:getBgzColor(item.num,index3,index),kill_input_opacity:index2 === 4}"
                                :key="index3">{{getBgz(item.num,index3)}}</span>
-                     </div>
+
+                        <span v-if="show_type == '三合'" style="font-size: 20px!important;" class="luck_list_span"
+                              v-for="(item3,index3) in 4"
+                              :class="{kill_input_red:getBgzColor(item.num,index3,index),kill_input_opacity:index2 === 4}"
+                              :key="index3">{{getBgz(item.num,index3)}}</span>
+
+                        <span v-if="show_type == '四合'" style="font-size: 20px!important;" class="luck_list_span"
+                              v-for="(item3,index3) in 1"
+                              :class="{kill_input_red:getBgzColor(item.num,index3,index),kill_input_opacity:index2 === 4}"
+                              :key="index3">{{getBgz(item.num,index3)}}</span>
+                    </div>
+                    <span v-if="!is_bgz" class="luck_list_span"
+                          :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
+                          v-for="(item2,index2) in item.data"
+                          :key="index2">{{item2.num}}
+                    </span>
                     <div class="luck_list2">
                         <span>{{number_lists[item.num].sort}}</span>
                         <span>{{number_lists[item.num].data.slice(-5)}}</span>
@@ -366,21 +387,27 @@
 
             <div class="bot_fixed">
                 <div class="bot_left">
-                    <van-button size="large" type="success" @click="setBgz('合')">
-                        合
+                    <van-button size="large" type="success" @click="setBgz('二合')">
+                        二合
+                    </van-button>
+                    <van-button size="large" type="primary" @click="setBgz('三合')">
+                        三合
+                    </van-button>
+                    <van-button size="large" type="success" @click="setBgz('四合')">
+                        四合
+                    </van-button>
+                    <van-button size="large" type="primary" @click="setBgz('大小')">
+                        大小
+                    </van-button>
+                    <van-button size="large" type="success" @click="setBgz('单双')">
+                        单双
                     </van-button>
                     <van-button size="large" type="primary" @click="setBgz('双重')">
                         双重
                     </van-button>
-                    <van-button size="large" type="success" @click="setBgz('大小')">
-                        大小
-                    </van-button>
-                    <van-button size="large" type="primary" @click="setBgz('单双')">
-                        单双
-                    </van-button>
-                    <van-button size="large" type="success" @click="setBgz('合值')">
-                        合值
-                    </van-button>
+                    <!--                    <van-button size="large" type="success" @click="setBgz('合值')">
+                                            合值
+                                        </van-button>-->
                 </div>
             </div>
 
@@ -433,6 +460,7 @@
                 kill_arr: ['', '', '', ''],
 
                 wz_arr: ['12', '13', '14', '23', '24', '34'],
+                wz_arr3: ['123', '124', '134', '234'],
                 dx_arr: {
                     '小小': 1,
                     '小大': 2,
@@ -452,6 +480,7 @@
                 kill_num_str: '',
                 //双排
                 bgz: '',
+                in_he: ['二合', '三合', '四合'],
                 is_data: false,
 
                 kill_back: false,
@@ -1063,7 +1092,7 @@
                         var last_nums = this.luck_list[index + 1].data;
                         for (var i2 = 0; i2 < 5; i2++) {
                             if (i == i2) continue;
-                            if ((parseInt(nums[i].num) + parseInt(nums[i2].num))%10 == (parseInt(last_nums[i].num) + parseInt(last_nums[i2].num))%10) return true;
+                            if ((parseInt(nums[i].num) + parseInt(nums[i2].num)) % 10 == (parseInt(last_nums[i].num) + parseInt(last_nums[i2].num)) % 10) return true;
                         }
                     }
                 }
@@ -1097,23 +1126,48 @@
 
             },
             // 1234  12 13 14 23 24 34
+            // 1234  123 124 134 234
             getBgz(num, i = false) {
-                var n = '';
-                if (num.includes('x')) {
-                    n = num.replace(/x/g, '');
-                } else {
-                    n = this.getTwoDigitPairs(num, i);
+                var n = [];
+                if (this.show_type == '二合') {
+                    if (num.includes('x')) {
+                        n = num.replace(/x/g, '');
+                    } else {
+                        n = this.getTwoDigitPairs(num, i);
+                    }
+                    return (parseInt(n[0]) + parseInt(n[1])) % 10;
                 }
-                return (parseInt(n[0])+parseInt(n[1]))%10;
+                n = String(num).split('').map(Number);
+                if (this.show_type == '三合') {
+                    var sum = false;
+                    if (i == 0) {
+                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2])) % 10;
+
+                    }else if (i == 1) {
+                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[3])) % 10;
+
+                    }else if (i == 2) {
+                        sum = (parseInt(n[0]) + parseInt(n[2]) + parseInt(n[3])) % 10;
+
+                    }else if (i == 3) {
+                        sum = (parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3])) % 10;
+                    }
+                    return sum;
+                }
+                if (this.show_type == '四合') {
+
+                    return (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3])) % 10;
+                }
 
             },
             getBgzColor(num, i = 0, index = 0) {
 
+                var n, n2 = [];
+                if (!this.luck_list[index + 1]) return false;
+                var num2 = this.luck_list[index + 1].num;
 
-                if (this.luck_list[index + 1]) {
-                    var num2 = this.luck_list[index + 1].num;
+                if (this.show_type == '二合') {
 
-                    var n , n2 = '';
                     if (num.includes('x')) {
                         n = num.replace(/x/g, '');
                     } else {
@@ -1124,9 +1178,35 @@
                     } else {
                         n2 = this.getTwoDigitPairs(num2, i);
                     }
+                    return (parseInt(n[0]) + parseInt(n[1])) % 10 == (parseInt(n2[0]) + parseInt(n2[1])) % 10;
 
-                    return (parseInt(n[0])+parseInt(n[1]))%10 == (parseInt(n2[0])+parseInt(n2[1]))%10 ;
                 }
+                n = String(num).split('').map(Number);
+                n2 = String(num2).split('').map(Number);
+
+                if (this.show_type == '三合') {
+                    let sum, sum2 = 0;
+                    if (i == 0) {
+                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2])) % 10;
+                        sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[2])) % 10;
+                    }else if (i == 1) {
+                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[3])) % 10;
+                        sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[3])) % 10;
+                    }else if (i == 2) {
+                        sum = (parseInt(n[0]) + parseInt(n[2]) + parseInt(n[3])) % 10;
+                        sum2 = (parseInt(n2[0]) + parseInt(n2[2]) + parseInt(n2[3])) % 10;
+                    }else if (i == 3) {
+                        sum = (parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3])) % 10;
+                        sum2 = (parseInt(n2[1]) + parseInt(n2[2]) + parseInt(n2[3])) % 10;
+                    }
+                    return sum == sum2;
+                }
+                if (this.show_type == '四合') {
+                    let sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3])) % 10;
+                    let sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[2]) + parseInt(n2[3])) % 10;
+                    return sum == sum2;
+                }
+
                 return false;
             },
             getTwoDigitPairs(str, index) {
