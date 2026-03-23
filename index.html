@@ -1163,8 +1163,10 @@
                         sum = parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3]);
                     }
                 }
-                var he_sum = this.is_he ? 10 : 1;
-                return sum % he_sum;
+                if (this.is_he) {
+                    sum = sum % 10;
+                }
+                return sum;
             },
             getBgzColor(num, i = 0, index = 0) {
 
@@ -1214,8 +1216,11 @@
                         sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[2]) + parseInt(n2[3]));
                     }
                 }
-                var he_sum = this.is_he ? 10 : 1;
-                return sum % he_sum == sum2 % he_sum;
+                if (this.is_he) {
+                    sum = sum % 10;
+                    sum2 = sum2 % 10;
+                }
+                return sum == sum2;
             },
             getTwoDigitPairs(str, index) {
                 const result = [];
