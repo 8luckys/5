@@ -318,6 +318,9 @@
             <div @click="show_from = true" style="position: fixed;top: 2%;left: 0px;color: #1e9fff;font-size: 20px">
                 返回
             </div>
+            <div @click="is_he = !is_he" style="position: fixed;top: 2%;right: 0px;color: #1e9fff;font-size: 20px">
+                真合
+            </div>
             <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
                  <a :class="{base_str_one:show_type === '大小'}" @click="setBgz('大小')">
                      大小
@@ -482,6 +485,7 @@
                 bgz: '',
                 in_he: ['二合', '三合', '四合'],
                 is_data: false,
+                is_he: true,
 
                 kill_back: false,
                 kill_repeat: false,
@@ -1128,43 +1132,47 @@
             // 1234  12 13 14 23 24 34
             // 1234  123 124 134 234
             getBgz(num, i = false) {
+
                 var n = [];
+                var sum = 0;
                 if (this.show_type == '二合') {
                     if (num.includes('x')) {
                         n = num.replace(/x/g, '');
                     } else {
                         n = this.getTwoDigitPairs(num, i);
                     }
-                    return (parseInt(n[0]) + parseInt(n[1])) % 10;
-                }
-                n = String(num).split('').map(Number);
-                if (this.show_type == '三合') {
-                    var sum = false;
-                    if (i == 0) {
-                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2])) % 10;
+                    sum = parseInt(n[0]) + parseInt(n[1]);
+                } else {
 
-                    }else if (i == 1) {
-                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[3])) % 10;
+                    n = String(num).split('').map(Number);
+                    if (this.show_type == '三合') {
 
-                    }else if (i == 2) {
-                        sum = (parseInt(n[0]) + parseInt(n[2]) + parseInt(n[3])) % 10;
+                        if (i == 0) {
+                            sum = parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]);
 
-                    }else if (i == 3) {
-                        sum = (parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3])) % 10;
+                        } else if (i == 1) {
+                            sum = parseInt(n[0]) + parseInt(n[1]) + parseInt(n[3]);
+
+                        } else if (i == 2) {
+                            sum = parseInt(n[0]) + parseInt(n[2]) + parseInt(n[3]);
+
+                        } else if (i == 3) {
+                            sum = parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3]);
+                        }
+                    } else if (this.show_type == '四合') {
+                        sum = parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3]);
                     }
-                    return sum;
                 }
-                if (this.show_type == '四合') {
-
-                    return (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3])) % 10;
-                }
-
+                var he_sum = this.is_he ? 10 : 1;
+                return sum % he_sum;
             },
             getBgzColor(num, i = 0, index = 0) {
 
                 var n, n2 = [];
                 if (!this.luck_list[index + 1]) return false;
                 var num2 = this.luck_list[index + 1].num;
+
+                let sum, sum2 = 0;
 
                 if (this.show_type == '二合') {
 
@@ -1178,36 +1186,36 @@
                     } else {
                         n2 = this.getTwoDigitPairs(num2, i);
                     }
-                    return (parseInt(n[0]) + parseInt(n[1])) % 10 == (parseInt(n2[0]) + parseInt(n2[1])) % 10;
 
-                }
-                n = String(num).split('').map(Number);
-                n2 = String(num2).split('').map(Number);
+                    sum = parseInt(n[0]) + parseInt(n[1]);
+                    sum2 = parseInt(n2[0]) + parseInt(n2[1]);
 
-                if (this.show_type == '三合') {
-                    let sum, sum2 = 0;
-                    if (i == 0) {
-                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2])) % 10;
-                        sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[2])) % 10;
-                    }else if (i == 1) {
-                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[3])) % 10;
-                        sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[3])) % 10;
-                    }else if (i == 2) {
-                        sum = (parseInt(n[0]) + parseInt(n[2]) + parseInt(n[3])) % 10;
-                        sum2 = (parseInt(n2[0]) + parseInt(n2[2]) + parseInt(n2[3])) % 10;
-                    }else if (i == 3) {
-                        sum = (parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3])) % 10;
-                        sum2 = (parseInt(n2[1]) + parseInt(n2[2]) + parseInt(n2[3])) % 10;
+                } else {
+                    n = String(num).split('').map(Number);
+                    n2 = String(num2).split('').map(Number);
+
+                    if (this.show_type == '三合') {
+
+                        if (i == 0) {
+                            sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]));
+                            sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[2]));
+                        } else if (i == 1) {
+                            sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[3]));
+                            sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[3]));
+                        } else if (i == 2) {
+                            sum = (parseInt(n[0]) + parseInt(n[2]) + parseInt(n[3]));
+                            sum2 = (parseInt(n2[0]) + parseInt(n2[2]) + parseInt(n2[3]));
+                        } else if (i == 3) {
+                            sum = (parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3]));
+                            sum2 = (parseInt(n2[1]) + parseInt(n2[2]) + parseInt(n2[3]));
+                        }
+                    } else if (this.show_type == '四合') {
+                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3]));
+                        sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[2]) + parseInt(n2[3]));
                     }
-                    return sum == sum2;
                 }
-                if (this.show_type == '四合') {
-                    let sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3])) % 10;
-                    let sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[2]) + parseInt(n2[3])) % 10;
-                    return sum == sum2;
-                }
-
-                return false;
+                var he_sum = this.is_he ? 10 : 1;
+                return sum % he_sum == sum2 % he_sum;
             },
             getTwoDigitPairs(str, index) {
                 const result = [];
