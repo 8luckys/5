@@ -639,7 +639,7 @@
                     if (!num_list) {
                         this.finished = true;
                     }
-                    await this.showLuckList()
+                    await this.setLuckList()
                 }, 1000);
             },
             onRefresh() {
@@ -651,6 +651,9 @@
             showLuckList() {
                 this.show_from = false;
                 this.is_bgz = false;
+                this.setLuckList()
+            },
+            setLuckList() {
                 let n = 1;
                 do {
                     let blue_arr = [];
