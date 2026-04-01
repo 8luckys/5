@@ -145,10 +145,126 @@
         opacity: 0.5; /* 50% 透明度 */
     }
 
+    /* ========================================
+       iframe嵌套层样式
+       ======================================== */
+    .float-btn {
+        position: fixed;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 50px;
+        height: 50px;
+        background: #ff6600;
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 100;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .iframe-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        z-index: 9999;
+        display: none;
+    }
+
+    .iframe-overlay.active {
+        display: block;
+    }
+
+    /* 返回按钮 - 紫色渐变 */
+    .btn-back {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        z-index: 10000;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* 密码按钮 - 粉色渐变 */
+    .btn-password {
+        position: absolute;
+        right: 10px;
+        top: 60px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: #fff;
+        border-radius: 50%;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        z-index: 10001;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    }
+
 </style>
 <body>
 
 <div id="app" v-cloak>
+    <!-- ==========================================
+         浮动按钮 - 可拖动打开排位页面
+         ========================================== -->
+    <div class="float-btn" 
+         :style="{right: btnPosition.right + 'px', top: btnPosition.top + 'px', left: 'auto', transform: 'none'}" 
+         @click="showIframe = true"
+         @touchstart="onTouchStart"
+         @touchmove="onTouchMove"
+         @touchend="onTouchEnd">排位</div>
+    
+    <!-- ==========================================
+         iframe嵌套页面覆盖层
+         ========================================== -->
+    <div class="iframe-overlay" :class="{active: showIframe}">
+        <!-- 嵌套的排位页面 -->
+        <iframe src="https://app.lzqxc.cn/pages/plwRank/plwRank" width="100%" height="100%" frameborder="0"></iframe>
+        
+        <!-- 返回按钮 -->
+        <button class="btn-back" @click="closeIframe"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+        
+        <!-- 密码按钮 -->
+        <button class="btn-password" @click="showPasswordList = true">🔑</button>
+        
+        <!-- 密码列表弹窗 -->
+        <van-popup v-model:show="showPasswordList" position="bottom" round style="max-height: 70%; background: #fff;">
+            <div style="padding: 20px;">
+                <div style="text-align: center; font-size: 18px; margin-bottom: 15px; font-weight: bold;">密码列表</div>
+                <div style="display: flex; font-weight: bold; border-bottom: 1px solid #eee; padding: 10px 0;">
+                    <div style="flex: 1;">账号</div>
+                    <div style="flex: 1; text-align: center;">过期时间</div>
+                </div>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <div v-for="(item, index) in passwordList" :key="index" 
+                         style="display: flex; padding: 10px 0; border-bottom: 1px solid #f5f5f5;">
+                        <div style="flex: 1; cursor: pointer;" :style="{color: copiedIndex === index ? '#07c160' : 'inherit'}" 
+                            @click="copyAccount(item.account, index)">{{item.account}}</div>
+                        <div style="flex: 1; text-align: center;" :style="{color: isExpired(item.date) ? 'red' : '#000'}">{{item.date}}</div>
+                    </div>
+                </div>
+            </div>
+        </van-popup>
+    </div>
+
     <van-pull-refresh v-model="isLoading" :pull-distance="220" @refresh="onRefresh">
         <div v-if="show_from">
             <van-form @submit="onSubmit">
@@ -504,6 +620,45 @@
                 number_str: '',
                 number_count: 0,
                 number_money: 0,
+                
+                /* ========== iframe嵌套页面相关 ========== */
+                showIframe: false,                    // 控制iframe显示/隐藏
+                showPasswordList: false,             // 控制密码列表弹窗显示/隐藏
+                copiedIndex: -1,                      // 当前复制的账号索引
+                btnPosition: {                        // 浮动按钮位置（可拖动）
+                    right: 10, 
+                    top: Math.max(0, (window.innerHeight - 50) / 2)  // 初始居中
+                },
+                btnTouch: {                           // 按钮拖动相关触摸数据
+                    startX: 0, startY: 0, 
+                    startTop: 0, startRight: 0
+                },
+                
+                /* ========== 密码列表数据 ========== */
+                passwordList: [
+                    {account: '13671461113', date: '2027-12-12 08:00:00'},
+                    {account: '13700466665', date: '2027-03-09 20:05:18'},
+                    {account: '15219204820', date: '2027-02-19 20:28:55'},
+                    {account: '13876989029', date: '2026-12-31 21:04:33'},
+                    {account: '13337622477', date: '2026-12-18 16:42:11'},
+                    {account: '13519803293', date: '2026-11-02 19:00:36'},
+                    {account: '18707507428', date: '2026-10-22 10:02:48'},
+                    {account: '13729199883', date: '2026-10-16 09:10:59'},
+                    {account: '13232724926', date: '2026-09-10 05:58:37'},
+                    {account: '18924690080', date: '2026-08-11 09:11:55'},
+                    {account: '13189828817', date: '2026-06-30 01:06:59'},
+                    {account: '13822579550', date: '2026-06-22 22:15:25'},
+                    {account: '13434699592', date: '2026-06-14 21:39:19'},
+                    {account: '13138921130', date: '2026-06-10 22:00:38'},
+                    {account: '13876018353', date: '2026-06-10 19:10:01'},
+                    {account: '13437868389', date: '2026-06-09 17:30:39'},
+                    {account: '13876664985', date: '2026-06-08 19:26:40'},
+                    {account: '15219266256', date: '2026-06-08 19:14:46'},
+                    {account: '13620434199', date: '2026-06-05 19:24:58'},
+                    {account: '13824847949', date: '2026-06-04 20:37:51'},
+                    {account: '18976214962', date: '2026-06-03 16:36:03'},
+                    {account: '13078996767', date: '2026-06-02 01:27:30'},
+                ],
             };
         },
         async created() {
@@ -1317,6 +1472,74 @@
                 })
                 this.number_count = number_count;
                 this.number_money = number_money;
+            },
+            
+            /* ========== iframe嵌套页面相关方法 ========== */
+            
+            /**
+             * 关闭iframe嵌套页面
+             */
+            closeIframe() {
+                this.showIframe = false;
+            },
+            
+            /**
+             * 浮动按钮拖动开始 - 记录初始触摸位置
+             * @param {TouchEvent} e - 触摸事件
+             */
+            onTouchStart(e) {
+                const touch = e.touches[0];
+                this.btnTouch.startX = touch.clientX;
+                this.btnTouch.startY = touch.clientY;
+                this.btnTouch.startTop = this.btnPosition.top;
+                this.btnTouch.startRight = this.btnPosition.right;
+            },
+            
+            /**
+             * 浮动按钮拖动中 - 实时更新按钮位置
+             * @param {TouchEvent} e - 触摸事件
+             */
+            onTouchMove(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - this.btnTouch.startX;
+                const deltaY = touch.clientY - this.btnTouch.startY;
+                this.btnPosition.top = this.btnTouch.startTop + deltaY;
+                this.btnPosition.right = this.btnTouch.startRight - deltaX;
+            },
+            
+            /**
+             * 浮动按钮拖动结束 - 限制边界防止拖出屏幕
+             */
+            onTouchEnd() {
+                if (this.btnPosition.top < 0) this.btnPosition.top = 0;
+                if (this.btnPosition.right < 0) this.btnPosition.right = 10;
+            },
+            
+            /**
+             * 判断密码是否已过期
+             * @param {string} dateStr - 日期字符串
+             * @returns {boolean} - 是否过期
+             */
+            isExpired(dateStr) {
+                const now = new Date();
+                const expireDate = new Date(dateStr);
+                return expireDate < now;
+            },
+            
+            /**
+             * 复制账号到剪贴板
+             * @param {string} account - 账号
+             * @param {number} index - 索引
+             */
+            copyAccount(account, index) {
+                navigator.clipboard.writeText(account).then(() => {
+                    this.copiedIndex = index;
+                    vant.showToast('已复制');
+                    setTimeout(() => {
+                        this.copiedIndex = -1;
+                    }, 1000);
+                });
             },
 
         }
