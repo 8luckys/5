@@ -163,16 +163,20 @@
         align-items: center;
     }
 
+
     /* 底部按钮容器 */
     .bot_fixed {
         position: fixed;
         bottom: 0;
-        width: 100%;
-        min-width: 360px;
-        background-color: ghostwhite;
-        font-size: 16px;
+        left: 0;
+        right: 0;
+        background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(245,245,245,0.98) 100%);
+        backdrop-filter: blur(10px);
+        padding: 12px 16px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
         transition: transform 0.3s ease;
         transform: translateY(100%);
+        z-index: 50;
     }
 
     .bot_fixed.active {
@@ -180,12 +184,16 @@
     }
 
     .bot_fixed .bot_left {
-        /* float: left; */
         display: flex;
         justify-content: center;
-        align-items: center;
-        clear: both;
+        gap: 10px;
     }
+
+    .bot_fixed .bot_left .van-button {
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
 
     .iframe-overlay {
         position: fixed;
@@ -403,7 +411,7 @@
                        </div>-->
                 </div>
                 <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
-                    <van-field name="amount" label="中金额">
+                    <van-field name="amount" label="金额">
                         <template #input>
                             <van-stepper theme="round" min="1" button-size="20" v-model="amount" step="1"/>
                         </template>
@@ -414,6 +422,13 @@
                         <!-- <a @click="random"><span
                                  style="color: gold;margin-left: 8px">财神</span></a>-->
                     </div>
+                </div>
+                <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
+                    <van-field name="amount" label="倍数">
+                        <template #input>
+                            <van-stepper theme="round" min="1" button-size="20" v-model="luck_num" step="1"/>
+                        </template>
+                    </van-field>
                 </div>
 
                 <van-cell-group class="number-str">
@@ -428,31 +443,18 @@
                             @input="getMoneyAndCount"
                     />
                 </van-cell-group>
-                <div class="bot_fixed" :class="{active: showBottomBar}">
-                    <a target=_blank href="http://datachart.500.com/plw/?expect=100&from=&to=&sort=1"><span
-                            style="color:aqua">势图</span></a>
-                    <!--<a target=_blank href="https://www.lottery.gov.cn/kj/kjlb.html?plw"><span
-                            style="color:#2a6496;margin-left: 8px">历史</span></a>-->
-                    <a @click="showLuckList"><span
-                            style="color:greenyellow;margin-left: 8px">幸运</span></a>
-                    <span style="margin-left: 20px;"><van-stepper v-model="luck_num" integer theme="round"
-                                                                  button-size="18"/>
-          </span>
-                    <div class="bot_right">
-                        <span style="margin-right: 8px">总数：<span class="count_sum">{{number_count}}</span></span>
-                        <span>总额：<span
-                                class="count_sum">{{number_money}}</span></span>
-                    </div>
-                    <div class="bot_left">
-                        <van-button size="large" type="primary" native-type="submit">
-                            生成
-                        </van-button>
-                        <!--<van-button size="large" type="success" @click="copyText">
-                            复制
-                        </van-button>-->
-                        <van-button size="large" type="success" @click="download">
-                            下载
-                        </van-button>
+                <div class="bot_fixed" :class="{active: show_from || showBottomBar}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <van-button type="primary" native-type="submit" size="small" style="border-radius: 16px;">生成</van-button>
+                            <van-button type="success" @click="download" size="small" style="border-radius: 16px;">下载</van-button>
+                            <a @click="openShitu" style="background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 4px 10px; border-radius: 14px; font-size: 11px; text-decoration: none;">势图</a>
+                            <a @click="showLuckList" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; padding: 4px 10px; border-radius: 14px; font-size: 11px; text-decoration: none;">幸运</a>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 12px; color: #1989fa;">总:{{number_count}}</span>
+                            <span style="font-size: 12px; color: #07c160;">额:{{number_money}}</span>
+                        </div>
                     </div>
                 </div>
             </van-form>
@@ -465,13 +467,6 @@
             <div @click="is_he = !is_he" style="position: fixed;top: 2%;right: 0px;color: #1e9fff;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </div>
-            <!-- 生成和下载按钮 -->
-            <van-button type="primary" size="small" style="position: fixed;right: 60px;top: 2%;" @click="show_from = true">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M12 2v10m0 0l-4-4m4 4l4-4M4 16v4a2 2 0 002 2h12a2 2 0 002-2v-4"></path></svg>生成
-            </van-button>
-            <van-button type="success" size="small" style="position: fixed;right: 10px;top: 2%;" @click="download">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>下载
-            </van-button>
             <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
                  <a :class="{base_str_one:show_type === '大小'}" @click="setBgz('大小')">
                      大小
@@ -539,7 +534,7 @@
                 <div v-show="loading" style="text-align: center; color: #1989fa; padding: 10px 0;">加载中...</div>
             </van-list>
 
-            <div class="bot_fixed" :class="{active: showBottomBar}">
+            <div class="bot_fixed" :class="{active: show_from || showBottomBar}">
                 <div class="bot_left">
                     <van-button size="large" type="success" @click="setBgz('二合')">
                         二合
