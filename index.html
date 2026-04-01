@@ -465,6 +465,13 @@
             <div @click="is_he = !is_he" style="position: fixed;top: 2%;right: 0px;color: #1e9fff;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </div>
+            <!-- 生成和下载按钮 -->
+            <van-button type="primary" size="small" style="position: fixed;right: 60px;top: 2%;" @click="show_from = true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M12 2v10m0 0l-4-4m4 4l4-4M4 16v4a2 2 0 002 2h12a2 2 0 002-2v-4"></path></svg>生成
+            </van-button>
+            <van-button type="success" size="small" style="position: fixed;right: 10px;top: 2%;" @click="download">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>下载
+            </van-button>
             <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
                  <a :class="{base_str_one:show_type === '大小'}" @click="setBgz('大小')">
                      大小
