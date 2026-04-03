@@ -210,9 +210,9 @@
         display: block;
     }
 
-    /* 返回按钮 - 紫色渐变 */
+        /* 返回按钮 - 紫色渐变，可拖动 */
     .btn-back {
-        position: absolute;
+        position: fixed;
         top: 10px;
         right: 10px;
         width: 40px;
@@ -222,11 +222,12 @@
         border: none;
         border-radius: 50%;
         z-index: 10000;
-        cursor: pointer;
+        cursor: move;
         box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         display: flex;
         justify-content: center;
         align-items: center;
+        touch-action: none;
     }
 
     /* 密码按钮 - 粉色渐变 */
@@ -274,8 +275,16 @@
         <!-- 嵌套的排位页面 -->
         <iframe src="https://app.lzqxc.cn/pages/plwRank/plwRank" width="100%" height="100%" frameborder="0"></iframe>
         
-        <!-- 返回按钮 -->
-        <button class="btn-back" @click="closeIframe"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+        <!-- 返回按钮 - 可拖动 -->
+        <button class="btn-back" 
+                :style="{top: backBtnTop + 'px', right: backBtnRight + 'px'}"
+                @touchstart="onBackBtnTouchStart"
+                @touchmove="onBackBtnTouchMove"
+                @touchend="onBackBtnTouchEnd"
+                @mousedown="onBackBtnTouchStart"
+                @click.stop="closeIframe">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
         
         <!-- 密码按钮 -->
         <button class="btn-password" @click="showPasswordList = true">🔑</button>
@@ -661,6 +670,13 @@
                 },
                 btnTouch: {                           // 按钮拖动相关触摸数据
                     startX: 0, startY: 0, 
+                    startTop: 0, startRight: 0
+                },
+                backBtnTop: 10,                        // 返回按钮顶部位置
+                backBtnRight: 10,                      // 返回按钮右侧位置
+                backBtnTouch: {                        // 返回按钮拖动数据
+                    isDragging: false,
+                    startX: 0, startY: 0,
                     startTop: 0, startRight: 0
                 },
                 
@@ -1511,6 +1527,39 @@
              */
             closeIframe() {
                 this.showIframe = false;
+            },
+            
+            /**
+             * 返回按钮拖动开始
+             */
+            onBackBtnTouchStart(e) {
+                if (e.type === 'click') return;
+                const touch = e.touches ? e.touches[0] : e;
+                this.backBtnTouch.isDragging = true;
+                this.backBtnTouch.startX = touch.clientX;
+                this.backBtnTouch.startY = touch.clientY;
+                this.backBtnTouch.startTop = this.backBtnTop;
+                this.backBtnTouch.startRight = this.backBtnRight;
+            },
+            
+            /**
+             * 返回按钮拖动中
+             */
+            onBackBtnTouchMove(e) {
+                if (!this.backBtnTouch.isDragging) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - this.backBtnTouch.startX;
+                const deltaY = touch.clientY - this.backBtnTouch.startY;
+                this.backBtnTop = Math.max(0, this.backBtnTouch.startTop + deltaY);
+                this.backBtnRight = Math.max(0, this.backBtnTouch.startRight - deltaX);
+            },
+            
+            /**
+             * 返回按钮拖动结束
+             */
+            onBackBtnTouchEnd() {
+                this.backBtnTouch.isDragging = false;
             },
             
             /**
