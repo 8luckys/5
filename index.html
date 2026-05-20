@@ -254,29 +254,29 @@
     <!-- ==========================================
          浮动按钮 - 可拖动打开排位页面
          ========================================== -->
-    <div class="float-btn" 
-         :style="{right: btnPosition.right + 'px', top: btnPosition.top + 'px', left: 'auto', transform: 'none'}" 
+    <div class="float-btn"
+         :style="{right: btnPosition.right + 'px', top: btnPosition.top + 'px', left: 'auto', transform: 'none'}"
          @click="showIframe = true"
          @touchstart="onTouchStart"
          @touchmove="onTouchMove"
          @touchend="onTouchEnd">排位</div>
-    
+
     <!-- ==========================================
          底部按钮浮动控制按钮
          ========================================== -->
     <button class="btn-bottom-toggle" v-if="!show_from" @click="showBottomBar = !showBottomBar">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
     </button>
-    
+
     <!-- ==========================================
          iframe嵌套页面覆盖层
          ========================================== -->
     <div class="iframe-overlay" :class="{active: showIframe}">
         <!-- 嵌套的排位页面 -->
         <iframe src="https://app.lzqxc.cn/pages/plwRank/plwRank" width="100%" height="100%" frameborder="0"></iframe>
-        
+
         <!-- 返回按钮 - 可拖动 -->
-        <button class="btn-back" 
+        <button class="btn-back"
                 :style="{top: backBtnTop + 'px', right: backBtnRight + 'px'}"
                 @touchstart="onBackBtnTouchStart"
                 @touchmove="onBackBtnTouchMove"
@@ -285,10 +285,10 @@
                 @click.stop="closeIframe">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
-        
+
         <!-- 密码按钮 -->
         <button class="btn-password" @click="showPasswordList = true">🔑</button>
-        
+
         <!-- 密码列表弹窗 -->
         <van-popup v-model:show="showPasswordList" position="bottom" round style="max-height: 70%; background: #fff;">
             <div style="padding: 20px;">
@@ -298,9 +298,9 @@
                     <div style="flex: 1; text-align: center;">过期时间</div>
                 </div>
                 <div style="max-height: 400px; overflow-y: auto;">
-                    <div v-for="(item, index) in passwordList" :key="index" 
+                    <div v-for="(item, index) in passwordList" :key="index"
                          style="display: flex; padding: 10px 0; border-bottom: 1px solid #f5f5f5;">
-                        <div style="flex: 1; cursor: pointer;" :style="{color: copiedIndex === index ? '#07c160' : 'inherit'}" 
+                        <div style="flex: 1; cursor: pointer;" :style="{color: copiedIndex === index ? '#07c160' : 'inherit'}"
                             @click="copyAccount(item.account, index)">{{item.account}}</div>
                         <div style="flex: 1; text-align: center;" :style="{color: isExpired(item.date) ? 'red' : '#000'}">{{item.date}}</div>
                     </div>
@@ -591,7 +591,7 @@
                 loading: false,
                 finished: false,
                 luck_list: [],
-                show_from: false,
+                show_from: true,
                 is_bgz: false,
                 show_type: '',
                 isLoading: false,
@@ -658,18 +658,18 @@
                 number_str: '',
                 number_count: 0,
                 number_money: 0,
-                
+
                 /* ========== iframe嵌套页面相关 ========== */
                 showIframe: false,                    // 控制iframe显示/隐藏
                 showBottomBar: false,                  // 控制底部按钮显示/隐藏
                 showPasswordList: false,             // 控制密码列表弹窗显示/隐藏
                 copiedIndex: -1,                      // 当前复制的账号索引
                 btnPosition: {                        // 浮动按钮位置（可拖动）
-                    right: 10, 
+                    right: 10,
                     top: Math.max(0, (window.innerHeight - 50) / 2)  // 初始居中
                 },
                 btnTouch: {                           // 按钮拖动相关触摸数据
-                    startX: 0, startY: 0, 
+                    startX: 0, startY: 0,
                     startTop: 0, startRight: 0
                 },
                 backBtnTop: 10,                        // 返回按钮顶部位置
@@ -679,7 +679,7 @@
                     startX: 0, startY: 0,
                     startTop: 0, startRight: 0
                 },
-                
+
                 /* ========== 密码列表数据 ========== */
                 passwordList: [
                     {account: '13671461113', date: '2027-12-12 08:00:00'},
@@ -689,7 +689,6 @@
                     {account: '13337622477', date: '2026-12-18 16:42:11'},
                     {account: '13519803293', date: '2026-11-02 19:00:36'},
                     {account: '18707507428', date: '2026-10-22 10:02:48'},
-                    {account: '13729199883', date: '2026-10-16 09:10:59'},
                     {account: '13232724926', date: '2026-09-10 05:58:37'},
                     {account: '18924690080', date: '2026-08-11 09:11:55'},
                     {account: '13189828817', date: '2026-06-30 01:06:59'},
@@ -1519,16 +1518,16 @@
                 this.number_count = number_count;
                 this.number_money = number_money;
             },
-            
+
             /* ========== iframe嵌套页面相关方法 ========== */
-            
+
             /**
              * 关闭iframe嵌套页面
              */
             closeIframe() {
                 this.showIframe = false;
             },
-            
+
             /**
              * 返回按钮拖动开始
              */
@@ -1541,7 +1540,7 @@
                 this.backBtnTouch.startTop = this.backBtnTop;
                 this.backBtnTouch.startRight = this.backBtnRight;
             },
-            
+
             /**
              * 返回按钮拖动中
              */
@@ -1554,14 +1553,14 @@
                 this.backBtnTop = Math.max(0, this.backBtnTouch.startTop + deltaY);
                 this.backBtnRight = Math.max(0, this.backBtnTouch.startRight - deltaX);
             },
-            
+
             /**
              * 返回按钮拖动结束
              */
             onBackBtnTouchEnd() {
                 this.backBtnTouch.isDragging = false;
             },
-            
+
             /**
              * 浮动按钮拖动开始 - 记录初始触摸位置
              * @param {TouchEvent} e - 触摸事件
@@ -1573,7 +1572,7 @@
                 this.btnTouch.startTop = this.btnPosition.top;
                 this.btnTouch.startRight = this.btnPosition.right;
             },
-            
+
             /**
              * 浮动按钮拖动中 - 实时更新按钮位置
              * @param {TouchEvent} e - 触摸事件
@@ -1586,7 +1585,7 @@
                 this.btnPosition.top = this.btnTouch.startTop + deltaY;
                 this.btnPosition.right = this.btnTouch.startRight - deltaX;
             },
-            
+
             /**
              * 浮动按钮拖动结束 - 限制边界防止拖出屏幕
              */
@@ -1594,7 +1593,7 @@
                 if (this.btnPosition.top < 0) this.btnPosition.top = 0;
                 if (this.btnPosition.right < 0) this.btnPosition.right = 10;
             },
-            
+
             /**
              * 判断密码是否已过期
              * @param {string} dateStr - 日期字符串
@@ -1605,7 +1604,7 @@
                 const expireDate = new Date(dateStr);
                 return expireDate < now;
             },
-            
+
             /**
              * 复制账号到剪贴板
              * @param {string} account - 账号
