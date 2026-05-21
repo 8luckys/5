@@ -1542,7 +1542,8 @@
                     time = dayjs().add(1, 'day').format('MM-DD');
                 }
                 let sort_number = parseInt(this.sort_number) + 1;
-                return `${this.number_money}_${this.number_count}_${sort_number}_${time}`;
+                let number_money = this.number_money.toFixed(2);
+                return `${number_money}_${this.number_count}_${sort_number}_${time}`;
             },
             getMoneyAndCount() {
                 let number_money = 0;
