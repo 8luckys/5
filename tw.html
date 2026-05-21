@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=2.0, user-scalable=no"/>
+    <title>luck</title>
+</head>
+<!-- 引入样式文件 -->
+<link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/vant@4/lib/index.css"/>
+<style>
+    [v-cloak] {
+        display: none;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    html {
+        touch-action: none;
+        touch-action: pan-y;
+    }
+
+    body {
+        font: normal 12px/20px '微软雅黑';
+        color: #000000;
+        margin-bottom: 100px;
+        height: 100%;
+        width: 100%;
+    }
+
+    .kill_str {
+        height: 35px;
+    }
+
+    .kill_str2 {
+        height: 30px;
+        /*line-height: 5px;*/
+        width: 100%;
+        min-width: 360px;
+    }
+
+    .kill_str3 {
+        /* display: inline-block;
+         width: 60%;*/
+        margin-left: 10px
+    }
+
+    .kill_input {
+        width: 14%;
+        margin-left: 7px;
+    }
+
+    .kill_input_blue {
+        color: #00ff4e;
+    }
+
+    .count_sum, .kill_input_red {
+        color: red;
+    !important;
+    }
+
+    .set-luck {
+        background-color: beige;
+        margin-left: 10px;
+        padding: 0px 15px;
+    }
+
+    .set-luck6 {
+        background-color: beige;
+        margin-left: 10px;
+    }
+
+    .luck_num_title {
+        color: #00CED1;
+    }
+
+    .base_str_one, .base_str_two {
+        background-color: #00d0ff;
+    }
+
+    .luck_list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 25px;
+        margin-top: 20px;
+    }
+
+    .luck_list_span {
+        font-size: 25px;
+        padding: 1px 2px;
+        display: inline-block;
+        width: 30px;
+        text-align: center;
+    }
+
+    .luck_list2 {
+        display: inline-block;
+    }
+
+    .luck_list3 {
+        font-size: 12px;
+        color: #00AB85;
+        padding: 1px 2px;
+        display: inline-block;
+    }
+
+    .luck_list2 span {
+        font-size: 12px;
+        color: #6dbfff;
+        padding: 1px 2px;
+    }
+
+    .number-str {
+        padding-bottom: 50px;
+    }
+
+    .kill_input_opacity {
+        opacity: 0.5; /* 50% 透明度 */
+    }
+
+    /* ========================================
+       iframe嵌套层样式
+       ======================================== */
+    .float-btn {
+        position: fixed;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 50px;
+        height: 50px;
+        background: #ff6600;
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 100;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    /* 底部按钮浮动控制按钮 */
+    .btn-bottom-toggle {
+        position: fixed;
+        left: 10px;
+        bottom: 80px;
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        border-radius: 50%;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        z-index: 100;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+
+    /* 底部按钮容器 */
+    .bot_fixed {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(245,245,245,0.98) 100%);
+        backdrop-filter: blur(10px);
+        padding: 12px 16px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        transform: translateY(100%);
+        z-index: 50;
+    }
+
+    .bot_fixed.active {
+        transform: translateY(0);
+    }
+
+    .bot_fixed .bot_left {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .bot_fixed .bot_left .van-button {
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+
+    .iframe-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        z-index: 9999;
+        display: none;
+    }
+
+    .iframe-overlay.active {
+        display: block;
+    }
+
+        /* 返回按钮 - 紫色渐变，可拖动 */
+    .btn-back {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        z-index: 10000;
+        cursor: move;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        touch-action: none;
+    }
+
+    /* 密码按钮 - 粉色渐变 */
+    .btn-password {
+        position: absolute;
+        right: 10px;
+        top: 60px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: #fff;
+        border-radius: 50%;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        z-index: 10001;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    }
+
+</style>
+<body>
+
+<div id="app" v-cloak>
+    <!-- ==========================================
+         浮动按钮 - 可拖动打开排位页面
+         ========================================== -->
+    <div class="float-btn" 
+         :style="{right: btnPosition.right + 'px', top: btnPosition.top + 'px', left: 'auto', transform: 'none'}" 
+         @click="showIframe = true"
+         @touchstart="onTouchStart"
+         @touchmove="onTouchMove"
+         @touchend="onTouchEnd">排位</div>
+    
+    <!-- ==========================================
+         底部按钮浮动控制按钮
+         ========================================== -->
+    <button class="btn-bottom-toggle" v-if="!show_from" @click="showBottomBar = !showBottomBar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+    
+    <!-- ==========================================
+         iframe嵌套页面覆盖层
+         ========================================== -->
+    <div class="iframe-overlay" :class="{active: showIframe}">
+        <!-- 嵌套的排位页面 -->
+        <iframe src="https://app.lzqxc.cn/pages/plwRank/plwRank" width="100%" height="100%" frameborder="0"></iframe>
+        
+        <!-- 返回按钮 - 可拖动 -->
+        <button class="btn-back" 
+                :style="{top: backBtnTop + 'px', right: backBtnRight + 'px'}"
+                @touchstart="onBackBtnTouchStart"
+                @touchmove="onBackBtnTouchMove"
+                @touchend="onBackBtnTouchEnd"
+                @mousedown="onBackBtnTouchStart"
+                @click.stop="closeIframe">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        
+        <!-- 密码按钮 -->
+        <button class="btn-password" @click="showPasswordList = true">🔑</button>
+        
+        <!-- 密码列表弹窗 -->
+        <van-popup v-model:show="showPasswordList" position="bottom" round style="max-height: 70%; background: #fff;">
+            <div style="padding: 20px;">
+                <div style="text-align: center; font-size: 18px; margin-bottom: 15px; font-weight: bold;">密码列表</div>
+                <div style="display: flex; font-weight: bold; border-bottom: 1px solid #eee; padding: 10px 0;">
+                    <div style="flex: 1;">账号</div>
+                    <div style="flex: 1; text-align: center;">过期时间</div>
+                </div>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <div v-for="(item, index) in passwordList" :key="index" 
+                         style="display: flex; padding: 10px 0; border-bottom: 1px solid #f5f5f5;">
+                        <div style="flex: 1; cursor: pointer;" :style="{color: copiedIndex === index ? '#07c160' : 'inherit'}" 
+                            @click="copyAccount(item.account, index)">{{item.account}}</div>
+                        <div style="flex: 1; text-align: center;" :style="{color: isExpired(item.date) ? 'red' : '#000'}">{{item.date}}</div>
+                    </div>
+                </div>
+            </div>
+        </van-popup>
+    </div>
+
+    <van-pull-refresh v-model="isLoading" :pull-distance="220" @refresh="onRefresh">
+        <div v-if="show_from">
+            <van-form @submit="onSubmit">
+                <div style="padding: 8px 16px;">
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="lastNum" :class="{luck_num_title:is_before}">幸运号</span>
+                            <span class="kill_str3">
+            <input v-for="(item,index) in 4" class="kill_input"
+                   :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
+                   v-model="luck_num_arr[index]" @click="setNum(index)"
+                   type="text">
+          </span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="setKill()">排位集</span>
+                            <span class="kill_str3">
+                        <input v-for="(item,index) in 4"
+                               :placeholder="index == 0?'万':(index == 1?'千':(index == 2?'百':'十'))" class="kill_input"
+                               v-model="kill_arr[index]" type="text">
+                    </span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span>排合值</span>
+                            <span class="kill_str3"><input @click="getKillHe" placeholder="个" class="kill_input"
+                                                           v-model="sum_not_str"
+                                                           type="text"></span>
+                            <span class="kill_str3"><input @click="getKillHe2" placeholder="合" class="kill_input"
+                                                           v-model="sum_not_str2"
+                                                           type="text"></span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="reward('base_str_one')"
+                                  :class="{base_str_one:is_base_str_one === 0}">幸位集</span>
+                            <span class="kill_str3">
+            <input placeholder="头" class="kill_input" v-model="base_str_one" type="text">
+          </span>
+                            <!--<span class="set-luck" @click="setLuck('base_str_one',1)">0258</span>-->
+                            <span class="set-luck" @click="setLuck('base_str_one',2)"
+                                  :class="{base_str_one:is_base_str_one === 2}">小</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',3)"
+                                  :class="{base_str_one:is_base_str_one === 3}">大</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',4)"
+                                  :class="{base_str_one:is_base_str_one === 4}">单</span>
+                            <span class="set-luck" @click="setLuck('base_str_one',5)"
+                                  :class="{base_str_one:is_base_str_one === 5}">双</span>
+                            <span class="set-luck6" @click="setLuck('base_str_one',6)"
+                                  :class="{base_str_one:is_base_str_one === 6}">正</span>
+                        </div>
+                    </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="reward('base_str_two')"
+                                  :class="{base_str_two:is_base_str_two === 0}">运位集</span>
+                            <span class="kill_str3">
+            <input placeholder="尾" class="kill_input" v-model="base_str_two" type="text">
+          </span>
+                            <!--<span class="set-luck" @click="setLuck('base_str_one',1)">0258</span>-->
+                            <span class="set-luck" @click="setLuck('base_str_two',2)"
+                                  :class="{base_str_one:is_base_str_two === 2}">小</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',3)"
+                                  :class="{base_str_one:is_base_str_two === 3}">大</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',4)"
+                                  :class="{base_str_one:is_base_str_two === 4}">单</span>
+                            <span class="set-luck" @click="setLuck('base_str_two',5)"
+                                  :class="{base_str_one:is_base_str_two === 5}">双</span>
+                            <span class="set-luck6" @click="setLuck('base_str_two',6)"
+                                  :class="{base_str_one:is_base_str_two === 6}">正</span>
+                        </div>
+                    </div>
+
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <div style="display: inline-block">
+                                <span style="position: relative;top: -6px">排双重</span>
+                                <span class="kill_str3"><van-switch size="20px" v-model="kill_repeat"/></span>
+                            </div>
+                            <div style="display: inline-block;margin-left: 10px">
+                                <span style="position: relative;top: -6px">正得正</span>
+                                <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--   <div class="kill_str">
+                           <div class="kill_str2">
+                               <span @click="delBgz">双排</span>
+
+                               </span>
+                               <span class="set-luck" @click="bgz = '1'"
+                                     :class="{base_str_one:bgz === '1'}">1</span>
+                               <span class="set-luck" @click="bgz = '2'"
+                                     :class="{base_str_one:bgz === '2'}">2</span>
+                               <span class="set-luck" @click="bgz = '3'"
+                                     :class="{base_str_one:bgz === '3'}">3</span>
+                               <span class="set-luck" @click="bgz = '4'"
+                                     :class="{base_str_one:bgz === '4'}">4</span>
+                               <span class="set-luck" @click="setBgz('大小')"
+                                     :class="{base_str_one:show_type === '大小'}">大小</span>
+                               <span class="set-luck" @click="setBgz('单双')"
+                                     :class="{base_str_one:show_type === '单双'}">单双</span>
+                           </div>
+                       </div>-->
+                </div>
+                <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
+                    <van-field name="amount" label="金额">
+                        <template #input>
+                            <van-stepper theme="round" min="1" button-size="20" v-model="amount" step="1"/>
+                        </template>
+                    </van-field>
+
+                    <div @click="random" style="color: #ff0090;  flex: 0 0 auto;text-align: center;margin-right: 8px">
+                        {{sort_date}}
+                        <!-- <a @click="random"><span
+                                 style="color: gold;margin-left: 8px">财神</span></a>-->
+                    </div>
+                </div>
+                <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
+                    <van-field name="amount" label="倍数">
+                        <template #input>
+                            <van-stepper theme="round" min="1" button-size="20" v-model="luck_num" step="1"/>
+                        </template>
+                    </van-field>
+                </div>
+
+                <van-cell-group class="number-str">
+                    <van-field
+                            v-model="number_str"
+                            rows="1"
+                            autosize
+                            label=""
+                            type="textarea"
+                            placeholder="生成号码"
+                            show-word-limit
+                            @input="getMoneyAndCount"
+                    />
+                </van-cell-group>
+                <div class="bot_fixed" :class="{active: show_from || showBottomBar}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <van-button type="primary" native-type="submit" size="small" style="border-radius: 16px;">生成</van-button>
+                            <van-button type="success" @click="download" size="small" style="border-radius: 16px;">下载</van-button>
+                            <a target=_blank href="http://datachart.500.com/plw/?expect=100&from=&to=&sort=1" style="background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 4px 10px; border-radius: 14px; font-size: 11px; text-decoration: none;">势图</a>
+                            <a @click="showLuckList" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; padding: 4px 10px; border-radius: 14px; font-size: 11px; text-decoration: none;">幸运</a>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 12px; color: #1989fa;">总:{{number_count}}</span>
+                            <span style="font-size: 12px; color: #07c160;">额:{{number_money}}</span>
+                        </div>
+                    </div>
+                </div>
+            </van-form>
+        </div>
+        <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
+             @touchend="handleTouchEnd">
+            <div @click="show_from = true" style="position: fixed;top: 2%;left: 0px;color: #1e9fff;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </div>
+            <div @click="is_he = !is_he" style="position: fixed;top: 2%;right: 0px;color: #1e9fff;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </div>
+            <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
+                 <a :class="{base_str_one:show_type === '大小'}" @click="setBgz('大小')">
+                     大小
+                 </a>
+                 <a :class="{base_str_one:show_type === '单双'}" @click="setBgz('单双')">
+                     单双
+                 </a>
+             </div>-->
+            <van-list
+                    v-model="loading"
+                    :finished="finished"
+                    offset="300"
+                    immediate-check="false"
+                    finished-text="没有更多了"
+                    loading-text="加载中"
+                    @load="onLoad"
+            >
+                <div v-if="is_bgz && in_he.includes(show_type)" class="luck_list3" style="display: block !important;">
+                        <span v-if="show_type == '二合'" style="font-size: 12px !important;color: #00FF00"
+                              class="luck_list_span"
+                              v-for="(item3,index3) in 6"
+                              :key="index3">{{wz_arr[index3]}}</span>
+
+                    <span v-if="show_type == '三合'" style="font-size: 12px !important;color: #00FF00"
+                          class="luck_list_span"
+                          v-for="(item3,index3) in 4"
+                          :key="index3">{{wz_arr3[index3]}}</span>
+                    <span v-if="show_type == '四合'" style="font-size: 12px !important;color: #00FF00"
+                          class="luck_list_span"
+                          :key="index3">1234</span>
+                </div>
+                <div v-for="(item,index) in luck_list" :key="index">
+                    <span v-if="is_bgz && !in_he.includes(show_type)" class="luck_list_span"
+                          v-for="(item2,index2) in item.data"
+                          :class="{kill_input_red:getShowColor(item.data,index2,index),kill_input_opacity:index2 === 4}"
+                          style="font-size: 20px!important;"
+                          :key="index2">{{getShow(item2.num)}}
+                    </span>
+                    <div v-if="is_bgz && in_he.includes(show_type)" class="luck_list3">
+                         <span v-if="show_type == '二合'" style="font-size: 20px!important;" class="luck_list_span"
+                               v-for="(item3,index3) in 6"
+                               :class="{kill_input_red:getBgzColor(item.num,index3,index),kill_input_opacity:index2 === 4}"
+                               :key="index3">{{getBgz(item.num,index3)}}</span>
+
+                        <span v-if="show_type == '三合'" style="font-size: 20px!important;" class="luck_list_span"
+                              v-for="(item3,index3) in 4"
+                              :class="{kill_input_red:getBgzColor(item.num,index3,index),kill_input_opacity:index2 === 4}"
+                              :key="index3">{{getBgz(item.num,index3)}}</span>
+
+                        <span v-if="show_type == '四合'" style="font-size: 20px!important;" class="luck_list_span"
+                              v-for="(item3,index3) in 1"
+                              :class="{kill_input_red:getBgzColor(item.num,index3,index),kill_input_opacity:index2 === 4}"
+                              :key="index3">{{getBgz(item.num,index3)}}</span>
+                    </div>
+                    <span v-if="!is_bgz" class="luck_list_span"
+                          :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
+                          v-for="(item2,index2) in item.data"
+                          :key="index2">{{item2.num}}
+                    </span>
+                    <div class="luck_list2">
+                        <span>{{number_lists[item.num].sort}}</span>
+                        <span>{{number_lists[item.num].data.slice(-5)}}</span>
+                    </div>
+                </div>
+                <div v-show="loading" style="text-align: center; color: #1989fa; padding: 10px 0;">加载中...</div>
+            </van-list>
+
+            <div class="bot_fixed" :class="{active: show_from || showBottomBar}">
+                <div class="bot_left">
+                    <van-button size="large" type="success" @click="setBgz('二合')">
+                        二合
+                    </van-button>
+                    <van-button size="large" type="primary" @click="setBgz('三合')">
+                        三合
+                    </van-button>
+                    <van-button size="large" type="success" @click="setBgz('四合')">
+                        四合
+                    </van-button>
+                    <van-button size="large" type="primary" @click="setBgz('大小')">
+                        大小
+                    </van-button>
+                    <van-button size="large" type="success" @click="setBgz('单双')">
+                        单双
+                    </van-button>
+                    <van-button size="large" type="primary" @click="setBgz('双重')">
+                        双重
+                    </van-button>
+                    <!--                    <van-button size="large" type="success" @click="setBgz('合值')">
+                                            合值
+                                        </van-button>-->
+                </div>
+            </div>
+
+            <!-- 回到顶部按钮 -->
+            <van-back-top right="0" bottom="20"/>
+        </div>
+    </van-pull-refresh>
+</div>
+</body>
+
+<!-- 引入 Vue 和 Vant 的 JS 文件 -->
+<script src="https://fastly.jsdelivr.net/npm/vue@3"></script>
+<script src="https://fastly.jsdelivr.net/npm/vant@4/lib/vant.min.js"></script>
+<script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+<script type="text/javascript">
+
+    const {createApp} = Vue;
+
+    const app = createApp({
+        data() {
+            return {
+                loading: false,
+                finished: false,
+                luck_list: [],
+                show_from: true,
+                is_bgz: false,
+                show_type: '',
+                isLoading: false,
+                pageNo: 1,
+                api_num_url: 'https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=350133&provinceId=0&pageSize=100&pageNo=',
+                num_list: [],
+                num_list2: [],
+                num_list3: [],
+                num_list_new: [],
+                number_lists: [],
+                is_before: 0,
+                is_base_str_one: false,
+                is_base_str_two: false,
+                base_str: '',
+                base_str_one: '',
+                base_str_two: '',
+                sort_number: '',
+                sort_date: '',
+                //4上一期对应号：空''-对应不排
+                luck_num_arr: ['x', 'x', 'x', 'x'],
+                red_arr: [],
+                blue_arr: [],
+
+                kill_arr: ['', '', '', ''],
+
+                wz_arr: ['12', '13', '14', '23', '24', '34'],
+                wz_arr3: ['123', '124', '134', '234'],
+                dx_arr: {
+                    '小小': 1,
+                    '小大': 2,
+                    '大小': 3,
+                    '大大': 4,
+                },
+                ds_arr: {
+                    '单单': 1,
+                    '单双': 2,
+                    '双单': 3,
+                    '双双': 4,
+                },
+                //合值
+                sum_not_str: '',
+                sum_not_str2: '',
+                //排号
+                kill_num_str: '',
+                //双排
+                bgz: '',
+                in_he: ['二合', '三合', '四合'],
+                is_data: true,
+                is_he: true,
+
+                kill_back: false,
+                kill_repeat: false,
+                touch: {
+                    startX: 0,
+                    endX: 0,
+                    threshold: 160,
+                },
+
+                //倍数
+                luck_num: 8,
+                //金额
+                amount: 10,
+
+                number_str: '',
+                number_count: 0,
+                number_money: 0,
+                
+                /* ========== iframe嵌套页面相关 ========== */
+                showIframe: false,                    // 控制iframe显示/隐藏
+                showBottomBar: false,                  // 控制底部按钮显示/隐藏
+                showPasswordList: false,             // 控制密码列表弹窗显示/隐藏
+                copiedIndex: -1,                      // 当前复制的账号索引
+                btnPosition: {                        // 浮动按钮位置（可拖动）
+                    right: 10, 
+                    top: Math.max(0, (window.innerHeight - 50) / 2)  // 初始居中
+                },
+                btnTouch: {                           // 按钮拖动相关触摸数据
+                    startX: 0, startY: 0, 
+                    startTop: 0, startRight: 0
+                },
+                backBtnTop: 10,                        // 返回按钮顶部位置
+                backBtnRight: 10,                      // 返回按钮右侧位置
+                backBtnTouch: {                        // 返回按钮拖动数据
+                    isDragging: false,
+                    startX: 0, startY: 0,
+                    startTop: 0, startRight: 0
+                },
+                
+                /* ========== 密码列表数据 ========== */
+                passwordList: [
+                    {account: '13671461113', date: '2027-12-12 08:00:00'},
+                    {account: '13700466665', date: '2027-03-09 20:05:18'},
+                    {account: '15219204820', date: '2027-02-19 20:28:55'},
+                    {account: '13876989029', date: '2026-12-31 21:04:33'},
+                    {account: '13337622477', date: '2026-12-18 16:42:11'},
+                    {account: '13519803293', date: '2026-11-02 19:00:36'},
+                    {account: '18707507428', date: '2026-10-22 10:02:48'},
+                    {account: '13729199883', date: '2026-10-16 09:10:59'},
+                    {account: '13232724926', date: '2026-09-10 05:58:37'},
+                    {account: '18924690080', date: '2026-08-11 09:11:55'},
+                    {account: '13189828817', date: '2026-06-30 01:06:59'},
+                    {account: '13822579550', date: '2026-06-22 22:15:25'},
+                    {account: '13434699592', date: '2026-06-14 21:39:19'},
+                    {account: '13138921130', date: '2026-06-10 22:00:38'},
+                    {account: '13876018353', date: '2026-06-10 19:10:01'},
+                    {account: '13437868389', date: '2026-06-09 17:30:39'},
+                    {account: '13876664985', date: '2026-06-08 19:26:40'},
+                    {account: '15219266256', date: '2026-06-08 19:14:46'},
+                    {account: '13620434199', date: '2026-06-05 19:24:58'},
+                    {account: '13824847949', date: '2026-06-04 20:37:51'},
+                    {account: '18976214962', date: '2026-06-03 16:36:03'},
+                    {account: '13078996767', date: '2026-06-02 01:27:30'},
+                ],
+            };
+        },
+        async created() {
+            let luck_num_arr = ["8", "8", "8", "8"];
+            let luck_num_list = [];
+            let luck_num_list2 = [];
+            let sort_number = '88888';
+            let sort_date = dayjs().format('YYYY-MM-DD');
+            let num_list = [];
+            let num_list_news = [];
+            let number_lists = [];
+
+
+            if (this.is_data) {
+                luck_num_list = [0, 8, 6, 8, 9];
+                luck_num_list2 = [0, 8, 6, 8, 9];
+                let num = '08689';
+                luck_num_list.pop();
+                num_list.push(luck_num_list)
+                num_list_news.push(luck_num_list2)
+                num_list.push(luck_num_list)
+                num_list_news.push(luck_num_list2)
+
+                number_lists[num] = {
+                    num,
+                    sort: 11,
+                    data: '2026-01-01'
+                };
+                luck_num_arr = [0, 8, 6, 8, 9];
+                luck_num_arr.pop();
+                sort_number = 11
+                sort_date = '2026-01-01'
+            } else {
+
+                let url = this.api_num_url + this.pageNo;
+                await axios.get(url)
+                    .then((res) => {
+                        let {data} = res;
+                        if (data.success) {
+                            data.value.list.forEach(function (item) {
+                                luck_num_list = item.lotteryDrawResult.split(' ');
+                                luck_num_list2 = item.lotteryDrawResult.split(' ');
+                                let num = luck_num_list2.join('');
+                                luck_num_list.pop();
+                                num_list.push(luck_num_list)
+                                num_list_news.push(luck_num_list2)
+
+                                number_lists[num] = {
+                                    num,
+                                    sort: item.lotteryDrawNum,
+                                    data: item.lotteryDrawTime
+                                };
+                            })
+                            luck_num_arr = data.value.lastPoolDraw.lotteryDrawResult.split(' ')
+                            luck_num_arr.pop();
+                            sort_number = data.value.lastPoolDraw.lotteryDrawNum
+                            sort_date = data.value.lastPoolDraw.lotteryDrawTime
+                        }
+                        //this.base_str = res.data.base_str;
+                    }) // 把结果集传到info这个数组
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+
+            this.number_lists = number_lists;
+
+            let red_arr = [];
+            let blue_arr = [];
+            let num_list_new = JSON.parse(JSON.stringify(num_list_news));
+            let n = 1;
+            do {
+                [blue_arr, red_arr] = this.getNotYes(n, luck_num_arr, num_list_new, blue_arr, red_arr);
+                if (blue_arr.length > 1) n = 20;
+                n++;
+            } while (n <= 20);
+            this.red_arr = red_arr;
+            this.blue_arr = blue_arr;
+            this.num_list = num_list;
+            this.num_list2 = JSON.parse(JSON.stringify(num_list));
+            this.num_list3 = JSON.parse(JSON.stringify(num_list));
+            this.num_list_new = JSON.parse(JSON.stringify(num_list_news));
+            this.luck_num_arr = luck_num_arr;
+            this.this_num_arr = JSON.parse(JSON.stringify(luck_num_arr));
+            this.sort_number = sort_number;
+            this.sort_date = sort_date;
+        },
+        methods: {
+            onLoad() {
+                if (this.loading || this.finished) return;
+                this.loading = true;
+
+                // setTimeout 仅做示例，真实场景中一般为 ajax 请求
+                setTimeout(async () => {
+                    // 异步更新数据
+                    this.pageNo++;
+                    console.log(this.pageNo)
+                    let url = this.api_num_url + this.pageNo;
+                    let luck_num_list = [];
+                    let luck_num_list2 = [];
+                    let num_list = [];
+                    let num_list_news = [];
+                    let number_lists = [];
+                    await axios.get(url)
+                        .then((res) => {
+                            let {data} = res;
+                            if (data.success) {
+                                data.value.list.forEach(function (item) {
+                                    luck_num_list = item.lotteryDrawResult.split(' ');
+                                    luck_num_list2 = item.lotteryDrawResult.split(' ');
+                                    let num = luck_num_list2.join('');
+                                    luck_num_list.pop();
+                                    num_list.push(luck_num_list)
+                                    num_list_news.push(luck_num_list2)
+                                    number_lists[num] = {
+                                        num,
+                                        sort: item.lotteryDrawNum,
+                                        data: item.lotteryDrawTime
+                                    };
+                                })
+                            }
+                            //this.base_str = res.data.base_str;
+                        }) // 把结果集传到info这个数组
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                    this.num_list_new.push(...num_list_news);
+                    Object.assign(this.number_lists, number_lists);
+                    //this.number_lists.push(...number_lists);
+                    // 加载状态结束
+                    this.loading = false;
+                    // 数据全部加载完成
+                    if (!num_list) {
+                        this.finished = true;
+                    }
+                    await this.setLuckList()
+                }, 1000);
+            },
+            onRefresh() {
+                setTimeout(() => {
+                    this.isLoading = false;
+                    window.location.reload();
+                }, 1000);
+            },
+            showLuckList() {
+                this.show_from = false;
+                this.is_bgz = false;
+                this.setLuckList()
+            },
+            setLuckList() {
+                let n = 1;
+                do {
+                    let blue_arr = [];
+                    let red_arr = [];
+                    let num_list_new = JSON.parse(JSON.stringify(this.num_list_new));
+                    let luck_num_arr = this.num_list_new.shift();
+                    [blue_arr, red_arr] = this.getNotYes(1, luck_num_arr, num_list_new, blue_arr, red_arr);
+                    let luck_list_new = [];
+                    luck_num_arr.forEach(function (num, index) {
+                        luck_list_new.push({
+                            num,
+                            red: red_arr.includes(index)
+                        })
+                    })
+                    this.luck_list.push({num: luck_num_arr.join(''), data: luck_list_new})
+                    n++;
+                } while (n <= 50);
+
+            },
+
+            setNum(index = 'all') {
+                if (index == 'all') {
+                    this.luck_num_arr = JSON.parse(JSON.stringify(this.this_num_arr));
+                } else {
+                    this.luck_num_arr[index] = this.luck_num_arr[index] == 'x' ? this.this_num_arr[index] : 'x';
+                }
+            },
+            async random() {
+                this.setNum('all');
+                this.clickKill('all');
+                let clicks = [0, 1, 2, 3];
+                for (let i = 0; i < 2; i++) {
+
+                    const find = function () {
+                        let r = Math.round(Math.random() * 3);
+                        let index = clicks.findIndex(v => v == r);
+                        if (index !== -1) {
+                            return {r, index};
+                        }
+                        return find();
+                    };
+
+                    const {r, index} = find();
+                    clicks.splice(index, 1);
+
+                    await this.setNum(r)
+                }
+                let r = Math.round(Math.random() * 1);
+                for (let i = 0; i < 2; i++) {
+                    let num = r == i ? 2 : 1;
+                    await this.clickKill(clicks[i], num);
+                }
+                setTimeout(() => {
+                    this.onSubmit('random')
+                }, 100)
+            },
+            lastNum() {
+                let blue_arr = [];
+                let red_arr = [];
+                this.red_arr = [];
+                this.blue_arr = [];
+                this.is_before++;
+                let num_list_new = JSON.parse(JSON.stringify(this.num_list3));
+                if (this.is_before > 1) {
+                    this.num_list2.shift();
+                }
+                let luck_num_arr = this.num_list3.shift();
+                this.this_num_arr = luck_num_arr;
+                this.luck_num_arr = JSON.parse(JSON.stringify(luck_num_arr));
+                //[blue_arr, red_arr] = this.getNotYes(1, this.luck_num_arr, num_list_new, blue_arr, red_arr);
+                let n = 1;
+                do {
+                    [blue_arr, red_arr] = this.getNotYes(n, luck_num_arr, num_list_new, blue_arr, red_arr);
+                    if (blue_arr.length > 1) n = 20;
+                    n++;
+                } while (n <= 20);
+
+                this.red_arr = red_arr;
+                this.blue_arr = blue_arr;
+            },
+            getNotYes(n, luck_num_arr, num_list_new, blue_arr, red_arr) {
+
+                let num_list0 = num_list_new.shift();
+                luck_num_arr.forEach(function (item0, sort) {
+                    let new_list = [];
+                    for (let i = 0; i < 10; i++) {
+                        new_list[i] = num_list_new.findIndex(item1 => item1[sort] == i);
+                    }
+                    let new_list2 = JSON.parse(JSON.stringify(new_list));
+                    let max = Math.max.apply(null, new_list2);
+                    new_list2.sort((a, b) => a - b);
+                    let n5 = new_list2[4]
+                    let arr = []
+                    new_list.forEach(function (item, index) {
+                        if (item < max) arr.push(index);
+                        //if (item == 0 || (item < max && item > n5)) arr.push(index);
+                    })
+                    if (!arr.includes(parseInt(num_list0[sort])) && !blue_arr.includes(sort)) {
+                        blue_arr.push(sort)
+                        if (n === 1) red_arr.push(sort)
+                    }
+                })
+                return [blue_arr, red_arr];
+            },
+            reward(filed = 'base_str_one') {
+
+                let in_not_eq_arr = this.getInNotEq(this.luck_num_arr);
+                if (in_not_eq_arr.length != 2) {
+                    vant.showToast('先选两位');
+                    return;
+                }
+                this[`is_${filed}`] = 0;
+                let s = filed === 'base_str_one' ? 0 : 1;
+
+                let sort = in_not_eq_arr[s]['sort'];
+
+                let new_list = [];
+                for (let i = 0; i < 10; i++) {
+                    new_list[i] = this.num_list2.findIndex(item => item[sort] == i);
+                }
+                let new_list2 = JSON.parse(JSON.stringify(new_list));
+                let max = Math.max.apply(null, new_list2);
+                new_list2.sort((a, b) => a - b);
+                let n5 = new_list2[4]
+                let str = ''
+                new_list.forEach(function (item, index) {
+                    if (item < max) str += index.toString();
+                    //if (item == 0 || (item < max && item > n5)) str += index.toString();
+                })
+                this[filed] = str
+
+            },
+            setKill() {
+                let in_not_eq_arr = this.getInNotEq(this.luck_num_arr);
+                if (in_not_eq_arr.length != 2) {
+                    vant.showToast('先选两位');
+                    return;
+                }
+                this.kill_arr = ['', '', '', ''];
+                [0, 1].forEach((s) => {
+
+                    let sort = in_not_eq_arr[s]['sort'];
+
+                    let new_list = [];
+                    for (let i = 0; i < 10; i++) {
+                        new_list[i] = this.num_list2.findIndex(item => item[sort] == i);
+                    }
+                    let new_list2 = JSON.parse(JSON.stringify(new_list));
+                    let max = Math.max.apply(null, new_list2);
+                    new_list2.sort((a, b) => a - b);
+
+                    this.kill_arr[sort] = new_list.findIndex(v => v == max).toString()
+                })
+
+            },
+            setLuck(filed = 'base_str', type = 1) {
+                switch (type) {
+                    case 1:
+                        this[filed] = '0258';
+                        break;
+                    case 2:
+                        this[filed] = '01234';
+                        break;
+                    case 3:
+                        this[filed] = '56789';
+                        break;
+                    case 4:
+                        this[filed] = '13579';
+                        break;
+                    case 5:
+                        this[filed] = '02468';
+                        break;
+                    case 6:
+                        var str = this[filed];
+                        var arr = [];
+                        for (let i = 0; i < 10; i++) {
+                            if (str.indexOf(i) === -1) arr.push(i)
+                        }
+                        this[filed] = arr.join('');
+                        break;
+                }
+                this[`is_${filed}`] = type;
+            },
+
+            getKillHe() {
+                if (this.sum_not_str) {
+                    return;
+                }
+                let num = 0;
+                this.luck_num_arr.forEach((not_kill_arrV) => {
+                    if (not_kill_arrV != 'x') {
+                        num += parseInt(not_kill_arrV);
+                    }
+                });
+                num = this.getUnitsDigit(num);
+                this.sum_not_str = num.toString();
+            },
+            getKillHe2() {
+                if (this.sum_not_str2) {
+                    return;
+                }
+                let num = 0;
+                this.luck_num_arr.forEach((not_kill_arrV) => {
+                    if (not_kill_arrV != 'x') {
+                        num += parseInt(not_kill_arrV);
+                    }
+                });
+                this.sum_not_str2 = num.toString();
+            },
+            getUnitsDigit(num) {
+                return Math.abs(Math.floor(num)) % 10;
+            },
+            onSubmit(values = '') {
+                console.log('submit', values);
+                if (this.is_before > 1) {
+                    vant.showToast('历史');
+                    //return;
+                }
+                let base_list = [];
+                if (!this.base_str) {
+                    for (let n = 0; n < 10; n++) {
+                        base_list.push(n);
+                    }
+                } else {
+                    base_list = Array.from(this.base_str).map(val => parseInt(val));
+                }
+                let base_one_list = [];
+                let base_two_list = [];
+                let base_one_two_type = false;
+                if (this.base_str_one && this.base_str_two) {
+                    base_one_list = Array.from(this.base_str_one).map(val => parseInt(val));
+                    base_two_list = Array.from(this.base_str_two).map(val => parseInt(val));
+                    base_one_two_type = true;
+                }
+                let num_arr = [];
+                let base_num_arr = [];
+                let money_sum = 0;
+                let in_not_eq_arr = this.getInNotEq(this.luck_num_arr);
+                if (in_not_eq_arr.length != 2) {
+                    vant.showToast('只能选两位');
+                    return;
+                }
+                /*if (base_one_two_type === false) {
+                    this.chekNum(in_not_eq_arr);
+                }*/
+                for (let i1i = 0; i1i < 10; i1i++) {
+
+                    for (let i2i = 0; i2i < 10; i2i++) {
+
+                        for (let i3i = 0; i3i < 10; i3i++) {
+
+                            for (let i4i = 0; i4i < 10; i4i++) {
+
+                                let money = this.amount;
+                                //重置号码
+                                const i_arr = [i1, i2, i3, i4] = this.resetNum(in_not_eq_arr, [i1i, i2i, i3i, i4i]);
+                                let type = true;
+
+                                if (base_one_two_type) {
+                                    if (!base_one_list.includes(parseInt(i_arr[in_not_eq_arr[0]['sort']])) && !base_two_list.includes(parseInt(i_arr[in_not_eq_arr[1]['sort']]))) continue;
+                                } else {
+                                    i_arr.forEach(i_arr_v => {
+                                        if (base_list.includes(parseInt(i_arr_v))) type = false;
+                                    });
+                                    if (type) continue;
+                                }
+                                //除重
+                                if (this.kill_repeat && i_arr[in_not_eq_arr[0]['sort']] == i_arr[in_not_eq_arr[1]['sort']]) continue;
+
+                                //排合值
+                                type = this.kilSumNot(i_arr);
+                                if (type) continue;
+                                type = this.kilRepeat(i_arr);
+                                if (type) continue;
+                                //1排除
+                                type = this.killAll(i_arr);
+                                if (type) continue;
+
+                                let num = i_arr.join('', '');
+                                //双排
+                                //if (this.bgz && this.show_type && this.getBgz(num) == this.bgz) continue;
+
+                                if (this.kill_num_str) {
+                                    let kill_num_arr = this.kill_num_str.split(',');
+                                    let kill_num_arrs = this.kill_num_strs.split(',');
+                                    if (kill_num_arrs.includes(num) && this.amount_num_str > 0) money = this.amount_num_str;
+                                    else if (kill_num_arr.includes(num)) continue;
+                                }
+                                money *= this.luck_num;
+                                let str_num = `${num}=${money}`;
+                                if (num_arr.includes(str_num)) continue;
+                                money_sum += money;
+                                num_arr.push(str_num);
+                                base_num_arr.push(num)
+                            }
+                        }
+                    }
+                }
+
+                if (this.kill_back) {
+                    num_arr = [];
+                    money_sum = 0;
+                    for (let i1i = 0; i1i < 10; i1i++) {
+
+                        for (let i2i = 0; i2i < 10; i2i++) {
+
+                            for (let i3i = 0; i3i < 10; i3i++) {
+
+                                for (let i4i = 0; i4i < 10; i4i++) {
+
+                                    let money = this.amount;
+                                    //重置号码
+                                    const i_arr = [i1, i2, i3, i4] = this.resetNum(in_not_eq_arr, [i1i, i2i, i3i, i4i]);
+                                    let num = i_arr.join('', '');
+
+                                    if (base_num_arr.includes(num)) continue;
+
+                                    money *= this.luck_num;
+                                    let str_num = `${num}=${money}`;
+                                    if (num_arr.includes(str_num)) continue;
+                                    money_sum += money;
+                                    num_arr.push(str_num);
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                this.number_str = num_arr.join(',');
+                this.number_count = num_arr.length;
+                this.number_money = money_sum;
+                this.chekMoney();
+
+            },
+            /*chekNum(in_not_eq_arr) {
+                let small = big = 0;
+                in_not_eq_arr.forEach((item) => {
+                    if (parseInt(item.num) < 5) {
+                        small++;
+                    } else {
+                        big++;
+                    }
+                });
+                if (small > 1 && this.base_str === '01234') {
+                    vant.showToast('小-小');
+                } else if (big > 1 && this.base_str === '56789') {
+                    vant.showToast('大-大');
+                }
+            },*/
+            chekMoney() {
+                if (this.number_money > 5000) {
+                    vant.showToast('✅');
+                }
+            },
+            handleTouchStart(event) {
+                this.touch.startX = event.touches[0].clientX;
+            },
+
+            handleTouchMove(event) {
+                this.touch.endX = event.touches[0].clientX;
+            },
+
+            handleTouchEnd() {
+                if (this.touch.endX - this.touch.startX > this.touch.threshold) {
+                    // 右滑触发
+                    console.log('右滑触发');
+                    // 在这里执行你想要的操作，比如导航到上一页
+                    //this.show_from = true;
+                }
+            },
+            getInNotEq(luck_num_arr) {
+
+                let in_not_eq = [];
+                luck_num_arr.forEach((not_kill_arrV, not_kill_arrK) => {
+                    if (not_kill_arrV != 'x') {
+                        in_not_eq.push({
+                            sort: not_kill_arrK,
+                            num: not_kill_arrV,
+                        });
+                    }
+                });
+                return in_not_eq;
+            },
+            setBgz(type) {
+                this.is_bgz = true
+                this.show_type = type;
+            },
+            delBgz() {
+                this.bgz = ''
+                this.show_type = '';
+            },
+            resetNum(in_not_eq_arr, i_arr) {
+
+                let in_not_eq_sort = [];
+                in_not_eq_arr.forEach(item => {
+                    in_not_eq_sort.push(item.sort);
+                });
+                for (let i = 0; i < 4; i++) {
+                    if (!in_not_eq_sort.includes(i)) {
+                        i_arr[i] = 'x';
+                    }
+                }
+                return i_arr;
+            },
+            killAll(i_arr) {
+                let type = false;
+                //1排除
+                this.kill_arr.forEach((kill_arrV, kill_arrK) => {
+                    let ii = i_arr[kill_arrK];
+                    if (kill_arrV != '' && kill_arrV.indexOf(ii.toString()) != -1) {
+                        type = true;
+                    }
+                });
+                return type;
+            },
+
+            kilRepeat(i_arr) {
+                let sum_not_arr = this.sum_not_str2.split(",");
+
+                let num = 0;
+                i_arr.forEach((i_arrV) => {
+                    if (i_arrV != 'x') {
+                        num += parseInt(i_arrV);
+                    }
+                });
+                return sum_not_arr.includes(num.toString());
+            },
+            kilSumNot(i_arr) {
+                let sum_not_arr = this.sum_not_str.split("");
+
+                let num = 0;
+                i_arr.forEach((i_arrV) => {
+                    if (i_arrV != 'x') {
+                        num += parseInt(i_arrV);
+                    }
+                });
+                num = this.getUnitsDigit(num);
+                return sum_not_arr.includes(num.toString());
+            },
+            getShowColor(nums, i = 0, index = 0) {
+
+                if (this.show_type == '合值') {
+                    if (this.luck_list[index + 1]) {
+                        var last_nums = this.luck_list[index + 1].data;
+                        for (var i2 = 0; i2 < 5; i2++) {
+                            if (i == i2) continue;
+                            if ((parseInt(nums[i].num) + parseInt(nums[i2].num)) % 10 == (parseInt(last_nums[i].num) + parseInt(last_nums[i2].num)) % 10) return true;
+                        }
+                    }
+                }
+
+                if (this.show_type == '双重') {
+                    for (var i2 = 0; i2 < 5; i2++) {
+                        if (i != i2 && nums[i].num == nums[i2].num) return true;
+                    }
+                }
+
+                if (this.show_type == '大小') {
+                    return nums[i].num < 5 ? true : false
+                }
+                ;
+                if (this.show_type == '单双') {
+                    return [false, true][nums[i].num % 2]
+                }
+                return false;
+
+            },
+            getShow(num) {
+                if (this.show_type == '大小') {
+                    return num < 5 ? '小' : '大'
+                }
+                ;
+                if (this.show_type == '单双') {
+                    return ['双', '单'][num % 2]
+                }
+
+                return num;
+
+            },
+            // 1234  12 13 14 23 24 34
+            // 1234  123 124 134 234
+            getBgz(num, i = false) {
+
+                var n = [];
+                var sum = 0;
+                if (this.show_type == '二合') {
+                    if (num.includes('x')) {
+                        n = num.replace(/x/g, '');
+                    } else {
+                        n = this.getTwoDigitPairs(num, i);
+                    }
+                    sum = parseInt(n[0]) + parseInt(n[1]);
+                } else {
+
+                    n = String(num).split('').map(Number);
+                    if (this.show_type == '三合') {
+
+                        if (i == 0) {
+                            sum = parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]);
+
+                        } else if (i == 1) {
+                            sum = parseInt(n[0]) + parseInt(n[1]) + parseInt(n[3]);
+
+                        } else if (i == 2) {
+                            sum = parseInt(n[0]) + parseInt(n[2]) + parseInt(n[3]);
+
+                        } else if (i == 3) {
+                            sum = parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3]);
+                        }
+                    } else if (this.show_type == '四合') {
+                        sum = parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3]);
+                    }
+                }
+                if (this.is_he) {
+                    sum = sum % 10;
+                }
+                return sum;
+            },
+            getBgzColor(num, i = 0, index = 0) {
+
+                var n, n2 = [];
+                if (!this.luck_list[index + 1]) return false;
+                var num2 = this.luck_list[index + 1].num;
+
+                let sum, sum2 = 0;
+
+                if (this.show_type == '二合') {
+
+                    if (num.includes('x')) {
+                        n = num.replace(/x/g, '');
+                    } else {
+                        n = this.getTwoDigitPairs(num, i);
+                    }
+                    if (num2.includes('x')) {
+                        n2 = num2.replace(/x/g, '');
+                    } else {
+                        n2 = this.getTwoDigitPairs(num2, i);
+                    }
+
+                    sum = parseInt(n[0]) + parseInt(n[1]);
+                    sum2 = parseInt(n2[0]) + parseInt(n2[1]);
+
+                } else {
+                    n = String(num).split('').map(Number);
+                    n2 = String(num2).split('').map(Number);
+
+                    if (this.show_type == '三合') {
+
+                        if (i == 0) {
+                            sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]));
+                            sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[2]));
+                        } else if (i == 1) {
+                            sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[3]));
+                            sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[3]));
+                        } else if (i == 2) {
+                            sum = (parseInt(n[0]) + parseInt(n[2]) + parseInt(n[3]));
+                            sum2 = (parseInt(n2[0]) + parseInt(n2[2]) + parseInt(n2[3]));
+                        } else if (i == 3) {
+                            sum = (parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3]));
+                            sum2 = (parseInt(n2[1]) + parseInt(n2[2]) + parseInt(n2[3]));
+                        }
+                    } else if (this.show_type == '四合') {
+                        sum = (parseInt(n[0]) + parseInt(n[1]) + parseInt(n[2]) + parseInt(n[3]));
+                        sum2 = (parseInt(n2[0]) + parseInt(n2[1]) + parseInt(n2[2]) + parseInt(n2[3]));
+                    }
+                }
+                if (this.is_he) {
+                    sum = sum % 10;
+                    sum2 = sum2 % 10;
+                }
+                return sum == sum2;
+            },
+            getTwoDigitPairs(str, index) {
+                const result = [];
+                const len = str.length - 1;
+                for (let i = 0; i < len; i++) {
+                    for (let j = i + 1; j < len; j++) {
+                        const pair = str[i] + str[j];
+                        result.push(pair);
+                        // 如果不包含排除数字，加入结果
+                        if (result[index]) {
+                            return result[index];
+                        }
+                    }
+                }
+            },
+            clickKill(index = 'all', num = 1) {
+                if (index == 'all') {
+                    this.kill_arr = ['', '', '', ''];
+                } else {
+                    let k_arr = [];
+                    for (let i = 0; i < num; i++) {
+                        let fun = function () {
+                            let r = Math.round(Math.random() * 9).toString();
+                            if (k_arr.includes(r)) {
+                                return fun();
+                            }
+                            return r;
+                        }
+                        k_arr.push(fun());
+
+                    }
+                    this.kill_arr[index] = k_arr.join('');
+                }
+            },
+            copyText() {
+                // 要保存的字符串
+                navigator.clipboard.writeText(this.number_str).then(function () {
+                    vant.showToast('复制成功');
+                }, function (err) {
+                    vant.showToast('复制失败');
+                });
+            },
+            download() {
+                // 要保存的字符串
+                const stringData = this.number_str;
+                // dada 表示要转换的字符串数据，type 表示要转换的数据格式
+                const blob = new Blob([stringData], {
+                    type: "text/plain;charset=utf-8"
+                });
+                // 根据 blob生成 url链接
+                const objectURL = URL.createObjectURL(blob);
+                // 创建一个 a 标签Tag
+                const aTag = document.createElement('a');
+                // 设置文件的下载地址
+                aTag.href = objectURL;
+                // 设置保存后的文件名称
+                let fileName = this.getFileName();
+                aTag.download = `${fileName}.txt`;
+                // 给 a 标签添加点击事件
+                aTag.click();
+                // 释放一个之前已经存在的、通过调用 URL.createObjectURL() 创建的 URL 对象。
+                // 当你结束使用某个 URL 对象之后，应该通过调用这个方法来让浏览器知道不用在内存中继续保留对这个文件的引用了。
+                URL.revokeObjectURL(objectURL);
+                vant.showToast('下载成功');
+            },
+            getFileName() {
+                let h = dayjs().format('HH');
+                let time = dayjs().format('MM-DD');
+                if (h >= 22) {
+                    time = dayjs().add(1, 'day').format('MM-DD');
+                }
+                let sort_number = parseInt(this.sort_number) + 1;
+                return `${this.number_money}_${this.number_count}_${sort_number}_${time}`;
+            },
+            getMoneyAndCount() {
+                let number_money = 0;
+                let number_arr = this.number_str.split(',');
+                let number_count = number_arr.length;
+                let num_arr = [];
+                number_arr.forEach((item) => {
+                    num_arr = item.split('=');
+                    if (num_arr.length > 1) {
+                        let value = num_arr[1];
+                        if (!isNaN(value) && value.trim() !== '') {
+                            number_money += Number(value);
+                        }
+                    }
+
+                })
+                this.number_count = number_count;
+                this.number_money = number_money;
+            },
+            
+            /* ========== iframe嵌套页面相关方法 ========== */
+            
+            /**
+             * 关闭iframe嵌套页面
+             */
+            closeIframe() {
+                this.showIframe = false;
+            },
+            
+            /**
+             * 返回按钮拖动开始
+             */
+            onBackBtnTouchStart(e) {
+                if (e.type === 'click') return;
+                const touch = e.touches ? e.touches[0] : e;
+                this.backBtnTouch.isDragging = true;
+                this.backBtnTouch.startX = touch.clientX;
+                this.backBtnTouch.startY = touch.clientY;
+                this.backBtnTouch.startTop = this.backBtnTop;
+                this.backBtnTouch.startRight = this.backBtnRight;
+            },
+            
+            /**
+             * 返回按钮拖动中
+             */
+            onBackBtnTouchMove(e) {
+                if (!this.backBtnTouch.isDragging) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - this.backBtnTouch.startX;
+                const deltaY = touch.clientY - this.backBtnTouch.startY;
+                this.backBtnTop = Math.max(0, this.backBtnTouch.startTop + deltaY);
+                this.backBtnRight = Math.max(0, this.backBtnTouch.startRight - deltaX);
+            },
+            
+            /**
+             * 返回按钮拖动结束
+             */
+            onBackBtnTouchEnd() {
+                this.backBtnTouch.isDragging = false;
+            },
+            
+            /**
+             * 浮动按钮拖动开始 - 记录初始触摸位置
+             * @param {TouchEvent} e - 触摸事件
+             */
+            onTouchStart(e) {
+                const touch = e.touches[0];
+                this.btnTouch.startX = touch.clientX;
+                this.btnTouch.startY = touch.clientY;
+                this.btnTouch.startTop = this.btnPosition.top;
+                this.btnTouch.startRight = this.btnPosition.right;
+            },
+            
+            /**
+             * 浮动按钮拖动中 - 实时更新按钮位置
+             * @param {TouchEvent} e - 触摸事件
+             */
+            onTouchMove(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - this.btnTouch.startX;
+                const deltaY = touch.clientY - this.btnTouch.startY;
+                this.btnPosition.top = this.btnTouch.startTop + deltaY;
+                this.btnPosition.right = this.btnTouch.startRight - deltaX;
+            },
+            
+            /**
+             * 浮动按钮拖动结束 - 限制边界防止拖出屏幕
+             */
+            onTouchEnd() {
+                if (this.btnPosition.top < 0) this.btnPosition.top = 0;
+                if (this.btnPosition.right < 0) this.btnPosition.right = 10;
+            },
+            
+            /**
+             * 判断密码是否已过期
+             * @param {string} dateStr - 日期字符串
+             * @returns {boolean} - 是否过期
+             */
+            isExpired(dateStr) {
+                const now = new Date();
+                const expireDate = new Date(dateStr);
+                return expireDate < now;
+            },
+            
+            /**
+             * 复制账号到剪贴板
+             * @param {string} account - 账号
+             * @param {number} index - 索引
+             */
+            copyAccount(account, index) {
+                navigator.clipboard.writeText(account).then(() => {
+                    this.copiedIndex = index;
+                    vant.showToast('已复制');
+                    setTimeout(() => {
+                        this.copiedIndex = -1;
+                    }, 1000);
+                });
+            },
+
+        }
+
+    });
+    app.use(vant);
+    app.use(vant.Lazyload);
+    app.mount('#app');
+</script>
+</html>
