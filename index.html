@@ -1131,8 +1131,6 @@
             },
             onSubmit(values = '') {
 
-                console.log(this.xwj_rows);
-
                 console.log('submit', values);
 
                 let num_arr = [];
@@ -1274,7 +1272,7 @@
 
                 let type = false;
                 this.xwj_rows.forEach((item) => {
-                    if (item.input && item.checked) {
+                    if (item.input && item.checked.length > 0) {
                         let num = 0;
                         item.checked.forEach((i) => {
                             num += parseInt(i_arr[i]);
