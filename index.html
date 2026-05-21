@@ -375,6 +375,49 @@
                     </span>
                         </div>
                     </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="xwj2_show = !xwj2_show"
+                                  style="cursor:pointer;">神 {{xwj2_show ? '▲' : '▼'}}</span>
+                        </div>
+                    </div>
+                    <template v-if="xwj2_show">
+                        <div class="kill_str">
+                            <div class="kill_str2">
+                                <span @click="setKill(2)">位集</span>
+                                <span class="kill_str3">
+                        <input v-for="(item,index) in 4"
+                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'個'))" class="kill_input"
+                               v-model="kill_arr2[index]" type="text">
+                            </span>
+                            </div>
+                        </div>
+                        <div class="kill_str" v-for="(row, ri) in xwj_rows2" :key="ri">
+                            <div class="kill_str2">
+                                <span>合集</span>
+                                <span class="kill_str3">
+                                <input placeholder="" class="kill_input" v-model="xwj_rows2[ri].input" type="text">
+                                <div style="display: inline-block">
+                                <van-checkbox-group v-model="xwj_rows2[ri].checked" shape="square"
+                                                    direction="horizontal"
+                                                    style="display:inline-flex;align-items:center;margin-left:6px;">
+                                    <van-checkbox v-for="ci in 4" :key="ci" :name="ci - 1"></van-checkbox>
+                                </van-checkbox-group>
+                                </div>
+                            </span>
+                            </div>
+                        </div>
+                        <div class="kill_str">
+                            <div class="kill_str2">
+                                <van-field name="amount2" label="额">
+                                    <template #input>
+                                        <van-stepper theme="round" min="0.1" button-size="15" v-model="amount2"
+                                                     step="0.1"/>
+                                    </template>
+                                </van-field>
+                            </div>
+                        </div>
+                    </template>
                     <!--<div class="kill_str">
                         <div class="kill_str2">
                             <span>排合值</span>
@@ -438,33 +481,13 @@
                                 <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
                             </div>
                         </div>
-                    </div>
-
-                      <div class="kill_str">
-                           <div class="kill_str2">
-                               <span @click="delBgz">双排</span>
-
-                               </span>
-                               <span class="set-luck" @click="bgz = '1'"
-                                     :class="{base_str_one:bgz === '1'}">1</span>
-                               <span class="set-luck" @click="bgz = '2'"
-                                     :class="{base_str_one:bgz === '2'}">2</span>
-                               <span class="set-luck" @click="bgz = '3'"
-                                     :class="{base_str_one:bgz === '3'}">3</span>
-                               <span class="set-luck" @click="bgz = '4'"
-                                     :class="{base_str_one:bgz === '4'}">4</span>
-                               <span class="set-luck" @click="setBgz('大小')"
-                                     :class="{base_str_one:show_type === '大小'}">大小</span>
-                               <span class="set-luck" @click="setBgz('单双')"
-                                     :class="{base_str_one:show_type === '单双'}">单双</span>
-                           </div>
-                       </div>-->
+                    </div>-->
                 </div>
                 <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
 
                     <van-field name="amount" label="金额">
                         <template #input>
-                            <van-stepper theme="round" min="0.5" button-size="15" v-model="amount" step="0.1"/>
+                            <van-stepper theme="round" min="0.1" button-size="15" v-model="amount" step="0.1"/>
                         </template>
                     </van-field>
 
@@ -473,12 +496,6 @@
                             <van-stepper theme="round" min="1" button-size="15" v-model="luck_num" step="1"/>
                         </template>
                     </van-field>
-
-                    <!-- <div @click="random" style="color: #ff0090;  flex: 0 0 auto;text-align: center;margin-right: 8px">
-                         {{sort_date}}
-                         &lt;!&ndash; <a @click="random"><span
-                                  style="color: gold;margin-left: 8px">财神</span></a>&ndash;&gt;
-                     </div>-->
                 </div>
                 <!--<div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
                     <van-field name="amount" label="倍数">
@@ -515,7 +532,7 @@
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 12px; color: #1989fa;">总:{{number_count}}</span>
-                            <span style="font-size: 12px; color: #07c160;">额:{{number_money}}</span>
+                            <span style="font-size: 12px; color: #07c160;">额:{{Number(number_money).toFixed(2)}}</span>
                         </div>
                     </div>
                 </div>
@@ -651,6 +668,7 @@
             return {
                 loading: false,
                 finished: false,
+                is_data: false,
                 luck_list: [],
                 show_from: true,
                 is_bgz: false,
@@ -676,6 +694,14 @@
                     {input: '', checked: []},
                     {input: '', checked: []},
                 ],
+                // 排合集2（位字定下方副本）
+                xwj_rows2: [
+                    {input: '', checked: []},
+                    {input: '', checked: []},
+                    {input: '', checked: []},
+                    {input: '', checked: []},
+                ],
+                xwj2_show: false,
                 sort_number: '',
                 sort_date: '',
                 //4上一期对应号：空''-对应不排
@@ -684,6 +710,7 @@
                 blue_arr: [],
 
                 kill_arr: ['', '', '', ''],
+                kill_arr2: ['', '', '', ''],
                 contain_arr: ['', '', '', ''],
 
                 wz_arr: ['12', '13', '14', '23', '24', '34'],
@@ -696,7 +723,6 @@
                 //双排
                 bgz: '',
                 in_he: ['二合', '三合', '四合'],
-                is_data: false,
                 is_he: true,
 
                 kill_back: false,
@@ -711,6 +737,7 @@
                 luck_num: 1,
                 //金额
                 amount: 0.5,
+                amount2: 0.3,
 
                 number_str: '',
                 number_count: 0,
@@ -1051,13 +1078,13 @@
                     this.contain_arr[i] = this.contain_arr[0];
                 }
             },
-            setKill() {
+            setKill(index = '') {
                 let in_not_eq_arr = this.getInNotEq(this.luck_num_arr);
                 /*if (in_not_eq_arr.length != 2) {
                     vant.showToast('先选两位');
                     return;
                 }*/
-                this.kill_arr = ['', '', '', ''];
+                this[`kill_arr${index}`] = ['', '', '', ''];
                 for (let s = 0; s < 4; s++) {
                     let sort = in_not_eq_arr[s]['sort'];
 
@@ -1069,7 +1096,7 @@
                     let max = Math.max.apply(null, new_list2);
                     new_list2.sort((a, b) => a - b);
 
-                    this.kill_arr[sort] = new_list.findIndex(v => v == max).toString()
+                    this[`kill_arr${index}`][sort] = new_list.findIndex(v => v == max).toString()
                 }
             },
             setLuck(filed = 'base_str', type = 1) {
@@ -1159,12 +1186,18 @@
                                 //不含
                                 if (this.killNotContain(i_arr)) continue;
 
+                                if (this.xwj2_show) {
+                                    if (this.kilSumNot(i_arr, 2) || this.killAll(i_arr, 2)) {
+                                        money = this.amount2;
+                                    }
+                                }
 
                                 let num = i_arr.join('', '');
 
                                 money *= this.luck_num;
                                 let str_num = `${num}=${money}`;
                                 if (num_arr.includes(str_num)) continue;
+
                                 money_sum += money;
                                 num_arr.push(str_num);
                                 base_num_arr.push(num)
@@ -1245,10 +1278,10 @@
                 return type;
 
             },
-            killAll(i_arr) {
+            killAll(i_arr, index = '') {
                 let type = false;
                 //1排除
-                this.kill_arr.forEach((kill_arrV, kill_arrK) => {
+                this[`kill_arr${index}`].forEach((kill_arrV, kill_arrK) => {
                     let ii = i_arr[kill_arrK];
                     if (kill_arrV != '' && kill_arrV.indexOf(ii.toString()) != -1) {
                         type = true;
@@ -1268,10 +1301,10 @@
                 });
                 return sum_not_arr.includes(num.toString());
             },
-            kilSumNot(i_arr) {
+            kilSumNot(i_arr, index = '') {
 
                 let type = false;
-                this.xwj_rows.forEach((item) => {
+                this[`xwj_rows${index}`].forEach((item) => {
                     if (item.input && item.checked.length > 0) {
                         let num = 0;
                         item.checked.forEach((i) => {
