@@ -369,11 +369,24 @@
                     </span>
                         </div>
                     </div>
+                    <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
+
+                        <van-field name="amount" label="金额">
+                            <template #input>
+                                <van-stepper theme="round" min="0.1" button-size="15" v-model="amount" step="0.1"/>
+                            </template>
+                        </van-field>
+<!--
+                        <van-field name="amount" label="倍数">
+                            <template #input>
+                                <van-stepper theme="round" min="1" button-size="15" v-model="luck_num" step="1"/>
+                            </template>
+                        </van-field>-->
+                    </div>
                     <div class="kill_str">
                         <div style="display:flex;justify-content: space-between">
-                            <span @click="xwj2_show = !xwj2_show"
-                                  style="cursor:pointer;" style="color: magenta;" @click="lastNum"
-                                  :class="{luck_num_title:is_before}">{{sort_date}}{{xwj2_show ? '▲' : '▼'}}</span>
+                            <span style="cursor:pointer;color: magenta" @click="lastNum" :class="{luck_num_title:is_before}">{{sort_date}}</span>
+                            <span @click="xwj2_show = !xwj2_show">{{xwj2_show ? '▲' : '▼'}}</span>
                             <span class="kill_str3">
             <span v-for="(item,index) in 4" class="kill_input"
                   :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
@@ -419,7 +432,7 @@
                         </div>
                         <div class="kill_str">
                             <div class="kill_str2">
-                                <van-field name="amount2" label="额">
+                                <van-field name="amount2" label="金额">
                                     <template #input>
                                         <van-stepper theme="round" min="0.1" button-size="15" v-model="amount2"
                                                      step="0.1"/>
@@ -493,28 +506,6 @@
                         </div>
                     </div>-->
                 </div>
-                <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
-
-                    <van-field name="amount" label="金额">
-                        <template #input>
-                            <van-stepper theme="round" min="0.1" button-size="15" v-model="amount" step="0.1"/>
-                        </template>
-                    </van-field>
-
-                    <van-field name="amount" label="倍数">
-                        <template #input>
-                            <van-stepper theme="round" min="1" button-size="15" v-model="luck_num" step="1"/>
-                        </template>
-                    </van-field>
-                </div>
-                <!--<div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
-                    <van-field name="amount" label="倍数">
-                        <template #input>
-                            <van-stepper theme="round" min="1" button-size="20" v-model="luck_num" step="1"/>
-                        </template>
-                    </van-field>
-                </div>-->
-
                 <van-cell-group class="number-str">
                     <van-field
                             v-model="number_str"
@@ -1197,7 +1188,7 @@
                                 //不含
                                 if (this.killNotContain(i_arr)) continue;
 
-                                if (this.xwj2_show && (this.kilSumNot(i_arr, 2) || this.killAll(i_arr, 2) ||this.killContain(i_arr))) {
+                                if (this.xwj2_show && (this.kilSumNot(i_arr, 2) || this.killAll(i_arr, 2) || this.killNotContain(i_arr, 2))) {
                                     money = this.amount2;
                                 }
 
@@ -1277,20 +1268,10 @@
                 }
                 return i_arr;
             },
-            killNotContain(i_arr) {
+            killNotContain(i_arr, index = '') {
                 let type = true;
-                this.contain_arr.forEach((item, index) => {
+                this[`contain_arr${index}`].forEach((item, index) => {
                     if (!item || item.includes(i_arr[index].toString())) {
-                        type = false;
-                    }
-                });
-                return type;
-
-            },
-            killContain(i_arr) {
-                let type = true;
-                this.contain_arr2.forEach((item, index) => {
-                    if (!item || !item.includes(i_arr[index].toString())) {
                         type = false;
                     }
                 });
