@@ -40,6 +40,7 @@
         width: 100%;
         min-width: 360px;
     }
+
     .kill_str2 > span:first-child {
         display: inline-block;
         width: 36px;
@@ -374,9 +375,9 @@
                     </span>
                         </div>
                     </div>
-                    <div style="display: flex;justify-content: center; /* 水平居中，可选 */ align-items: center; /* 垂直居中 */ min-width: 300px">
+                    <div style="display: flex;justify-content: center;align-items: center;min-width: 300px">
 
-                        <van-field name="amount" label="金额">
+                        <van-field name="amount" label="金额" style="justify-content: center;">
                             <template #input>
                                 <van-stepper theme="round" min="0.1" button-size="15" v-model="amount" step="0.1"/>
                             </template>
@@ -413,7 +414,8 @@
                         </div>
                         <div class="kill_str" v-for="(row, ri) in xwj_rows2" :key="ri">
                             <div class="kill_str2">
-                                <span @click="xwj_rows2.push({input:'',checked:[]})" style="cursor:pointer;" v-if="ri===0">合分</span>
+                                <span @click="xwj_rows2.push({input:'',checked:[]})" style="cursor:pointer;"
+                                      v-if="ri===0">合分</span>
                                 <span v-else style="visibility:hidden;">合分</span>
                                 <span class="kill_str3">
                                 <input placeholder="" class="kill_input" v-model="xwj_rows2[ri].input" type="text">
@@ -438,8 +440,8 @@
                             </div>
                         </div>
                         <div class="kill_str">
-                            <div class="kill_str2">
-                                <van-field name="amount2" label="金额">
+                            <div class="kill_str2" style="display:flex;justify-content:center;align-items:center;">
+                                <van-field name="amount2" label="金额" style="justify-content: center;">
                                     <template #input>
                                         <van-stepper theme="round" min="0.1" button-size="15" v-model="amount2"
                                                      step="0.1"/>
@@ -534,8 +536,8 @@
                             <van-button type="success" @click="download" size="small" style="border-radius: 16px;">
                                 下载
                             </van-button>
-                           <!-- <a @click="showLuckList"
-                               style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; padding: 4px 10px;margin-left: 20px; border-radius: 14px; font-size: 11px; text-decoration: none;">幸运</a>-->
+                            <!-- <a @click="showLuckList"
+                                style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; padding: 4px 10px;margin-left: 20px; border-radius: 14px; font-size: 11px; text-decoration: none;">幸运</a>-->
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 12px; color: #1989fa;">总:{{number_count}}</span>
@@ -887,64 +889,113 @@
                 const cache = localStorage.getItem('form_cache');
                 if (cache) {
                     const d = JSON.parse(cache);
-                    if (d.kill_arr)     this.kill_arr     = d.kill_arr;
-                    if (d.kill_arr2)    this.kill_arr2    = d.kill_arr2;
-                    if (d.contain_arr)  this.contain_arr  = d.contain_arr;
+                    if (d.kill_arr) this.kill_arr = d.kill_arr;
+                    if (d.kill_arr2) this.kill_arr2 = d.kill_arr2;
+                    if (d.contain_arr) this.contain_arr = d.contain_arr;
                     if (d.contain_arr2) this.contain_arr2 = d.contain_arr2;
-                    if (d.xwj_rows)     this.xwj_rows     = d.xwj_rows;
-                    if (d.xwj_rows2)    this.xwj_rows2    = d.xwj_rows2;
-                    if (d.xwj2_show != null) this.xwj2_show  = d.xwj2_show;
-                    if (d.luck_num  != null) this.luck_num  = d.luck_num;
-                    if (d.amount    != null) this.amount    = d.amount;
-                    if (d.sum_not_str  != null) this.sum_not_str  = d.sum_not_str;
+                    if (d.xwj_rows) this.xwj_rows = d.xwj_rows;
+                    if (d.xwj_rows2) this.xwj_rows2 = d.xwj_rows2;
+                    if (d.xwj2_show != null) this.xwj2_show = d.xwj2_show;
+                    if (d.luck_num != null) this.luck_num = d.luck_num;
+                    if (d.amount != null) this.amount = d.amount;
+                    if (d.sum_not_str != null) this.sum_not_str = d.sum_not_str;
                     if (d.sum_not_str2 != null) this.sum_not_str2 = d.sum_not_str2;
                     if (d.kill_num_str != null) this.kill_num_str = d.kill_num_str;
-                    //if (d.number_str != null) this.number_str = d.number_str;
+                    if (d.number_str != null) this.number_str = d.number_str;
                     if (d.number_count != null) this.number_count = d.number_count;
                     if (d.number_money != null) this.number_money = d.number_money;
                     if (d.amount2 != null) this.amount2 = d.amount2;
                 }
-            } catch(e) {}
+            } catch (e) {
+            }
             this._cache_ready = true;
         },
         watch: {
-            kill_arr:     { deep: true, handler() { this._saveCache(); } },
-            kill_arr2:    { deep: true, handler() { this._saveCache(); } },
-            contain_arr:  { deep: true, handler() { this._saveCache(); } },
-            contain_arr2: { deep: true, handler() { this._saveCache(); } },
-            xwj_rows:     { deep: true, handler() { this._saveCache(); } },
-            xwj_rows2:    { deep: true, handler() { this._saveCache(); } },
-            xwj2_show()   { this._saveCache(); },
-            luck_num()    { this._saveCache(); },
-            amount()      { this._saveCache(); },
-            sum_not_str() { this._saveCache(); },
-            sum_not_str2(){ this._saveCache(); },
-            kill_num_str(){ this._saveCache(); },
-           //number_str()  { this._saveCache(); },
-            number_count(){ this._saveCache(); },
-            number_money(){ this._saveCache(); },
-            amount2()     { this._saveCache(); },
+            kill_arr: {
+                deep: true, handler() {
+                    this._saveCache();
+                }
+            },
+            kill_arr2: {
+                deep: true, handler() {
+                    this._saveCache();
+                }
+            },
+            contain_arr: {
+                deep: true, handler() {
+                    this._saveCache();
+                }
+            },
+            contain_arr2: {
+                deep: true, handler() {
+                    this._saveCache();
+                }
+            },
+            xwj_rows: {
+                deep: true, handler() {
+                    this._saveCache();
+                }
+            },
+            xwj_rows2: {
+                deep: true, handler() {
+                    this._saveCache();
+                }
+            },
+            xwj2_show() {
+                this._saveCache();
+            },
+            luck_num() {
+                this._saveCache();
+            },
+            amount() {
+                this._saveCache();
+            },
+            sum_not_str() {
+                this._saveCache();
+            },
+            sum_not_str2() {
+                this._saveCache();
+            },
+            kill_num_str() {
+                this._saveCache();
+            },
+            number_str() {
+                this._saveCache();
+            },
+            number_count() {
+                this._saveCache();
+            },
+            number_money() {
+                this._saveCache();
+            },
+            amount2() {
+                this._saveCache();
+            },
         },
         methods: {
             _saveCache() {
                 if (!this._cache_ready) return;
                 try {
                     localStorage.setItem('form_cache', JSON.stringify({
-                        kill_arr:     this.kill_arr,
-                        kill_arr2:    this.kill_arr2,
-                        contain_arr:  this.contain_arr,
+                        kill_arr: this.kill_arr,
+                        kill_arr2: this.kill_arr2,
+                        contain_arr: this.contain_arr,
                         contain_arr2: this.contain_arr2,
-                        xwj_rows:     this.xwj_rows,
-                        xwj_rows2:    this.xwj_rows2,
-                        xwj2_show:    this.xwj2_show,
-                        luck_num:     this.luck_num,
-                        amount:       this.amount,
-                        sum_not_str:  this.sum_not_str,
+                        xwj_rows: this.xwj_rows,
+                        xwj_rows2: this.xwj_rows2,
+                        xwj2_show: this.xwj2_show,
+                        luck_num: this.luck_num,
+                        amount: this.amount,
+                        sum_not_str: this.sum_not_str,
                         sum_not_str2: this.sum_not_str2,
                         kill_num_str: this.kill_num_str,
-                        //number_str:   this.number_str,
+                        number_str: this.number_str,
+                        number_count: this.number_count,
+                        number_money: this.number_money,
+                        amount2: this.amount2,
                     }));
-                } catch(e) {}
+                } catch (e) {
+                }
             },
             onLoad() {
                 if (this.loading || this.finished) return;
