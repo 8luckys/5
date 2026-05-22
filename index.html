@@ -376,18 +376,19 @@
                                 <van-stepper theme="round" min="0.1" button-size="15" v-model="amount" step="0.1"/>
                             </template>
                         </van-field>
-<!--
-                        <van-field name="amount" label="倍数">
-                            <template #input>
-                                <van-stepper theme="round" min="1" button-size="15" v-model="luck_num" step="1"/>
-                            </template>
-                        </van-field>-->
+                        <!--
+                                                <van-field name="amount" label="倍数">
+                                                    <template #input>
+                                                        <van-stepper theme="round" min="1" button-size="15" v-model="luck_num" step="1"/>
+                                                    </template>
+                                                </van-field>-->
                     </div>
                     <div class="kill_str">
                         <div style="display:flex;justify-content: space-between">
-                            <span style="cursor:pointer;color: magenta" @click="lastNum" :class="{luck_num_title:is_before}">{{sort_date}}</span>
+                            <span style="cursor:pointer;color: magenta" @click="lastNum"
+                                  :class="{luck_num_title:is_before}">{{sort_date}}</span>
                             <span @click="xwj2_show = !xwj2_show">{{xwj2_show ? '▲' : '▼'}}</span>
-                            <span class="kill_str3">
+                            <span class="kill_str3" @click="showLuckList">
             <span v-for="(item,index) in 4" class="kill_input"
                   :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
                   v-model="luck_num_arr[index]" @click="setNum(index)">{{luck_num_arr[index]}} </span>
@@ -518,18 +519,16 @@
                             @input="getMoneyAndCount"
                     />
                 </van-cell-group>
-                <div style="min-width: 280px" class="bot_fixed" :class="{active: show_from || showBottomBar}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; gap: 8px;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
+                <div class="bot_fixed" :class="{active: show_from || showBottomBar}">
+                    <div style="display: flex; justify-content: space-between; align-items: center;gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 20px;">
                             <van-button type="primary" native-type="submit" size="small" style="border-radius: 16px;">
                                 生成
                             </van-button>
                             <van-button type="success" @click="download" size="small" style="border-radius: 16px;">下载
                             </van-button>
-                            <a target=_blank href="http://datachart.500.com/plw/?expect=100&from=&to=&sort=1"
-                               style="background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 4px 10px; border-radius: 14px; font-size: 11px; text-decoration: none;">势图</a>
-                            <a @click="showLuckList"
-                               style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; padding: 4px 10px; border-radius: 14px; font-size: 11px; text-decoration: none;">幸运</a>
+                           <!-- <a @click="showLuckList"
+                               style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; padding: 4px 10px;margin-left: 20px; border-radius: 14px; font-size: 11px; text-decoration: none;">幸运</a>-->
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 12px; color: #1989fa;">总:{{number_count}}</span>
@@ -554,6 +553,10 @@
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
                 </svg>
+            </div>
+            <div>
+                <a target=_blank href="http://datachart.500.com/plw/?expect=100&from=&to=&sort=1"
+                   style="background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; width: 45px;height: 45px; border-radius: 50%; font-size: 11px; display: flex;justify-content:center;align-items:center;position: fixed;bottom: 80px;right: 10px;">势图</a>
             </div>
             <!-- <div style="display: flex;justify-content: space-around;width: 100%;font-size: 20px;margin-bottom: 20px">
                  <a :class="{base_str_one:show_type === '大小'}" @click="setBgz('大小')">
