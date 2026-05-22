@@ -340,7 +340,7 @@
                             <span @click="setKill()">排位集</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
-                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'個'))" class="kill_input"
+                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
                                v-model="kill_arr[index]" type="text">
                     </span>
                         </div>
@@ -364,7 +364,7 @@
                             <span @click="setNumCopy()">位字定</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
-                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'個'))" class="kill_input"
+                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
                                v-model="contain_arr[index]" type="text">
                     </span>
                         </div>
@@ -401,7 +401,7 @@
                                 <span @click="setKill(2)">位集</span>
                                 <span class="kill_str3">
                         <input v-for="(item,index) in 4"
-                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'個'))" class="kill_input"
+                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
                                v-model="kill_arr2[index]" type="text">
                             </span>
                             </div>
@@ -426,7 +426,7 @@
                                 <span @click="setNumCopy(2)">字定</span>
                                 <span class="kill_str3">
                         <input v-for="(item,index) in 4"
-                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'個'))" class="kill_input"
+                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
                                v-model="contain_arr2[index]" type="text">
                     </span>
                             </div>
@@ -525,7 +525,8 @@
                             <van-button type="primary" native-type="submit" size="small" style="border-radius: 16px;">
                                 生成
                             </van-button>
-                            <van-button type="success" @click="download" size="small" style="border-radius: 16px;">下载
+                            <van-button type="success" @click="download" size="small" style="border-radius: 16px;">
+                                下载
                             </van-button>
                            <!-- <a @click="showLuckList"
                                style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; padding: 4px 10px;margin-left: 20px; border-radius: 14px; font-size: 11px; text-decoration: none;">幸运</a>-->
