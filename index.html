@@ -365,7 +365,7 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="setNumCopy()">字定含</span>
+                            <span @click="setNumCopy()">其中含</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -427,7 +427,7 @@
                         </div>
                         <div class="kill_str">
                             <div class="kill_str2">
-                                <span @click="setNumCopy(2)">字定</span>
+                                <span @click="setNumCopy(2)">全不含</span>
                                 <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
