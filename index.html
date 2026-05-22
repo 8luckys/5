@@ -884,7 +884,7 @@
 
             // 读取 localStorage 缓存
             try {
-                const cache = localStorage.getItem('form_cache_v1');
+                const cache = localStorage.getItem('form_cache');
                 if (cache) {
                     const d = JSON.parse(cache);
                     if (d.kill_arr)     this.kill_arr     = d.kill_arr;
@@ -900,6 +900,9 @@
                     if (d.sum_not_str2 != null) this.sum_not_str2 = d.sum_not_str2;
                     if (d.kill_num_str != null) this.kill_num_str = d.kill_num_str;
                     if (d.number_str != null) this.number_str = d.number_str;
+                    if (d.number_count != null) this.number_count = d.number_count;
+                    if (d.number_money != null) this.number_money = d.number_money;
+                    if (d.amount2 != null) this.amount2 = d.amount2;
                 }
             } catch(e) {}
             this._cache_ready = true;
@@ -918,12 +921,15 @@
             sum_not_str2(){ this._saveCache(); },
             kill_num_str(){ this._saveCache(); },
             number_str()  { this._saveCache(); },
+            number_count(){ this._saveCache(); },
+            number_money(){ this._saveCache(); },
+            amount2()     { this._saveCache(); },
         },
         methods: {
             _saveCache() {
                 if (!this._cache_ready) return;
                 try {
-                    localStorage.setItem('form_cache_v1', JSON.stringify({
+                    localStorage.setItem('form_cache', JSON.stringify({
                         kill_arr:     this.kill_arr,
                         kill_arr2:    this.kill_arr2,
                         contain_arr:  this.contain_arr,
@@ -1061,7 +1067,7 @@
                 }, 100)
             },
             lastNum() {
-                localStorage.removeItem('form_cache_v1');
+                localStorage.removeItem('form_cache');
                 window.location.reload();
                 return;
                 let blue_arr = [];
