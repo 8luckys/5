@@ -40,6 +40,10 @@
         width: 100%;
         min-width: 360px;
     }
+    .kill_str2 > span:first-child {
+        display: inline-block;
+        width: 36px;
+    }
 
     .kill_str3 {
         /* display: inline-block;
@@ -347,7 +351,7 @@
                     </div>
                     <div class="kill_str" v-for="(row, ri) in xwj_rows" :key="ri">
                         <div class="kill_str2">
-                            <span>排合集</span>
+                            <span>合分除</span>
                             <span class="kill_str3">
                                 <input placeholder="" class="kill_input" v-model="xwj_rows[ri].input" type="text">
                                  <div style="display: inline-block">
@@ -361,7 +365,7 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="setNumCopy()">位字定</span>
+                            <span @click="setNumCopy()">字定含</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -408,7 +412,7 @@
                         </div>
                         <div class="kill_str" v-for="(row, ri) in xwj_rows2" :key="ri">
                             <div class="kill_str2">
-                                <span>合集</span>
+                                <span>合分</span>
                                 <span class="kill_str3">
                                 <input placeholder="" class="kill_input" v-model="xwj_rows2[ri].input" type="text">
                                 <div style="display: inline-block">
