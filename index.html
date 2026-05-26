@@ -651,11 +651,11 @@
                     <van-button size="large" type="success" @click="setBgz('单双')">
                         单双
                     </van-button>
-                    <van-button size="large" type="primary" @click="setBgz('双重')">
+                   <!-- <van-button size="large" type="primary" @click="setBgz('双重')">
                         双重
-                    </van-button>
+                    </van-button>-->
                     <van-button size="large" type="success" @click="setBgz('余数')">
-                        合值
+                        余数
                     </van-button>
                 </div>
             </div>
@@ -682,9 +682,9 @@
                 loading: false,
                 finished: false,
                 is_data: false,
+                show_from: true,
                 _cache_ready: false,
                 luck_list: [],
-                show_from: true,
                 is_bgz: false,
                 show_type: '',
                 isLoading: false,
@@ -1466,6 +1466,15 @@
                 if (this.show_type == '单双') {
                     return [false, true][nums[i].num % 2]
                 }
+                if (this.show_type == '余数') {
+                    if (this.luck_list[index + 1]) {
+                        var last_nums = this.luck_list[index + 1].data;
+                        for (var i2 = 0; i2 < 5; i2++) {
+                            if (i == i2) continue;
+                            if (parseInt(nums[i].num)  == parseInt(last_nums[i].num) ) return true;
+                        }
+                    }
+                }
                 return false;
 
             },
@@ -1478,7 +1487,7 @@
                     return ['双', '单'][num % 2]
                 }
                 if (this.show_type == '余数') {
-                    return [num % 3]
+                    return num % 3
                 }
 
                 return num;
