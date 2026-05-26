@@ -654,9 +654,9 @@
                     <van-button size="large" type="primary" @click="setBgz('双重')">
                         双重
                     </van-button>
-                    <!--                    <van-button size="large" type="success" @click="setBgz('合值')">
-                                            合值
-                                        </van-button>-->
+                    <van-button size="large" type="success" @click="setBgz('余数')">
+                        合值
+                    </van-button>
                 </div>
             </div>
 
@@ -1476,6 +1476,9 @@
                 ;
                 if (this.show_type == '单双') {
                     return ['双', '单'][num % 2]
+                }
+                if (this.show_type == '余数') {
+                    return [num % 3]
                 }
 
                 return num;
