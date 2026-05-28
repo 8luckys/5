@@ -365,6 +365,20 @@
                             </span>
                         </div>
                     </div>
+                    <div class="kill_str" v-for="(row, ri) in cz_rows" :key="'cz'+ri">
+                        <div class="kill_str2" style="display:flex;align-items:center;">
+                            <span @click="cz_rows.push({checked:[]})" style="cursor:pointer;" v-if="ri===0">除重</span>
+                            <span v-else style="visibility:hidden;">除重</span>
+                            <span class="kill_str3">
+                                <div style="display:inline-block;">
+                                <van-checkbox-group v-model="cz_rows[ri].checked" shape="square" direction="horizontal"
+                                                    style="display:inline-flex;align-items:center;margin-left:6px;">
+                                    <van-checkbox v-for="ci in 4" :key="ci" :name="ci - 1"></van-checkbox>
+                                </van-checkbox-group>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
                     <div class="kill_str">
                         <div class="kill_str2">
                             <span @click="setNumCopy()">其中含</span>
@@ -427,6 +441,20 @@
                                 </van-checkbox-group>
                                 </div>
                             </span>
+                            </div>
+                        </div>
+                        <div class="kill_str" v-for="(row, ri) in cz_rows2" :key="'cz2'+ri">
+                            <div class="kill_str2" style="display:flex;align-items:center;">
+                                <span @click="cz_rows2.push({checked:[]})" style="cursor:pointer;" v-if="ri===0">除重</span>
+                                <span v-else style="visibility:hidden;">除重</span>
+                                <span class="kill_str3">
+                                    <div style="display:inline-block;">
+                                    <van-checkbox-group v-model="cz_rows2[ri].checked" shape="square" direction="horizontal"
+                                                        style="display:inline-flex;align-items:center;margin-left:6px;">
+                                        <van-checkbox v-for="ci in 4" :key="ci" :name="ci - 1"></van-checkbox>
+                                    </van-checkbox-group>
+                                    </div>
+                                </span>
                             </div>
                         </div>
                         <div class="kill_str">
@@ -681,7 +709,7 @@
             return {
                 loading: false,
                 finished: false,
-                is_data: false,
+                is_data: true,
                 show_from: true,
                 _cache_ready: false,
                 luck_list: [],
@@ -711,6 +739,14 @@
                     {input: '', checked: []},
                 ],
                 xwj2_show: false,
+                // 除重：每行选定几位，勾选位之间有重复数字则排除
+                cz_rows: [
+                    {checked: []},
+                ],
+                // 除重2（合分下面的副本）
+                cz_rows2: [
+                    {checked: []},
+                ],
                 sort_number: '',
                 sort_date: '',
                 //4上一期对应号：空''-对应不排
@@ -896,6 +932,8 @@
                     if (d.xwj_rows) this.xwj_rows = d.xwj_rows;
                     if (d.xwj_rows2) this.xwj_rows2 = d.xwj_rows2;
                     if (d.xwj2_show != null) this.xwj2_show = d.xwj2_show;
+                    if (d.cz_rows) this.cz_rows = d.cz_rows;
+                    if (d.cz_rows2) this.cz_rows2 = d.cz_rows2;
                     if (d.luck_num != null) this.luck_num = d.luck_num;
                     if (d.amount != null) this.amount = d.amount;
                     if (d.sum_not_str != null) this.sum_not_str = d.sum_not_str;
@@ -944,6 +982,16 @@
             xwj2_show() {
                 this._saveCache();
             },
+            cz_rows: {
+                deep: true, handler() {
+                    this._saveCache();
+                }
+            },
+            cz_rows2: {
+                deep: true, handler() {
+                    this._saveCache();
+                }
+            },
             luck_num() {
                 this._saveCache();
             },
@@ -984,6 +1032,8 @@
                         xwj_rows: this.xwj_rows,
                         xwj_rows2: this.xwj_rows2,
                         xwj2_show: this.xwj2_show,
+                        cz_rows: this.cz_rows,
+                        cz_rows2: this.cz_rows2,
                         luck_num: this.luck_num,
                         amount: this.amount,
                         sum_not_str: this.sum_not_str,
@@ -1310,7 +1360,10 @@
                                 //不含
                                 if (this.killNotContain(i_arr)) continue;
 
-                                if (this.xwj2_show && (this.kilSumNot(i_arr, 2) || this.killAll(i_arr, 2) || this.killNotContain(i_arr, 2))) {
+                                //除重
+                                if (this.killRepeat(i_arr)) continue;
+
+                                if (this.xwj2_show && (this.kilSumNot(i_arr, 2) || this.killAll(i_arr, 2) || this.killNotContain(i_arr, 2) || this.killRepeat2(i_arr))) {
                                     money = this.amount2;
                                 }
 
@@ -1441,8 +1494,35 @@
                 })
                 return type;
             },
-            getShowColor(nums, i = 0, index = 0) {
-
+            // 除重：每行勾选的位全部一样才排除
+            killRepeat(i_arr) {
+                let type = false;
+                this.cz_rows.forEach((item) => {
+                    if (item.checked.length >= 2) {
+                        let vals = item.checked.map(i => i_arr[i]);
+                        let unique = new Set(vals);
+                        if (unique.size === 1) {
+                            type = true;
+                        }
+                    }
+                });
+                return type;
+            },
+            // 除重2（合分下面的副本）
+            killRepeat2(i_arr) {
+                let type = false;
+                this.cz_rows2.forEach((item) => {
+                    if (item.checked.length >= 2) {
+                        let vals = item.checked.map(i => i_arr[i]);
+                        let unique = new Set(vals);
+                        if (unique.size === 1) {
+                            type = true;
+                        }
+                    }
+                });
+                return type;
+            },
+            getShowColor(nums, i, index) {
                 if (this.show_type == '合值') {
                     if (this.luck_list[index + 1]) {
                         var last_nums = this.luck_list[index + 1].data;
