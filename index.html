@@ -43,7 +43,7 @@
 
     .kill_str2 > span:first-child {
         display: inline-block;
-        width: 36px;
+        width: 30px;
     }
 
     .kill_str3 {
@@ -342,7 +342,7 @@
                      </div>-->
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="setKill()">排位集</span>
+                            <span @click="setKill()">排集</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -352,8 +352,8 @@
                     </div>
                     <div class="kill_str" v-for="(row, ri) in xwj_rows" :key="ri">
                         <div class="kill_str2">
-                            <span @click="xwj_rows.push({input:'',checked:[]})" style="cursor:pointer;" v-if="ri===0">合分除</span>
-                            <span v-else style="visibility:hidden;">合分除</span>
+                            <span @click="xwj_rows.push({input:'',checked:[]})" style="cursor:pointer;" v-if="ri===0">排合</span>
+                            <span v-else style="visibility:hidden;">排合</span>
                             <span class="kill_str3">
                                 <input placeholder="" class="kill_input" v-model="xwj_rows[ri].input" type="text">
                                  <div style="display: inline-block">
@@ -381,7 +381,7 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="setNumCopy()">其中含</span>
+                            <span @click="setNumCopy()">位含</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -391,7 +391,7 @@
                     </div>
                     <div style="display: flex;justify-content: center;align-items: center;min-width: 300px">
 
-                        <van-field name="amount" label="金额" style="justify-content: center;">
+                        <van-field name="amount" label="额" style="justify-content: center;">
                             <template #input>
                                 <van-stepper theme="round" min="0.1" button-size="15" v-model="amount" step="0.1"/>
                             </template>
@@ -418,7 +418,7 @@
                     <template v-if="xwj2_show">
                         <div class="kill_str">
                             <div class="kill_str2">
-                                <span @click="setKill(2)">位集</span>
+                                <span @click="setKill(2)">集</span>
                                 <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -429,8 +429,8 @@
                         <div class="kill_str" v-for="(row, ri) in xwj_rows2" :key="ri">
                             <div class="kill_str2">
                                 <span @click="xwj_rows2.push({input:'',checked:[]})" style="cursor:pointer;"
-                                      v-if="ri===0">合分</span>
-                                <span v-else style="visibility:hidden;">合分</span>
+                                      v-if="ri===0">合</span>
+                                <span v-else style="visibility:hidden;">合</span>
                                 <span class="kill_str3">
                                 <input placeholder="" class="kill_input" v-model="xwj_rows2[ri].input" type="text">
                                 <div style="display: inline-block">
@@ -445,11 +445,13 @@
                         </div>
                         <div class="kill_str" v-for="(row, ri) in cz_rows2" :key="'cz2'+ri">
                             <div class="kill_str2" style="display:flex;align-items:center;">
-                                <span @click="cz_rows2.push({checked:[]})" style="cursor:pointer;" v-if="ri===0">除重</span>
-                                <span v-else style="visibility:hidden;">除重</span>
+                                <span @click="cz_rows2.push({checked:[]})" style="cursor:pointer;"
+                                      v-if="ri===0">重</span>
+                                <span v-else style="visibility:hidden;">重</span>
                                 <span class="kill_str3">
                                     <div style="display:inline-block;">
-                                    <van-checkbox-group v-model="cz_rows2[ri].checked" shape="square" direction="horizontal"
+                                    <van-checkbox-group v-model="cz_rows2[ri].checked" shape="square"
+                                                        direction="horizontal"
                                                         style="display:inline-flex;align-items:center;margin-left:6px;">
                                         <van-checkbox v-for="ci in 4" :key="ci" :name="ci - 1"></van-checkbox>
                                     </van-checkbox-group>
@@ -459,7 +461,7 @@
                         </div>
                         <div class="kill_str">
                             <div class="kill_str2">
-                                <span @click="setNumCopy(2)">全不含</span>
+                                <span @click="setNumCopy(2)">不含</span>
                                 <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -469,7 +471,7 @@
                         </div>
                         <div class="kill_str">
                             <div class="kill_str2" style="display:flex;justify-content:center;align-items:center;">
-                                <van-field name="amount2" label="金额" style="justify-content: center;">
+                                <van-field name="amount2" label="额" style="justify-content: center;">
                                     <template #input>
                                         <van-stepper theme="round" min="0.1" button-size="15" v-model="amount2"
                                                      step="0.1"/>
@@ -532,10 +534,6 @@
 
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <div style="display: inline-block">
-                                <span style="position: relative;top: -6px">排双重</span>
-                                <span class="kill_str3"><van-switch size="20px" v-model="kill_repeat"/></span>
-                            </div>
                             <div style="display: inline-block;margin-left: 10px">
                                 <span style="position: relative;top: -6px">正得正</span>
                                 <span class="kill_str3"><van-switch size="20px" v-model="kill_back"/></span>
@@ -550,7 +548,7 @@
                             autosize
                             label=""
                             type="textarea"
-                            placeholder="生成号码"
+                            placeholder="号码"
                             show-word-limit
                             @input="getMoneyAndCount"
                     />
@@ -707,10 +705,10 @@
     const app = createApp({
         data() {
             return {
-                loading: false,
-                finished: false,
                 is_data: false,
                 show_from: true,
+                loading: false,
+                finished: false,
                 _cache_ready: false,
                 luck_list: [],
                 is_bgz: false,
@@ -731,8 +729,7 @@
                 base_str_two: '',
                 // 幸位集 4行，每行有 input 值和 checkbox 勾选状态
                 xwj_rows: [
-                    {input: '', checked: [0, 1]},
-                    {input: '', checked: [0, 3]},
+                    {input: '', checked: []},
                 ],
                 // 排合集2（位字定下方副本）
                 xwj_rows2: [
@@ -1349,7 +1346,6 @@
                                 let money = this.amount;
                                 //重置号码
                                 const i_arr = [i1i, i2i, i3i, i4i];
-                                let type = true;
 
                                 //排合值
                                 if (this.kilSumNot(i_arr)) continue;
@@ -1363,7 +1359,7 @@
                                 //除重
                                 if (this.killRepeat(i_arr)) continue;
 
-                                if (this.xwj2_show && (this.kilSumNot(i_arr, 2) || this.killAll(i_arr, 2) || this.killNotContain(i_arr, 2) || this.killRepeat2(i_arr))) {
+                                if (this.xwj2_show && (this.kilSumNot(i_arr, 2) || this.killAll(i_arr, 2) || this.killNotContain(i_arr, 2) || this.killRepeat(i_arr, 2))) {
                                     money = this.amount2;
                                 }
 
@@ -1495,23 +1491,9 @@
                 return type;
             },
             // 除重：每行勾选的位全部一样才排除
-            killRepeat(i_arr) {
+            killRepeat(i_arr, index = '') {
                 let type = false;
-                this.cz_rows.forEach((item) => {
-                    if (item.checked.length >= 2) {
-                        let vals = item.checked.map(i => i_arr[i]);
-                        let unique = new Set(vals);
-                        if (unique.size === 1) {
-                            type = true;
-                        }
-                    }
-                });
-                return type;
-            },
-            // 除重2（合分下面的副本）
-            killRepeat2(i_arr) {
-                let type = false;
-                this.cz_rows2.forEach((item) => {
+                this[`cz_rows${index}`].forEach((item) => {
                     if (item.checked.length >= 2) {
                         let vals = item.checked.map(i => i_arr[i]);
                         let unique = new Set(vals);
@@ -1549,7 +1531,7 @@
                 if (this.show_type == '余数') {
                     if (this.luck_list[index + 1]) {
                         var last_nums = this.luck_list[index + 1].data;
-                        if (nums[i].num % 3  == last_nums[i].num % 3 ) return true;
+                        if (nums[i].num % 3 == last_nums[i].num % 3) return true;
                     }
                 }
                 return false;
