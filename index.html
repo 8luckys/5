@@ -57,6 +57,19 @@
         margin-left: 7px;
     }
 
+    input.kill_input {
+        border: 1px solid #555;
+    }
+
+    .van-checkbox__icon .van-icon {
+        border-color: #555 !important;
+    }
+
+    .click-label {
+        color: #13c2c2;
+        cursor: pointer;
+    }
+
     .kill_input_blue {
         color: #00ff4e;
     }
@@ -342,7 +355,7 @@
                      </div>-->
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="setKill()">排集</span>
+                            <span class="click-label" @click="setKill()">排集</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -352,7 +365,7 @@
                     </div>
                     <div class="kill_str" v-for="(row, ri) in xwj_rows" :key="ri">
                         <div class="kill_str2">
-                            <span @click="xwj_rows.push({input:'',checked:[]})" style="cursor:pointer;" v-if="ri===0">排合</span>
+                            <span @click="xwj_rows.push({input:'',checked:[]})" class="click-label" v-if="ri===0">排合</span>
                             <span v-else style="visibility:hidden;">排合</span>
                             <span class="kill_str3">
                                 <input placeholder="" class="kill_input" v-model="xwj_rows[ri].input" type="text">
@@ -367,7 +380,7 @@
                     </div>
                     <div class="kill_str" v-for="(row, ri) in cz_rows" :key="'cz'+ri">
                         <div class="kill_str2" style="display:flex;align-items:center;">
-                            <span @click="cz_rows.push({checked:[]})" style="cursor:pointer;" v-if="ri===0">除重</span>
+                            <span @click="cz_rows.push({checked:[]})" class="click-label" v-if="ri===0">除重</span>
                             <span v-else style="visibility:hidden;">除重</span>
                             <span class="kill_str3">
                                 <div style="display:inline-block;">
@@ -381,7 +394,7 @@
                     </div>
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span @click="setNumCopy()">位含</span>
+                            <span @click="setNumCopy()" class="click-label">位含</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -418,7 +431,7 @@
                     <template v-if="xwj2_show">
                         <div class="kill_str">
                             <div class="kill_str2">
-                                <span @click="setKill(2)">集</span>
+                                <span class="click-label" @click="setKill(2)" class="click-label">集</span>
                                 <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -428,7 +441,7 @@
                         </div>
                         <div class="kill_str" v-for="(row, ri) in xwj_rows2" :key="ri">
                             <div class="kill_str2">
-                                <span @click="xwj_rows2.push({input:'',checked:[]})" style="cursor:pointer;"
+                                <span @click="xwj_rows2.push({input:'',checked:[]})" class="click-label"
                                       v-if="ri===0">合</span>
                                 <span v-else style="visibility:hidden;">合</span>
                                 <span class="kill_str3">
@@ -445,7 +458,7 @@
                         </div>
                         <div class="kill_str" v-for="(row, ri) in cz_rows2" :key="'cz2'+ri">
                             <div class="kill_str2" style="display:flex;align-items:center;">
-                                <span @click="cz_rows2.push({checked:[]})" style="cursor:pointer;"
+                                <span @click="cz_rows2.push({checked:[]})" class="click-label"
                                       v-if="ri===0">重</span>
                                 <span v-else style="visibility:hidden;">重</span>
                                 <span class="kill_str3">
@@ -461,7 +474,7 @@
                         </div>
                         <div class="kill_str">
                             <div class="kill_str2">
-                                <span @click="setNumCopy(2)">不含</span>
+                                <span @click="setNumCopy(2)" class="click-label">不含</span>
                                 <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
