@@ -35,7 +35,6 @@
     }
 
     .kill_str2 {
-        height: 30px;
         /*line-height: 5px;*/
         width: 100%;
         min-width: 360px;
@@ -68,6 +67,7 @@
     .click-label {
         color: #13c2c2;
         cursor: pointer;
+        font-size: 13px
     }
 
     .kill_input_blue {
@@ -365,7 +365,8 @@
                     </div>
                     <div class="kill_str" v-for="(row, ri) in xwj_rows" :key="ri">
                         <div class="kill_str2">
-                            <span @click="xwj_rows.push({input:'',checked:[]})" class="click-label" v-if="ri===0">排合</span>
+                            <span @click="xwj_rows.push({input:'',checked:[]})" class="click-label"
+                                  v-if="ri===0">排合</span>
                             <span v-else style="visibility:hidden;">排合</span>
                             <span class="kill_str3">
                                 <input placeholder="" class="kill_input" v-model="xwj_rows[ri].input" type="text">
