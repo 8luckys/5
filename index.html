@@ -403,6 +403,14 @@
                     </span>
                         </div>
                     </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span class="click-label">复集</span>
+                            <span class="kill_str3">
+                                <input placeholder="" class="kill_input" v-model="fu_ji_str" type="text">
+                            </span>
+                        </div>
+                    </div>
                     <div style="display: flex;justify-content: center;align-items: center;min-width: 300px">
 
                         <van-field name="amount" label="额" style="justify-content: center;">
@@ -481,6 +489,14 @@
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
                                v-model="contain_arr2[index]" type="text">
                     </span>
+                            </div>
+                        </div>
+                        <div class="kill_str">
+                            <div class="kill_str2">
+                                <span class="click-label">复</span>
+                                <span class="kill_str3">
+                                    <input placeholder="" class="kill_input" v-model="fu_ji_str2" type="text">
+                                </span>
                             </div>
                         </div>
                         <div class="kill_str">
@@ -769,6 +785,8 @@
                 kill_arr2: ['', '', '', ''],
                 contain_arr: ['', '', '', ''],
                 contain_arr2: ['', '', '', ''],
+                fu_ji_str: '',
+                fu_ji_str2: '',
 
                 wz_arr: ['12', '13', '14', '23', '24', '34'],
                 wz_arr3: ['123', '124', '134', '234'],
@@ -940,6 +958,8 @@
                     if (d.kill_arr2) this.kill_arr2 = d.kill_arr2;
                     if (d.contain_arr) this.contain_arr = d.contain_arr;
                     if (d.contain_arr2) this.contain_arr2 = d.contain_arr2;
+                    if (d.fu_ji_str != null) this.fu_ji_str = d.fu_ji_str;
+                    if (d.fu_ji_str2 != null) this.fu_ji_str2 = d.fu_ji_str2;
                     if (d.xwj_rows) this.xwj_rows = d.xwj_rows;
                     if (d.xwj_rows2) this.xwj_rows2 = d.xwj_rows2;
                     if (d.xwj2_show != null) this.xwj2_show = d.xwj2_show;
@@ -1015,6 +1035,12 @@
             sum_not_str2() {
                 this._saveCache();
             },
+            fu_ji_str() {
+                this._saveCache();
+            },
+            fu_ji_str2() {
+                this._saveCache();
+            },
             kill_num_str() {
                 this._saveCache();
             },
@@ -1040,6 +1066,8 @@
                         kill_arr2: this.kill_arr2,
                         contain_arr: this.contain_arr,
                         contain_arr2: this.contain_arr2,
+                        fu_ji_str: this.fu_ji_str,
+                        fu_ji_str2: this.fu_ji_str2,
                         xwj_rows: this.xwj_rows,
                         xwj_rows2: this.xwj_rows2,
                         xwj2_show: this.xwj2_show,
@@ -1370,10 +1398,13 @@
                                 //不含
                                 if (this.killNotContain(i_arr)) continue;
 
+                                //复集
+                                if (this.killFuJi(i_arr)) continue;
+
                                 //除重
                                 if (this.killRepeat(i_arr)) continue;
 
-                                if (this.xwj2_show && (this.kilSumNot(i_arr, 2) || this.killAll(i_arr, 2) || this.killNotContain(i_arr, 2) || this.killRepeat(i_arr, 2))) {
+                                if (this.xwj2_show && (this.kilSumNot(i_arr, 2) || this.killAll(i_arr, 2) || this.killNotContain(i_arr, 2) || this.killRepeat(i_arr, 2) || this.killFuJi(i_arr, 2))) {
                                     money = this.amount2;
                                 }
 
@@ -1504,7 +1535,24 @@
                 })
                 return type;
             },
-            // 除重：每行勾选的位全部一样才排除
+            // 复集：号码中某个数字出现>=2次，且输入框包含该数字则排除
+            killFuJi(i_arr, index = '') {
+
+                let str = this[`fu_ji_str${index}`];
+                if (!str) return false;
+                // 统计每个数字出现次数
+                let countMap = {};
+                i_arr.forEach(n => {
+                    countMap[n] = (countMap[n] || 0) + 1;
+                });
+                // 找出出现>=2次的数字
+                for (let n in countMap) {
+                    if (countMap[n] >= 2 && str.includes(n)) {
+                        return true;
+                    }
+                }
+                return false;
+            },
             killRepeat(i_arr, index = '') {
                 let type = false;
                 this[`cz_rows${index}`].forEach((item) => {
