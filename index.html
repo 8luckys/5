@@ -268,6 +268,10 @@
     .van-field__label {
         width: 36px;
     }
+    .checkbox{
+        transform: translateY(2px);
+        display: inline-block
+    }
 
 </style>
 <body>
@@ -369,22 +373,25 @@
                                   v-if="ri===0">排合</span>
                             <span v-else style="visibility:hidden;">排合</span>
                             <span class="kill_str3">
-                                <input placeholder="" class="kill_input" v-model="xwj_rows[ri].input" type="text">
-                                 <div style="display: inline-block">
-                                <van-checkbox-group v-model="xwj_rows[ri].checked" shape="square" direction="horizontal"
-                                                    style="display:inline-flex;align-items:center;margin-left:6px;">
-                                    <van-checkbox v-for="ci in 4" :key="ci" :name="ci - 1"></van-checkbox>
-                                </van-checkbox-group>
-                                 </div>
+                                <input placeholder="合分" class="kill_input" v-model="xwj_rows[ri].input" type="text">
+                                <div class="checkbox">
+                                    <van-checkbox-group v-model="xwj_rows[ri].checked" shape="square"
+                                                        direction="horizontal"
+                                                        style="display:inline-flex;align-items:center;margin-left:6px;">
+                                        <van-checkbox v-for="ci in 4" :key="ci" :name="ci - 1"></van-checkbox>
+                                    </van-checkbox-group>
+                                </div>
                             </span>
                         </div>
                     </div>
                     <div class="kill_str" v-for="(row, ri) in cz_rows" :key="'cz'+ri">
-                        <div class="kill_str2" style="display:flex;align-items:center;">
-                            <span @click="cz_rows.push({checked:[]})" class="click-label" v-if="ri===0">除重</span>
+                        <div class="kill_str2">
+                            <span @click="cz_rows.push({checked:[],nums:''})" class="click-label"
+                                  v-if="ri===0">除重</span>
                             <span v-else style="visibility:hidden;">除重</span>
                             <span class="kill_str3">
-                                <div style="display:inline-block;">
+                                <input placeholder="0-9" class="kill_input" v-model="cz_rows[ri].nums" type="text">
+                                <div class="checkbox">
                                 <van-checkbox-group v-model="cz_rows[ri].checked" shape="square" direction="horizontal"
                                                     style="display:inline-flex;align-items:center;margin-left:6px;">
                                     <van-checkbox v-for="ci in 4" :key="ci" :name="ci - 1"></van-checkbox>
@@ -407,7 +414,7 @@
                         <div class="kill_str2">
                             <span>排复</span>
                             <span class="kill_str3">
-                                <input placeholder="" class="kill_input" v-model="fu_ji_str" type="text">
+                                <input placeholder="复数" class="kill_input" v-model="fu_ji_str" type="text">
                             </span>
                         </div>
                     </div>
@@ -454,24 +461,26 @@
                                       v-if="ri===0">合</span>
                                 <span v-else style="visibility:hidden;">合</span>
                                 <span class="kill_str3">
-                                <input placeholder="" class="kill_input" v-model="xwj_rows2[ri].input" type="text">
-                                <div style="display: inline-block">
-                                <van-checkbox-group v-model="xwj_rows2[ri].checked" shape="square"
-                                                    direction="horizontal"
-                                                    style="display:inline-flex;align-items:center;margin-left:6px;">
-                                    <van-checkbox v-for="ci in 4" :key="ci" :name="ci - 1"></van-checkbox>
-                                </van-checkbox-group>
-                                </div>
-                            </span>
+                                    <input placeholder="合分" class="kill_input" v-model="xwj_rows2[ri].input"
+                                           type="text">
+                                    <div class="checkbox">
+                                    <van-checkbox-group v-model="xwj_rows2[ri].checked" shape="square"
+                                                        direction="horizontal"
+                                                        style="display:inline-flex;align-items:center;margin-left:6px;">
+                                        <van-checkbox v-for="ci in 4" :key="ci" :name="ci - 1"></van-checkbox>
+                                    </van-checkbox-group>
+                                    </div>
+                                </span>
                             </div>
                         </div>
                         <div class="kill_str" v-for="(row, ri) in cz_rows2" :key="'cz2'+ri">
-                            <div class="kill_str2" style="display:flex;align-items:center;">
-                                <span @click="cz_rows2.push({checked:[]})" class="click-label"
+                            <div class="kill_str2">
+                                <span @click="cz_rows2.push({checked:[],nums:''})" class="click-label"
                                       v-if="ri===0">重</span>
                                 <span v-else style="visibility:hidden;">重</span>
                                 <span class="kill_str3">
-                                    <div style="display:inline-block;">
+                                    <input placeholder="0-9" class="kill_input" v-model="cz_rows2[ri].nums" type="text">
+                                    <div class="checkbox">
                                     <van-checkbox-group v-model="cz_rows2[ri].checked" shape="square"
                                                         direction="horizontal"
                                                         style="display:inline-flex;align-items:center;margin-left:6px;">
@@ -495,7 +504,7 @@
                             <div class="kill_str2">
                                 <span>复</span>
                                 <span class="kill_str3">
-                                    <input placeholder="" class="kill_input" v-model="fu_ji_str2" type="text">
+                                    <input placeholder="复数" class="kill_input" v-model="fu_ji_str2" type="text">
                                 </span>
                             </div>
                         </div>
@@ -768,11 +777,11 @@
                 xwj2_show: false,
                 // 除重：每行选定几位，勾选位之间有重复数字则排除
                 cz_rows: [
-                    {checked: []},
+                    {checked: [], nums: ''},
                 ],
                 // 除重2（合分下面的副本）
                 cz_rows2: [
-                    {checked: []},
+                    {checked: [], nums: ''},
                 ],
                 sort_number: '',
                 sort_date: '',
@@ -963,8 +972,12 @@
                     if (d.xwj_rows) this.xwj_rows = d.xwj_rows;
                     if (d.xwj_rows2) this.xwj_rows2 = d.xwj_rows2;
                     if (d.xwj2_show != null) this.xwj2_show = d.xwj2_show;
-                    if (d.cz_rows) this.cz_rows = d.cz_rows;
-                    if (d.cz_rows2) this.cz_rows2 = d.cz_rows2;
+                    if (d.cz_rows) {
+                        this.cz_rows = d.cz_rows.map(r => ({nums: '', ...r}));
+                    }
+                    if (d.cz_rows2) {
+                        this.cz_rows2 = d.cz_rows2.map(r => ({nums: '', ...r}));
+                    }
                     if (d.luck_num != null) this.luck_num = d.luck_num;
                     if (d.amount != null) this.amount = d.amount;
                     if (d.sum_not_str != null) this.sum_not_str = d.sum_not_str;
@@ -1560,7 +1573,12 @@
                         let vals = item.checked.map(i => i_arr[i]);
                         let unique = new Set(vals);
                         if (unique.size === 1) {
-                            type = true;
+                            // 只有重复的数字在输入框中才排除（输入框为空则不限制，默认全选）
+                            let repeatNum = vals[0].toString();
+                            let nums = (item.nums != null && item.nums !== '') ? item.nums : '0123456789';
+                            if (nums.includes(repeatNum)) {
+                                type = true;
+                            }
                         }
                     }
                 });
