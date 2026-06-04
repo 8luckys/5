@@ -268,7 +268,8 @@
     .van-field__label {
         width: 36px;
     }
-    .checkbox{
+
+    .checkbox {
         transform: translateY(2px);
         display: inline-block
     }
@@ -277,28 +278,6 @@
 <body>
 
 <div id="app" v-cloak>
-    <!-- ==========================================
-         浮动按钮 - 可拖动打开排位页面
-         ========================================== -->
-    <div v-if="!show_from" class="float-btn"
-         :style="{right: btnPosition.right + 'px', top: btnPosition.top + 'px', left: 'auto', transform: 'none'}"
-         @click="showIframe = true"
-         @touchstart="onTouchStart"
-         @touchmove="onTouchMove"
-         @touchend="onTouchEnd">排位
-    </div>
-
-    <!-- ==========================================
-         底部按钮浮动控制按钮
-         ========================================== -->
-    <button class="btn-bottom-toggle" v-if="!show_from" @click="showBottomBar = !showBottomBar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-    </button>
 
     <!-- ==========================================
          iframe嵌套页面覆盖层
@@ -614,19 +593,50 @@
         </div>
         <div v-else class="luck_list" @touchstart="handleTouchStart" @touchmove="handleTouchMove"
              @touchend="handleTouchEnd">
+            <!-- ==========================================
+                返回按钮
+            ========================================== -->
             <div @click="show_from = true" style="position: fixed;top: 2%;left: 0px;color: #1e9fff;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
             </div>
-            <div @click="is_he = !is_he" style="position: fixed;top: 2%;right: 0px;color: #1e9fff;">
+
+            <!-- ==========================================
+                底部按钮浮动控制按钮
+            ========================================== -->
+            <div v-if="showBottomBar" @click="is_he = !is_he" style="position: fixed;bottom: 130px;left: 18px;color: #1e9fff;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
                 </svg>
+            </div>
+
+            <button class="btn-bottom-toggle" v-if="!show_from" @click="()=>{showBottomBar = !showBottomBar;is_bgz = showBottomBar;}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+
+            <!-- ==========================================
+                浮动按钮 - 可拖动打开排位页面
+            ========================================== -->
+            <div v-if="!show_from" class="float-btn"
+                 :style="{right: btnPosition.right + 'px', top: btnPosition.top + 'px', left: 'auto', transform: 'none'}"
+                 @click="showIframe = true"
+                 @touchstart="onTouchStart"
+                 @touchmove="onTouchMove"
+                 @touchend="onTouchEnd">排位
+            </div>
+            <div>
+                <a target=_blank href="https://m.lottery.gov.cn/kjzb/"
+                   style="background: linear-gradient(135deg, #26a54f, #a5a233); color: #fff; width: 45px;height: 45px; border-radius: 50%; font-size: 11px; display: flex;justify-content:center;align-items:center;position: fixed;bottom: 130px;right: 10px;">直播</a>
             </div>
             <div>
                 <a target=_blank href="http://datachart.500.com/plw/?expect=100&from=&to=&sort=1"
