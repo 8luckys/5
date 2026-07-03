@@ -395,22 +395,30 @@
                             <span class="kill_str3">
                                 <input placeholder="复数" class="kill_input" v-model="fu_ji_str" type="text">
                             </span>
+                            <div style="display: inline-block">
+                                <van-field style="padding:0; padding-left: 20px" name="amount" label="">
+                                    <template #input>
+                                        <van-stepper theme="round" min="0.1" button-size="15" v-model="amount"
+                                                     step="0.1"/>
+                                    </template>
+                                </van-field>
+                            </div>
                         </div>
                     </div>
-                    <div style="display: flex;justify-content: center;align-items: center;min-width: 300px">
+                    <!--<div style="display: flex;justify-content: center;align-items: center;min-width: 300px">
 
                         <van-field name="amount" label="额" style="justify-content: center;">
                             <template #input>
                                 <van-stepper theme="round" min="0.1" button-size="15" v-model="amount" step="0.1"/>
                             </template>
                         </van-field>
-                        <!--
-                                                <van-field name="amount" label="倍数">
-                                                    <template #input>
-                                                        <van-stepper theme="round" min="1" button-size="15" v-model="luck_num" step="1"/>
-                                                    </template>
-                                                </van-field>-->
-                    </div>
+
+                        <van-field name="amount" label="倍数">
+                            <template #input>
+                                <van-stepper theme="round" min="1" button-size="15" v-model="luck_num" step="1"/>
+                            </template>
+                        </van-field>
+                    </div>-->
                     <div class="kill_str">
                         <div style="display:flex;justify-content: space-between">
 
@@ -419,7 +427,8 @@
                                       :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
                                       v-model="luck_num_arr[index]" @click="setNum(index)">{{item}} </span>
 
-                                <span style="color: palegoldenrod" v-for="(item,index) in kill_arr_last" class="kill_input">
+                                <span style="color: palegoldenrod" v-for="(item,index) in kill_arr_last"
+                                      class="kill_input">
                                     <span v-if="index == 0">(</span>{{item}}<span v-if="index == 3">)</span>
                                 </span>
 
@@ -427,7 +436,8 @@
                             <span @click="xwj2_show = !xwj2_show">{{xwj2_show ? '▲' : '▼'}}</span>
 
                             <span @click="setKill('_last')" style="cursor:pointer;color: magenta"
-                                  :class="{luck_num_title:is_before}">{{sort_date}}<span style="margin-left: 8px" @click="delCache">🗑️</span></span>
+                                  :class="{luck_num_title:is_before}">{{sort_date}}<span style="margin-left: 8px"
+                                                                                         @click="delCache">🗑️</span></span>
 
                         </div>
                     </div>
@@ -493,18 +503,26 @@
                                 <span class="kill_str3">
                                     <input placeholder="复数" class="kill_input" v-model="fu_ji_str2" type="text">
                                 </span>
+                                <div style="display: inline-block">
+                                    <van-field style="padding:0; padding-left: 20px" name="amount2" label="">
+                                        <template #input>
+                                            <van-stepper theme="round" min="0.1" button-size="15" v-model="amount2"
+                                                         step="0.1"/>
+                                        </template>
+                                    </van-field>
+                                </div>
                             </div>
                         </div>
-                        <div class="kill_str">
-                            <div class="kill_str2" style="display:flex;justify-content:center;align-items:center;">
-                                <van-field name="amount2" label="额" style="justify-content: center;">
-                                    <template #input>
-                                        <van-stepper theme="round" min="0.1" button-size="15" v-model="amount2"
-                                                     step="0.1"/>
-                                    </template>
-                                </van-field>
-                            </div>
-                        </div>
+                        <!-- <div class="kill_str">
+                             <div class="kill_str2" style="display:flex;justify-content:center;align-items:center;">
+                                 <van-field name="amount2" label="">
+                                     <template #input>
+                                         <van-stepper theme="round" min="0.1" button-size="15" v-model="amount2"
+                                                      step="0.1"/>
+                                     </template>
+                                 </van-field>
+                             </div>
+                         </div>-->
                     </template>
                     <!--<div class="kill_str">
                         <div class="kill_str2">
@@ -622,7 +640,8 @@
                 </svg>
             </div>
 
-            <div v-if="showBottomBar" @click="is_he = !is_he" style="position: fixed;bottom: 130px;left: 18px;color: #1e9fff;">
+            <div v-if="showBottomBar" @click="is_he = !is_he"
+                 style="position: fixed;bottom: 130px;left: 18px;color: #1e9fff;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -631,7 +650,8 @@
                 </svg>
             </div>
 
-            <button class="btn-bottom-toggle" v-if="!show_from" @click="()=>{showBottomBar = !showBottomBar;is_bgz = showBottomBar;}">
+            <button class="btn-bottom-toggle" v-if="!show_from"
+                    @click="()=>{showBottomBar = !showBottomBar;is_bgz = showBottomBar;}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -1234,7 +1254,7 @@
                     this.onSubmit('random')
                 }, 100)
             },
-            delCache(){
+            delCache() {
                 localStorage.removeItem('form_cache');
                 window.location.reload();
             },
@@ -1321,7 +1341,7 @@
                 }
             },
             setKill(index = '') {
-                if(index != '_last') return;
+                if (index != '_last') return;
                 let in_not_eq_arr = this.getInNotEq(this.luck_num_arr);
                 /*if (in_not_eq_arr.length != 2) {
                     vant.showToast('先选两位');
