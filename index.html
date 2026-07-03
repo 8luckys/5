@@ -427,7 +427,7 @@
                             <span @click="xwj2_show = !xwj2_show">{{xwj2_show ? '▲' : '▼'}}</span>
 
                             <span @click="setKill('_last')" style="cursor:pointer;color: magenta"
-                                  :class="{luck_num_title:is_before}">{{sort_date}}<span style="margin-left: 5px" @click="delCache">🗑️</span></span>
+                                  :class="{luck_num_title:is_before}">{{sort_date}}<span style="margin-left: 8px" @click="delCache">🗑️</span></span>
 
                         </div>
                     </div>
@@ -605,16 +605,23 @@
             <!-- ==========================================
                 返回按钮
             ========================================== -->
-            <div @click="show_from = true" style="position: fixed;top: 2%;left: 0px;color: #1e9fff;">
+            <!--<div @click="show_from = true" style="position: fixed;top: 2%;left: 0px;color: #1e9fff;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </div>-->
+
+            <!-- ==========================================
+                底部按钮浮动控制按钮
+            ========================================== -->
+            <div class="btn-bottom-toggle" @click="show_from = true" style="bottom: 170px;color: #1e9fff;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
             </div>
 
-            <!-- ==========================================
-                底部按钮浮动控制按钮
-            ========================================== -->
             <div v-if="showBottomBar" @click="is_he = !is_he" style="position: fixed;bottom: 130px;left: 18px;color: #1e9fff;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
