@@ -338,7 +338,7 @@
                      </div>-->
                     <div class="kill_str">
                         <div class="kill_str2">
-                            <span class="click-label" @click="setKill()">排集</span>
+                            <span @click="setKill()">排集</span>
                             <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -363,6 +363,16 @@
                             </span>
                         </div>
                     </div>
+                    <div class="kill_str">
+                        <div class="kill_str2">
+                            <span @click="setNumCopy()" class="click-label">位含</span>
+                            <span class="kill_str3">
+                        <input v-for="(item,index) in 4"
+                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
+                               v-model="contain_arr[index]" type="text">
+                    </span>
+                        </div>
+                    </div>
                     <div class="kill_str" v-for="(row, ri) in cz_rows" :key="'cz'+ri">
                         <div class="kill_str2">
                             <span @click="cz_rows.push({checked:[],nums:''})" class="click-label"
@@ -377,16 +387,6 @@
                                 </van-checkbox-group>
                                 </div>
                             </span>
-                        </div>
-                    </div>
-                    <div class="kill_str">
-                        <div class="kill_str2">
-                            <span @click="setNumCopy()" class="click-label">位含</span>
-                            <span class="kill_str3">
-                        <input v-for="(item,index) in 4"
-                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
-                               v-model="contain_arr[index]" type="text">
-                    </span>
                         </div>
                     </div>
                     <div class="kill_str">
@@ -415,22 +415,26 @@
                         <div style="display:flex;justify-content: space-between">
 
                             <span class="kill_str3" @click="showLuckList">
-                                <span v-for="(item,index) in 4" class="kill_input"
+                                <span v-for="(item,index) in luck_num_arr" class="kill_input"
                                       :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
-                                      v-model="luck_num_arr[index]" @click="setNum(index)">{{luck_num_arr[index]}} </span>
+                                      v-model="luck_num_arr[index]" @click="setNum(index)">{{item}} </span>
+
+                                <span style="color: palegoldenrod" v-for="(item,index) in kill_arr_last" class="kill_input">
+                                    <span v-if="index == 0">(</span>{{item}}<span v-if="index == 3">)</span>
+                                </span>
 
                             </span>
                             <span @click="xwj2_show = !xwj2_show">{{xwj2_show ? '▲' : '▼'}}</span>
 
-                            <span style="cursor:pointer;color: magenta" @click="delCache"
-                                  :class="{luck_num_title:is_before}">{{sort_date}}</span>
+                            <span @click="setKill('_last')" style="cursor:pointer;color: magenta"
+                                  :class="{luck_num_title:is_before}">{{sort_date}}<span style="margin-left: 5px" @click="delCache">🗑️</span></span>
 
                         </div>
                     </div>
                     <template v-if="xwj2_show">
                         <div class="kill_str">
                             <div class="kill_str2">
-                                <span class="click-label" @click="setKill(2)" class="click-label">集</span>
+                                <span @click="setKill(2)" class="click-label">集</span>
                                 <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -456,6 +460,16 @@
                                 </span>
                             </div>
                         </div>
+                        <div class="kill_str">
+                            <div class="kill_str2">
+                                <span @click="setNumCopy(2)" class="click-label">含</span>
+                                <span class="kill_str3">
+                        <input v-for="(item,index) in 4"
+                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
+                               v-model="contain_arr2[index]" type="text">
+                    </span>
+                            </div>
+                        </div>
                         <div class="kill_str" v-for="(row, ri) in cz_rows2" :key="'cz2'+ri">
                             <div class="kill_str2">
                                 <span @click="cz_rows2.push({checked:[],nums:''})" class="click-label"
@@ -471,16 +485,6 @@
                                     </van-checkbox-group>
                                     </div>
                                 </span>
-                            </div>
-                        </div>
-                        <div class="kill_str">
-                            <div class="kill_str2">
-                                <span @click="setNumCopy(2)" class="click-label">不含</span>
-                                <span class="kill_str3">
-                        <input v-for="(item,index) in 4"
-                               :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
-                               v-model="contain_arr2[index]" type="text">
-                    </span>
                             </div>
                         </div>
                         <div class="kill_str">
@@ -584,12 +588,9 @@
                             <van-button type="success" @click="download" size="small" style="border-radius: 16px;">
                                 下载
                             </van-button>
-
                             <!--<van-button type="primary" @click="showLuckList" size="small" style="border-radius: 16px;">
                                 集合
                             </van-button>-->
-                            <!-- <a @click="showLuckList"
-                                style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff; padding: 4px 10px;margin-left: 20px; border-radius: 14px; font-size: 11px; text-decoration: none;">幸运</a>-->
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 12px; color: #1989fa;">总:{{number_count}}</span>
@@ -810,6 +811,7 @@
 
                 kill_arr: ['', '', '', ''],
                 kill_arr2: ['', '', '', ''],
+                kill_arr_last: [],
                 contain_arr: ['', '', '', ''],
                 contain_arr2: ['', '', '', ''],
                 fu_ji_str: '',
@@ -870,24 +872,12 @@
                 passwordList: [
                     {account: '13671461113', date: '2027-12-12 08:00:00'},
                     {account: '13700466665', date: '2027-03-09 20:05:18'},
-                    {account: '15219204820', date: '2027-02-19 20:28:55'},
                     {account: '13876989029', date: '2026-12-31 21:04:33'},
                     {account: '13337622477', date: '2026-12-18 16:42:11'},
                     {account: '13519803293', date: '2026-11-02 19:00:36'},
                     {account: '18707507428', date: '2026-10-22 10:02:48'},
                     {account: '13232724926', date: '2026-09-10 05:58:37'},
                     {account: '18924690080', date: '2026-08-11 09:11:55'},
-                    {account: '13189828817', date: '2026-06-30 01:06:59'},
-                    {account: '13822579550', date: '2026-06-22 22:15:25'},
-                    {account: '13434699592', date: '2026-06-14 21:39:19'},
-                    {account: '13138921130', date: '2026-06-10 22:00:38'},
-                    {account: '13876018353', date: '2026-06-10 19:10:01'},
-                    {account: '13437868389', date: '2026-06-09 17:30:39'},
-                    {account: '13876664985', date: '2026-06-08 19:26:40'},
-                    {account: '15219266256', date: '2026-06-08 19:14:46'},
-                    {account: '13620434199', date: '2026-06-05 19:24:58'},
-                    {account: '13824847949', date: '2026-06-04 20:37:51'},
-                    {account: '18976214962', date: '2026-06-03 16:36:03'},
                     {account: '13078996767', date: '2026-06-02 01:27:30'},
                 ],
             };
@@ -1324,6 +1314,7 @@
                 }
             },
             setKill(index = '') {
+                if(index != '_last') return;
                 let in_not_eq_arr = this.getInNotEq(this.luck_num_arr);
                 /*if (in_not_eq_arr.length != 2) {
                     vant.showToast('先选两位');
