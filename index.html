@@ -419,7 +419,7 @@
                             </template>
                         </van-field>
                     </div>-->
-                    <div class="kill_str">
+                    <div class="kill_str" style="padding: 10px 0px">
                         <div style="display:flex;justify-content: space-between">
 
                             <span class="kill_str3" @click="showLuckList">
@@ -436,8 +436,9 @@
                             <span @click="xwj2_show = !xwj2_show">{{xwj2_show ? '▲' : '▼'}}</span>
 
                             <span @click="setKill('_last')" style="cursor:pointer;color: magenta"
-                                  :class="{luck_num_title:is_before}">{{sort_date}}<span style="margin-left: 8px"
-                                                                                         @click="delCache">🗑️</span></span>
+                                  :class="{luck_num_title:is_before}">{{sort_date}}
+                                <span style="margin-left: 12px" @click="delCache">🗑️</span>
+                            </span>
 
                         </div>
                     </div>
