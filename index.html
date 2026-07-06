@@ -783,42 +783,46 @@
     <!-- ==========================================
          下载记录列表弹窗
          ========================================== -->
-    <van-popup v-model:show="showRecordList" position="bottom" round style="max-height: 75%; background: #fff;">
-        <div style="padding: 16px;">
+    <van-popup v-model:show="showRecordList" position="bottom" round :style="{maxHeight: '55%', background: '#fff'}">
+        <div style="padding: 14px 14px 18px;">
             <!-- 标题栏 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #f0f0f0;">
-                <span style="font-size: 17px; font-weight: bold; color: #323233;">每日下载记录</span>
-                <van-button v-if="getRecordList().length > 0" type="danger" size="small" plain hairline @click="clearAllRecords" style="border-radius: 14px; padding: 0 12px;">清空全部</van-button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ebedf0;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <van-icon name="orders-o" size="20" color="#1989fa" />
+                    <span style="font-size: 16px; font-weight: bold; color: #323233;">下载记录</span>
+                    <span v-if="recordList.length" style="font-size: 12px; color: #969799; margin-left: 2px;">({{recordList.length}})</span>
+                </div>
+                <van-button v-if="recordList.length > 0" type="danger" size="small" plain @click="clearAllRecords" style="border-radius: 14px; padding: 0 12px; height: 28px;">清空</van-button>
             </div>
 
             <!-- 空状态 -->
-            <div v-if="getRecordList().length === 0" style="text-align: center; padding: 50px 0;">
-                <van-icon name="orders-o" size="48" style="color: #dcdee0;" />
-                <div style="color: #999; font-size: 14px; margin-top: 12px;">暂无下载记录</div>
+            <div v-if="recordList.length === 0" style="text-align: center; padding: 40px 0;">
+                <van-icon name="description" size="48" style="color: #dcdee0;" />
+                <div style="color: #969799; font-size: 13px; margin-top: 12px;">暂无下载记录</div>
             </div>
 
             <!-- 记录列表 -->
-            <div v-else style="max-height: 500px; overflow-y: auto; padding: 0 2px;">
-                <div v-for="(item, index) in getRecordList()" :key="item.date"
-                     style="background: #f7f8fa; border-radius: 10px; padding: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-                    <!-- 左侧日期标识 -->
-                    <div style="flex-shrink: 0; width: 48px; height: 48px; border-radius: 10px; background: linear-gradient(135deg, #4e9ff5, #1989fa); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;">
-                        <span style="font-size: 13px; font-weight: bold;">{{item.date.slice(5)}}</span>
-                        <span style="font-size: 9px; opacity: 0.8;">{{item.date.slice(0, 4)}}</span>
+            <div v-else style="max-height: 340px; overflow-y: auto;">
+                <div v-for="item in recordList" :key="item.date"
+                     style="background: #f7f8fa; border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; border: 1px solid #f0f0f0;">
+                    <!-- 左侧日期色块 -->
+                    <div style="flex-shrink: 0; width: 38px; height: 38px; border-radius: 7px; background: linear-gradient(135deg, #5ea6f5, #1989fa); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; line-height: 1.2;">
+                        <span style="font-size: 12px; font-weight: bold;">{{item.date.slice(5)}}</span>
+                        <span style="font-size: 8px; opacity: 0.75;">{{item.date.slice(0, 4)}}</span>
                     </div>
                     <!-- 中间信息 -->
                     <div style="flex: 1; min-width: 0;">
-                        <div style="font-size: 13px; font-weight: bold; color: #323233;">{{item.sort_number || '未设期号'}}期</div>
-                        <div style="font-size: 11px; color: #999; margin-top: 3px;">{{item.time}}</div>
-                        <div style="font-size: 11px; margin-top: 4px; display: flex; gap: 10px;">
-                            <span style="color: #1989fa;"><van-icon name="notes-o" /> {{item.number_count}}注</span>
-                            <span style="color: #07c160;"><van-icon name="balance-o" /> ¥{{Number(item.number_money).toFixed(2)}}</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 12px; font-weight: 600; color: #323233;">{{item.sort_number || '未设'}}期</span>
+                            <span style="font-size: 10px; color: #1989fa; display: flex; align-items: center; gap: 2px;"><van-icon name="notes-o" size="11" />{{item.number_count}}注</span>
+                            <span style="font-size: 10px; color: #07c160; display: flex; align-items: center; gap: 2px;"><van-icon name="balance-o" size="11" />{{Number(item.number_money).toFixed(2)}}</span>
                         </div>
+                        <div style="margin-top: 2px; font-size: 9px; color: #c8c9cc; display: flex; align-items: center; gap: 2px;"><van-icon name="clock-o" size="9" />{{item.time}}</div>
                     </div>
-                    <!-- 右侧操作 -->
-                    <div style="flex-shrink: 0; display: flex; flex-direction: column; gap: 6px;">
-                        <van-button type="primary" size="mini" @click="applyRecord(item)" style="border-radius: 12px; width: 52px;">回显</van-button>
-                        <van-button type="danger" size="mini" plain @click="deleteRecord(item)" style="border-radius: 12px; width: 52px;">删除</van-button>
+                    <!-- 右侧操作（同一行） -->
+                    <div style="flex-shrink: 0; display: flex; gap: 5px;">
+                        <van-button type="primary" size="mini" @click="applyRecord(item)" style="border-radius: 10px; width: 44px; height: 24px; padding: 0; font-size: 11px;">回显</van-button>
+                        <van-button type="danger" size="mini" plain @click="deleteRecord(item)" style="border-radius: 10px; width: 44px; height: 24px; padding: 0; font-size: 11px;">删除</van-button>
                     </div>
                 </div>
             </div>
@@ -925,6 +929,7 @@
 
                 /* ========== 下载记录相关 ========== */
                 showRecordList: false,              // 控制下载记录列表弹窗
+                recordList: [],                     // 下载记录列表数据
 
                 /* ========== iframe嵌套页面相关 ========== */
                 showIframe: false,                    // 控制iframe显示/隐藏
@@ -2082,9 +2087,9 @@
             },
 
             /**
-             * 从localStorage读取记录列表（按日期倒序）
+             * 从localStorage读取记录并更新 recordList
              */
-            getRecordList() {
+            loadRecordList() {
                 var records = {};
                 try {
                     var stored = localStorage.getItem('download_records');
@@ -2104,13 +2109,14 @@
                 list.sort(function (a, b) {
                     return b.date.localeCompare(a.date);
                 });
-                return list;
+                this.recordList = list;
             },
 
             /**
              * 显示下载记录列表
              */
             showDownloadRecords() {
+                this.loadRecordList();
                 this.showRecordList = true;
             },
 
@@ -2205,6 +2211,7 @@
                     }
                     delete records[record.date];
                     localStorage.setItem('download_records', JSON.stringify(records));
+                    self.loadRecordList();
                     vant.showToast('删除成功');
                 }).catch(function () {
                     // 取消
@@ -2221,6 +2228,7 @@
                     message: '确定清空所有下载记录吗？此操作不可恢复！'
                 }).then(function () {
                     localStorage.removeItem('download_records');
+                    self.loadRecordList();
                     vant.showToast('已清空');
                 }).catch(function () {
                     // 取消
