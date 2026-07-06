@@ -445,7 +445,7 @@
                     <template v-if="xwj2_show">
                         <div class="kill_str">
                             <div class="kill_str2">
-                                <span @click="setKill(2)" class="click-label">集</span>
+                                <span @click="setKill(2)">集</span>
                                 <span class="kill_str3">
                         <input v-for="(item,index) in 4"
                                :placeholder="index == 0?'仟':(index == 1?'佰':(index == 2?'拾':'个'))" class="kill_input"
@@ -606,6 +606,9 @@
                             </van-button>
                             <van-button type="success" @click="download" size="small" style="border-radius: 16px;">
                                 下载
+                            </van-button>
+                            <van-button type="warning" @click="showDownloadRecords" size="small" style="border-radius: 16px;">
+                                记录
                             </van-button>
                             <!--<van-button type="primary" @click="showLuckList" size="small" style="border-radius: 16px;">
                                 集合
@@ -776,6 +779,38 @@
             <van-back-top right="0" bottom="20"/>
         </div>
     </van-pull-refresh>
+
+    <!-- ==========================================
+         下载记录列表弹窗
+         ========================================== -->
+    <van-popup v-model:show="showRecordList" position="bottom" round style="max-height: 75%; background: #fff;">
+        <div style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span style="font-size: 18px; font-weight: bold;">每日下载记录</span>
+                <van-button v-if="getRecordList().length > 0" type="danger" size="small" plain @click="clearAllRecords" style="border-radius: 16px;">清空</van-button>
+            </div>
+            <div v-if="getRecordList().length === 0" style="text-align: center; color: #999; padding: 40px 0;">
+                暂无下载记录
+            </div>
+            <div v-else style="max-height: 500px; overflow-y: auto;">
+                <div v-for="item in getRecordList()" :key="item.date"
+                     style="display: flex; justify-content: space-between; align-items: center; padding: 12px 8px; border-bottom: 1px solid #f5f5f5;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 15px; font-weight: bold;">{{item.date}}</div>
+                        <div style="font-size: 11px; color: #999; margin-top: 2px;">{{item.time}}</div>
+                        <div style="font-size: 11px; margin-top: 2px;">
+                            <span style="color: #1989fa;">{{item.number_count}}注</span>
+                            <span style="color: #07c160; margin-left: 8px;">¥{{Number(item.number_money).toFixed(2)}}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <van-button type="primary" size="mini" @click="applyRecord(item)" style="border-radius: 12px;">回显</van-button>
+                        <van-button type="danger" size="mini" plain @click="deleteRecord(item)" style="border-radius: 12px;">删除</van-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </van-popup>
 </div>
 </body>
 
@@ -874,6 +909,9 @@
                 number_str: '',
                 number_count: 0,
                 number_money: 0,
+
+                /* ========== 下载记录相关 ========== */
+                showRecordList: false,              // 控制下载记录列表弹窗
 
                 /* ========== iframe嵌套页面相关 ========== */
                 showIframe: false,                    // 控制iframe显示/隐藏
@@ -1825,6 +1863,8 @@
                 // 释放一个之前已经存在的、通过调用 URL.createObjectURL() 创建的 URL 对象。
                 // 当你结束使用某个 URL 对象之后，应该通过调用这个方法来让浏览器知道不用在内存中继续保留对这个文件的引用了。
                 URL.revokeObjectURL(objectURL);
+                // 保存下载记录到缓存
+                this.saveDownloadRecord();
                 vant.showToast('下载成功');
             },
             getFileName() {
@@ -1954,6 +1994,215 @@
                     setTimeout(() => {
                         this.copiedIndex = -1;
                     }, 1000);
+                });
+            },
+
+            /* ========== 下载记录缓存相关方法 ========== */
+
+            /**
+             * 保存当前输入数据到localStorage（同一天只保留最新一次）
+             */
+            saveDownloadRecord() {
+                var today = dayjs().format('YYYY-MM-DD');
+                var now = dayjs().format('YYYY-MM-DD HH:mm:ss');
+
+                var records = {};
+                try {
+                    var stored = localStorage.getItem('download_records');
+                    if (stored) {
+                        records = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    records = {};
+                }
+
+                // 按日期覆盖，同一天只保留最新
+                records[today] = {
+                    date: today,
+                    time: now,
+                    // 幸运号、排位集、排位集2、包含集、包含集2
+                    luck_num_arr: JSON.parse(JSON.stringify(this.luck_num_arr)),
+                    kill_arr: JSON.parse(JSON.stringify(this.kill_arr)),
+                    kill_arr2: JSON.parse(JSON.stringify(this.kill_arr2)),
+                    contain_arr: JSON.parse(JSON.stringify(this.contain_arr)),
+                    contain_arr2: JSON.parse(JSON.stringify(this.contain_arr2)),
+                    // 幸位集（行数据：input + checked）
+                    xwj_rows: JSON.parse(JSON.stringify(this.xwj_rows)),
+                    // 排合集2（行数据：input + checked）
+                    xwj_rows2: JSON.parse(JSON.stringify(this.xwj_rows2)),
+                    // 除重、除重2（行数据：nums + checked）
+                    cz_rows: JSON.parse(JSON.stringify(this.cz_rows)),
+                    cz_rows2: JSON.parse(JSON.stringify(this.cz_rows2)),
+                    // 复数
+                    fu_ji_str: this.fu_ji_str,
+                    fu_ji_str2: this.fu_ji_str2,
+                    // 合值
+                    sum_not_str: this.sum_not_str,
+                    sum_not_str2: this.sum_not_str2,
+                    // 幸位集、运位集
+                    base_str_one: this.base_str_one,
+                    base_str_two: this.base_str_two,
+                    // 开关
+                    kill_repeat: this.kill_repeat,
+                    kill_back: this.kill_back,
+                    // 金额、倍数
+                    amount: this.amount,
+                    amount2: this.amount2,
+                    luck_num: this.luck_num,
+                    // 统计
+                    number_count: this.number_count,
+                    number_money: this.number_money,
+                    // 期号、期日
+                    sort_number: this.sort_number,
+                    sort_date: this.sort_date
+                };
+
+                try {
+                    localStorage.setItem('download_records', JSON.stringify(records));
+                } catch (e) {
+                    console.log('保存记录失败:', e);
+                }
+            },
+
+            /**
+             * 从localStorage读取记录列表（按日期倒序）
+             */
+            getRecordList() {
+                var records = {};
+                try {
+                    var stored = localStorage.getItem('download_records');
+                    if (stored) {
+                        records = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    records = {};
+                }
+
+                var list = [];
+                for (var key in records) {
+                    if (records.hasOwnProperty(key)) {
+                        list.push(records[key]);
+                    }
+                }
+                list.sort(function (a, b) {
+                    return b.date.localeCompare(a.date);
+                });
+                return list;
+            },
+
+            /**
+             * 显示下载记录列表
+             */
+            showDownloadRecords() {
+                this.showRecordList = true;
+            },
+
+            /**
+             * 回显：将记录数据赋值到当前输入框
+             * @param {object} record - 要回显的记录
+             */
+            applyRecord(record) {
+                var r = record;
+                // 幸运号数组
+                if (r.luck_num_arr) {
+                    this.luck_num_arr = JSON.parse(JSON.stringify(r.luck_num_arr));
+                }
+                // 排位集数组
+                if (r.kill_arr) {
+                    this.kill_arr = JSON.parse(JSON.stringify(r.kill_arr));
+                }
+                // 排位集2
+                if (r.kill_arr2) {
+                    this.kill_arr2 = JSON.parse(JSON.stringify(r.kill_arr2));
+                }
+                // 包含集
+                if (r.contain_arr) {
+                    this.contain_arr = JSON.parse(JSON.stringify(r.contain_arr));
+                }
+                // 包含集2
+                if (r.contain_arr2) {
+                    this.contain_arr2 = JSON.parse(JSON.stringify(r.contain_arr2));
+                }
+                // 幸位集（行数据：input + checked）
+                if (r.xwj_rows) {
+                    this.xwj_rows = JSON.parse(JSON.stringify(r.xwj_rows));
+                }
+                // 排合集2（行数据：input + checked）
+                if (r.xwj_rows2) {
+                    this.xwj_rows2 = JSON.parse(JSON.stringify(r.xwj_rows2));
+                }
+                // 除重（行数据：nums + checked）
+                if (r.cz_rows) {
+                    this.cz_rows = JSON.parse(JSON.stringify(r.cz_rows));
+                }
+                // 除重2
+                if (r.cz_rows2) {
+                    this.cz_rows2 = JSON.parse(JSON.stringify(r.cz_rows2));
+                }
+                // 复数
+                this.fu_ji_str = r.fu_ji_str || '';
+                this.fu_ji_str2 = r.fu_ji_str2 || '';
+                // 合值
+                this.sum_not_str = r.sum_not_str || '';
+                this.sum_not_str2 = r.sum_not_str2 || '';
+                // 幸位集、运位集
+                this.base_str_one = r.base_str_one || '';
+                this.base_str_two = r.base_str_two || '';
+                // 开关
+                this.kill_repeat = !!r.kill_repeat;
+                this.kill_back = !!r.kill_back;
+                // 金额、倍数
+                this.amount = r.amount !== undefined ? r.amount : 0.5;
+                this.amount2 = r.amount2 !== undefined ? r.amount2 : 0.3;
+                this.luck_num = r.luck_num !== undefined ? r.luck_num : 1;
+                // 期号、期日
+                this.sort_number = r.sort_number || '';
+                this.sort_date = r.sort_date || '';
+                // 关闭记录列表弹窗
+                this.showRecordList = false;
+                vant.showToast('已回显到输入框');
+            },
+
+            /**
+             * 删除单条记录
+             * @param {object} record - 要删除的记录
+             */
+            deleteRecord(record) {
+                var self = this;
+                vant.showConfirmDialog({
+                    title: '确认删除',
+                    message: '确定删除 ' + record.date + ' 的记录吗？'
+                }).then(function () {
+                    var records = {};
+                    try {
+                        var stored = localStorage.getItem('download_records');
+                        if (stored) {
+                            records = JSON.parse(stored);
+                        }
+                    } catch (e) {
+                        records = {};
+                    }
+                    delete records[record.date];
+                    localStorage.setItem('download_records', JSON.stringify(records));
+                    vant.showToast('删除成功');
+                }).catch(function () {
+                    // 取消
+                });
+            },
+
+            /**
+             * 清空所有下载记录
+             */
+            clearAllRecords() {
+                var self = this;
+                vant.showConfirmDialog({
+                    title: '确认清空',
+                    message: '确定清空所有下载记录吗？此操作不可恢复！'
+                }).then(function () {
+                    localStorage.removeItem('download_records');
+                    vant.showToast('已清空');
+                }).catch(function () {
+                    // 取消
                 });
             },
 
