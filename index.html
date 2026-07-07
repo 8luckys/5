@@ -422,7 +422,7 @@
                     <div class="kill_str" style="padding: 10px 0px">
                         <div style="display:flex;justify-content: space-between">
 
-                            <span class="kill_str3" @click="showLuckList">
+                            <span @click="setKill('_last')">
                                 <span v-for="(item,index) in luck_num_arr" class="kill_input"
                                       :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
                                       v-model="luck_num_arr[index]" @click="setNum(index)">{{item}} </span>
@@ -435,9 +435,9 @@
                             </span>
                             <span @click="xwj2_show = !xwj2_show">{{xwj2_show ? '▲' : '▼'}}</span>
 
-                            <span @click="setKill('_last')" style="cursor:pointer;color: magenta"
+                            <span @click="delCache" style="cursor:pointer;color: magenta"
                                   :class="{luck_num_title:is_before}">{{sort_date}}
-                                <span style="margin-left: 12px" @click="delCache">🗑️</span>
+                                <!--<span style="margin-left: 12px" @click="delCache">🗑️</span>-->
                             </span>
 
                         </div>
@@ -607,13 +607,12 @@
                             <van-button type="success" @click="download" size="small" style="border-radius: 16px;">
                                 下载
                             </van-button>
-                            <van-button type="warning" @click="showDownloadRecords" size="small"
-                                        style="border-radius: 16px;">
+                            <van-button type="primary" @click="showLuckList" size="small" style="border-radius: 16px;">
+                                集合
+                            </van-button>
+                            <van-button type="warning" @click="showDownloadRecords" size="small" style="border-radius: 16px;">
                                 记录
                             </van-button>
-                            <!--<van-button type="primary" @click="showLuckList" size="small" style="border-radius: 16px;">
-                                集合
-                            </van-button>-->
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 12px; color: #1989fa;">总:{{number_count}}</span>
