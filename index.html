@@ -420,27 +420,34 @@
                         </van-field>
                     </div>-->
                     <div class="kill_str" style="padding: 10px 0px">
-                        <div style="display:flex;justify-content: space-between">
+                        <div style="display: flex; width: 100%;"> <!-- 建议加上 width: 100% 确保占满父级 -->
 
-                            <span @click="setKill('_last')">
+                            <!-- 第一个子元素：添加 flex: 1 -->
+                            <span @click="setKill('_last')" style="flex: 1; overflow: hidden;">
                                 <span v-for="(item,index) in luck_num_arr" class="kill_input"
                                       :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
-                                      v-model="luck_num_arr[index]" @click="setNum(index)">{{item}} </span>
+                                      v-model="luck_num_arr[index]" @click="setNum(index)">{{item}}
+                                </span>
 
                                 <span style="color: palegoldenrod" v-for="(item,index) in kill_arr_last"
                                       class="kill_input">
                                     <span v-if="index == 0">(</span>{{item}}<span v-if="index == 3">)</span>
                                 </span>
-
                             </span>
-                            <span @click="xwj2_show = !xwj2_show">{{xwj2_show ? '▲' : '▼'}}</span>
 
-                            <span @click="delCache" style="cursor:pointer;color: magenta"
-                                  :class="{luck_num_title:is_before}">{{sort_date}}
-                                <!--<span style="margin-left: 12px" @click="delCache">🗑️</span>-->
+                            <!-- 第二个子元素：添加 flex: 1 -->
+                            <span @click="xwj2_show = !xwj2_show" style="flex: 1; text-align: center;">
+                                {{xwj2_show ? '▲' : '▼'}}
+                            </span>
+
+                            <!-- 第三个子元素：添加 flex: 1 -->
+                            <span @click="delCache" style="cursor:pointer;color: magenta; flex: 1; text-align: right;"
+                                  :class="{luck_num_title:is_before}">
+                                {{sort_date}}
                             </span>
 
                         </div>
+
                     </div>
                     <template v-if="xwj2_show">
                         <div class="kill_str">
@@ -610,7 +617,8 @@
                             <van-button type="primary" @click="showLuckList" size="small" style="border-radius: 16px;">
                                 集合
                             </van-button>
-                            <van-button type="warning" @click="showDownloadRecords" size="small" style="border-radius: 16px;">
+                            <van-button type="warning" @click="showDownloadRecords" size="small"
+                                        style="border-radius: 16px;">
                                 记录
                             </van-button>
                         </div>
