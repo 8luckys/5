@@ -147,15 +147,15 @@
         right: 10px;
         top: 50%;
         transform: translateY(-50%);
-        width: 50px;
-        height: 50px;
+        width: 45px;
+        height: 45px;
         background: #ff6600;
         color: #fff;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 14px;
+        font-size: 11px;
         cursor: pointer;
         z-index: 100;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -208,7 +208,7 @@
     }
 
     .bot_fixed .bot_left .van-button {
-        border-radius: 20px;
+        border-radius: 50%;
         font-weight: 500;
     }
 
@@ -607,7 +607,8 @@
                             <van-button type="success" @click="download" size="small" style="border-radius: 16px;">
                                 下载
                             </van-button>
-                            <van-button type="warning" @click="showDownloadRecords" size="small" style="border-radius: 16px;">
+                            <van-button type="warning" @click="showDownloadRecords" size="small"
+                                        style="border-radius: 16px;">
                                 记录
                             </van-button>
                             <!--<van-button type="primary" @click="showLuckList" size="small" style="border-radius: 16px;">
@@ -637,25 +638,25 @@
             <!-- ==========================================
                 底部按钮浮动控制按钮
             ========================================== -->
-            <div class="btn-bottom-toggle" @click="show_from = true" style="bottom: 170px;color: #1e9fff;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-            </div>
-
-            <div v-if="showBottomBar" @click="is_he = !is_he"
-                 style="position: fixed;bottom: 130px;left: 18px;color: #1e9fff;">
+            <!--<div v-if="showBottomBar" @click="is_he = !is_he"
+                 style="position: fixed;bottom: 170px;left: 18px;color: #1e9fff;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
                 </svg>
+            </div>-->
+
+            <div class="btn-bottom-toggle" @click="show_from = true" style="bottom: 130px;color: #1e9fff;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
             </div>
 
             <button class="btn-bottom-toggle" v-if="!show_from"
-                    @click="()=>{showBottomBar = !showBottomBar;is_bgz = showBottomBar;}">
+                    @click="()=>{showBottomBar = !showBottomBar;is_zjl = showBottomBar;}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -667,7 +668,7 @@
             <!-- ==========================================
                 浮动按钮 - 可拖动打开排位页面
             ========================================== -->
-            <div v-if="!show_from" class="float-btn"
+            <div class="float-btn"
                  :style="{right: btnPosition.right + 'px', top: btnPosition.top + 'px', left: 'auto', transform: 'none'}"
                  @click="showIframe = true"
                  @touchstart="onTouchStart"
@@ -699,7 +700,7 @@
                     loading-text="加载中"
                     @load="onLoad"
             >
-                <div v-if="is_bgz && in_he.includes(show_type)" class="luck_list3" style="display: block !important;">
+                <div v-if="is_zjl && in_he.includes(show_type)" class="luck_list3" style="display: block !important;">
                         <span v-if="show_type == '二合'" style="font-size: 12px !important;color: #00FF00"
                               class="luck_list_span"
                               v-for="(item3,index3) in 6"
@@ -714,13 +715,13 @@
                           :key="index3">1234</span>
                 </div>
                 <div v-for="(item,index) in luck_list" :key="index">
-                    <span v-if="is_bgz && !in_he.includes(show_type)" class="luck_list_span"
+                    <span v-if="is_zjl && !in_he.includes(show_type)" class="luck_list_span"
                           v-for="(item2,index2) in item.data"
                           :class="{kill_input_red:getShowColor(item.data,index2,index),kill_input_opacity:index2 === 4}"
                           style="font-size: 20px!important;"
                           :key="index2">{{getShow(item2.num)}}
                     </span>
-                    <div v-if="is_bgz && in_he.includes(show_type)" class="luck_list3">
+                    <div v-if="is_zjl && in_he.includes(show_type)" class="luck_list3">
                          <span v-if="show_type == '二合'" style="font-size: 20px!important;" class="luck_list_span"
                                v-for="(item3,index3) in 6"
                                :class="{kill_input_red:getBgzColor(item.num,index3,index),kill_input_opacity:index2 === 4}"
@@ -736,7 +737,7 @@
                               :class="{kill_input_red:getBgzColor(item.num,index3,index),kill_input_opacity:index2 === 4}"
                               :key="index3">{{getBgz(item.num,index3)}}</span>
                     </div>
-                    <span v-if="!is_bgz" class="luck_list_span"
+                    <span v-if="!is_zjl" class="luck_list_span"
                           :class="{kill_input_red:item2.red,kill_input_opacity:index2 === 4}"
                           v-for="(item2,index2) in item.data"
                           :key="index2">{{item2.num}}
@@ -788,16 +789,18 @@
             <!-- 标题栏 -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ebedf0;">
                 <div style="display: flex; align-items: center; gap: 6px;">
-                    <van-icon name="orders-o" size="20" color="#1989fa" />
+                    <van-icon name="orders-o" size="20" color="#1989fa"/>
                     <span style="font-size: 16px; font-weight: bold; color: #323233;">下载记录</span>
                     <span v-if="recordList.length" style="font-size: 12px; color: #969799; margin-left: 2px;">({{recordList.length}})</span>
                 </div>
-                <van-button v-if="recordList.length > 0" type="danger" size="small" plain @click="clearAllRecords" style="border-radius: 14px; padding: 0 12px; height: 28px;">清空</van-button>
+                <van-button v-if="recordList.length > 0" type="danger" size="small" plain @click="clearAllRecords"
+                            style="border-radius: 14px; padding: 0 12px; height: 28px;">清空
+                </van-button>
             </div>
 
             <!-- 空状态 -->
             <div v-if="recordList.length === 0" style="text-align: center; padding: 40px 0;">
-                <van-icon name="description" size="48" style="color: #dcdee0;" />
+                <van-icon name="description" size="48" style="color: #dcdee0;"/>
                 <div style="color: #969799; font-size: 13px; margin-top: 12px;">暂无下载记录</div>
             </div>
 
@@ -814,15 +817,26 @@
                     <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 12px; font-weight: 600; color: #323233;">{{item.sort_number || '未设'}}期</span>
-                            <span style="font-size: 10px; color: #1989fa; display: flex; align-items: center; gap: 2px;"><van-icon name="notes-o" size="11" />{{item.number_count}}注</span>
-                            <span style="font-size: 10px; color: #07c160; display: flex; align-items: center; gap: 2px;"><van-icon name="balance-o" size="11" />{{Number(item.number_money).toFixed(2)}}</span>
+                            <span style="font-size: 10px; color: #1989fa; display: flex; align-items: center; gap: 2px;"><van-icon
+                                    name="notes-o" size="11"/>{{item.number_count}}注</span>
+                            <span style="font-size: 10px; color: #07c160; display: flex; align-items: center; gap: 2px;"><van-icon
+                                    name="balance-o" size="11"/>{{Number(item.number_money).toFixed(2)}}</span>
                         </div>
-                        <div style="margin-top: 2px; font-size: 9px; color: #c8c9cc; display: flex; align-items: center; gap: 2px;"><van-icon name="clock-o" size="9" />{{item.time}}</div>
+                        <div style="margin-top: 2px; font-size: 9px; color: #c8c9cc; display: flex; align-items: center; gap: 2px;">
+                            <van-icon name="clock-o" size="9"/>
+                            {{item.time}}
+                        </div>
                     </div>
                     <!-- 右侧操作（同一行） -->
                     <div style="flex-shrink: 0; display: flex; gap: 5px;">
-                        <van-button type="primary" size="mini" @click="applyRecord(item)" style="border-radius: 10px; width: 44px; height: 24px; padding: 0; font-size: 11px;">回显</van-button>
-                        <van-button type="danger" size="mini" plain @click="deleteRecord(item)" style="border-radius: 10px; width: 44px; height: 24px; padding: 0; font-size: 11px;">删除</van-button>
+                        <van-button type="primary" size="mini" @click="applyRecord(item)"
+                                    style="border-radius: 10px; width: 44px; height: 24px; padding: 0; font-size: 11px;">
+                            详情
+                        </van-button>
+                        <van-button type="danger" size="mini" plain @click="deleteRecord(item)"
+                                    style="border-radius: 10px; width: 44px; height: 24px; padding: 0; font-size: 11px;">
+                            删除
+                        </van-button>
                     </div>
                 </div>
             </div>
@@ -849,7 +863,7 @@
                 finished: false,
                 _cache_ready: false,
                 luck_list: [],
-                is_bgz: false,
+                is_zjl: false,
                 show_type: '',
                 isLoading: false,
                 pageNo: 1,
@@ -982,10 +996,10 @@
                 luck_num_list2 = [0, 8, 6, 8, 9];
                 let num = '08689';
                 luck_num_list.pop();
-                num_list.push(luck_num_list)
-                num_list_news.push(luck_num_list2)
-                num_list.push(luck_num_list)
-                num_list_news.push(luck_num_list2)
+                for (let i = 0; i < 50; i++) {
+                    num_list.push(luck_num_list)
+                    num_list_news.push(luck_num_list2)
+                }
 
                 number_lists[num] = {
                     num,
@@ -1249,7 +1263,7 @@
             },
             showLuckList() {
                 this.show_from = false;
-                this.is_bgz = false;
+                this.is_zjl = false;
                 this.setLuckList()
             },
             setLuckList() {
@@ -1571,7 +1585,7 @@
                 return in_not_eq;
             },
             setBgz(type) {
-                this.is_bgz = true
+                this.is_zjl = true
                 this.show_type = type;
             },
             delBgz() {
