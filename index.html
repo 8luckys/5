@@ -419,18 +419,17 @@
                             </template>
                         </van-field>
                     </div>-->
-                    <div class="kill_str" style="padding: 10px 0px">
+                    <div class="kill_str" style="padding: 0px 0px">
                         <div style="display: flex; width: 100%;"> <!-- 建议加上 width: 100% 确保占满父级 -->
 
                             <!-- 第一个子元素：添加 flex: 1 -->
                             <span @click="setKill('_last')" style="flex: 1; overflow: hidden;">
-                                <span v-for="(item,index) in luck_num_arr" class="kill_input"
+                                <span v-for="(item,index) in luck_num_arr" style="margin-right: 7px"
                                       :class="{kill_input_blue:blue_arr.includes(index),kill_input_red:red_arr.includes(index)}"
                                       v-model="luck_num_arr[index]" @click="setNum(index)">{{item}}
                                 </span>
 
-                                <span style="color: palegoldenrod" v-for="(item,index) in kill_arr_last"
-                                      class="kill_input">
+                                <span style="color: palegoldenrod;margin-right: 3px" v-for="(item,index) in kill_arr_last">
                                     <span v-if="index == 0">(</span>{{item}}<span v-if="index == 3">)</span>
                                 </span>
                             </span>
@@ -440,10 +439,13 @@
                                 {{xwj2_show ? '▲' : '▼'}}
                             </span>
 
-                            <!-- 第三个子元素：添加 flex: 1 -->
-                            <span @click="delCache" style="cursor:pointer;color: magenta; flex: 1; text-align: right;"
+                            <!-- 第三个子元素：固定宽度，文字不换行，超长截断或缩小字号 -->
+                            <span style="cursor:pointer;color: magenta; flex: 0 0 auto; text-align: right; white-space: nowrap;"
                                   :class="{luck_num_title:is_before}">
-                                {{sort_date}}
+                                <span @click="showLuckList" style="font-size: 12px; max-width: 70px; overflow: hidden; display: inline-block; vertical-align: middle;">
+                                    {{sort_date}}
+                                </span>
+                                <span style="margin-left: 12px;" @click="delCache">🗑️</span>
                             </span>
 
                         </div>
@@ -614,15 +616,15 @@
                             <van-button type="success" @click="download" size="small" style="border-radius: 16px;">
                                 下载
                             </van-button>
-                            <van-button type="primary" @click="showLuckList" size="small" style="border-radius: 16px;">
+                            <!--<van-button type="primary" @click="showLuckList" size="small" style="border-radius: 16px;">
                                 集合
                             </van-button>
                             <van-button type="warning" @click="showDownloadRecords" size="small"
                                         style="border-radius: 16px;">
                                 记录
-                            </van-button>
+                            </van-button>-->
                         </div>
-                        <div style="display: flex; align-items: center; gap: 6px;">
+                        <div @click="showDownloadRecords" style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 12px; color: #1989fa;">总:{{number_count}}</span>
                             <span style="font-size: 12px; color: #07c160;">额:{{Number(number_money).toFixed(2)}}</span>
                         </div>
