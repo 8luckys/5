@@ -1,593 +1,825 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>纺织 ERP + MES 完整后台原型</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", sans-serif; }
-        body { display: flex; height: 100vh; background: #f0f2f5; overflow: hidden; }
-        
-        /* 左侧菜单 */
-        .sidebar { width: 260px; background: #001529; color: #fff; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
-        .logo { height: 60px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; background: #002140; border-bottom: 1px solid #1f3a5f; flex-shrink: 0; }
-        .menu-group { padding: 10px 0; border-bottom: 1px solid #1f3a5f; }
-        .menu-title { padding: 10px 20px; font-size: 12px; color: #8c9bab; letter-spacing: 1px; }
-        .menu-item { padding: 10px 20px 10px 40px; cursor: pointer; transition: 0.2s; font-size: 13px; color: #ccc; border-left: 3px solid transparent; }
-        .menu-item:hover { background: #1f3a5f; color: #fff; }
-        .menu-item.active { background: #1890ff; color: #fff; border-left-color: #fff; }
-        
-        /* 右侧主区域 */
-        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .header { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 1px 4px rgba(0,21,41,0.08); z-index: 10; flex-shrink: 0; }
-        .header h2 { font-size: 16px; color: #333; }
-        .user-info { display: flex; align-items: center; gap: 15px; font-size: 14px; }
-        
-        .content { flex: 1; padding: 20px; overflow-y: auto; }
-        
-        /* 卡片和表单 */
-        .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: none; }
-        .card.active { display: block; }
-        .card h3 { font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #333; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* 查询栏 */
-        .search-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; background: #fafafa; padding: 15px; border-radius: 4px; border: 1px solid #eee; }
-        .search-bar input, .search-bar select { padding: 6px 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
-        
-        /* 表单 */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 13px; color: #666; font-weight: bold; }
-        .form-group input, .form-group select, .form-group textarea { padding: 8px 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
-        .form-group input:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.2); }
-        
-        /* 按钮 */
-        .btn { padding: 6px 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; transition: 0.3s; margin-right: 5px; margin-bottom: 5px; }
-        .btn-primary { background: #1890ff; color: #fff; }
-        .btn-primary:hover { background: #40a9ff; }
-        .btn-success { background: #52c41a; color: #fff; }
-        .btn-danger { background: #ff4d4f; color: #fff; }
-        .btn-warning { background: #faad14; color: #fff; }
-        .btn-default { background: #fff; color: #333; border: 1px solid #d9d9d9; }
-        .btn-link { background: none; border: none; color: #1890ff; cursor: pointer; font-size: 13px; padding: 0 5px; }
-        .btn-link:hover { text-decoration: underline; }
-        
-        /* 表格 */
-        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
-        th, td { padding: 10px 8px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #fafafa; font-weight: 600; color: #333; }
-        tr:hover { background: #f5f5f5; }
-        
-        /* 标签 */
-        .tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; display: inline-block; }
-        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
-        .tag-red { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
-        .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
-        .tag-orange { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
-        
-        /* 提示 */
-        .tip { background: #e6f7ff; border-left: 4px solid #1890ff; padding: 12px; margin-bottom: 20px; font-size: 13px; color: #333; border-radius: 0 4px 4px 0; }
-        
-        /* 弹窗 */
-        .modal-mask { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100; }
-        .modal-mask.show { display: flex; }
-        .modal { background: #fff; padding: 20px; border-radius: 8px; width: 500px; max-width: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-height: 80vh; overflow-y: auto; }
-        .modal h4 { margin-bottom: 15px; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .modal .close-btn { cursor: pointer; font-size: 18px; color: #999; border: none; background: none; }
-        .modal .btn-group { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-    </style>
+<meta charset="UTF-8">
+<title>纺织ERP - 全模块完整原型</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
+body{background:#f0f2f5;font-size:13px;color:#333;display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:230px;background:#001529;color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.logo{height:50px;display:flex;align-items:center;justify-content:center;font-weight:bold;background:#002140;font-size:14px;border-bottom:1px solid #1f3a5f;}
+.menu-group{padding:6px 0;border-bottom:1px solid #1f3a5f;}
+.menu-title{padding:8px 16px;font-size:11px;color:#8c9bab;}
+.menu-item{padding:7px 16px 7px 32px;cursor:pointer;font-size:12px;color:#ccc;border-left:3px solid transparent;transition:.2s;}
+.menu-item:hover{background:#1f3a5f;color:#fff;}
+.menu-item.active{background:#1890ff;color:#fff;border-left-color:#fff;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.header{height:50px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e8e8e8;}
+.header h2{font-size:14px;}
+.header .user{font-size:12px;color:#666;}
+.content{flex:1;overflow-y:auto;padding:15px;}
+.list-page{display:none;background:#fff;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.list-page.active{display:block;}
+.list-header{padding:12px 20px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;}
+.list-header h3{font-size:14px;}
+.search-bar{padding:12px 20px;background:#fafafa;border-bottom:1px solid #eee;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.search-bar input,.search-bar select{padding:5px 10px;border:1px solid #d9d9d9;border-radius:3px;font-size:12px;}
+.list-table{width:100%;border-collapse:collapse;font-size:12px;}
+.list-table th,.list-table td{padding:10px;border-bottom:1px solid #eee;text-align:left;}
+.list-table th{background:#fafafa;font-weight:600;}
+.list-table tr:hover{background:#f5f5f5;}
+.tag{padding:2px 8px;border-radius:3px;font-size:11px;}
+.tag-green{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f;}
+.tag-red{background:#fff2f0;color:#ff4d4f;border:1px solid #ffccc7;}
+.tag-blue{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff;}
+.tag-orange{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591;}
+.btn{padding:5px 14px;border:1px solid #d9d9d9;background:#fff;border-radius:3px;cursor:pointer;font-size:12px;color:#333;transition:.2s;}
+.btn:hover{color:#1890ff;border-color:#1890ff;}
+.btn-primary{background:#1890ff;color:#fff;border-color:#1890ff;}
+.btn-primary:hover{background:#40a9ff;color:#fff;}
+.btn-link{background:none;border:none;color:#1890ff;cursor:pointer;font-size:12px;padding:0 5px;}
+.btn-link:hover{text-decoration:underline;}
+.bill-page{display:none;background:#fff;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08);position:relative;}
+.bill-page.active{display:block;}
+.bill-header{padding:12px 20px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;}
+.bill-header .title{font-size:14px;font-weight:bold;display:flex;align-items:center;gap:10px;}
+.bill-header .back{color:#1890ff;cursor:pointer;}
+.bill-header .actions{display:flex;gap:8px;}
+.bill-body{padding:20px;}
+.bill-form-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px;}
+.bill-form-item{display:flex;align-items:center;gap:6px;}
+.bill-form-item label{color:#666;white-space:nowrap;font-size:12px;}
+.bill-form-item label .req{color:#ff4d4f;margin-right:2px;}
+.bill-form-item input,.bill-form-item select{padding:5px 8px;border:1px solid #d9d9d9;border-radius:3px;font-size:12px;width:160px;outline:none;}
+.bill-form-item input:focus,.bill-form-item select:focus{border-color:#1890ff;}
+.bill-form-item input.readonly{background:#f5f5f5;}
+.bill-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+.bill-table th,.bill-table td{border:1px solid #e8e8e8;padding:6px;text-align:center;}
+.bill-table th{background:#fafafa;font-weight:600;font-size:11px;}
+.bill-table td input,.bill-table td select{border:none;width:100%;text-align:center;font-size:12px;outline:none;background:transparent;}
+.bill-table td input:focus{background:#e6f7ff;border:1px solid #1890ff;}
+.bill-table .action-btn{color:#1890ff;cursor:pointer;margin:0 2px;}
+.bill-summary{padding:10px 0;border-top:1px solid #e8e8e8;margin-top:10px;display:flex;justify-content:space-between;font-size:12px;color:#666;}
+.bill-summary span{color:#333;font-weight:bold;}
+.bill-extra{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:15px;}
+.bill-extra .bill-form-item input,.bill-extra .bill-form-item select{width:100%;}
+.stamp{position:absolute;right:50px;top:200px;color:#ff4d4f;font-size:28px;font-weight:bold;border:3px solid #ff4d4f;padding:8px 18px;transform:rotate(-15deg);opacity:.7;pointer-events:none;}
+</style>
 </head>
 <body>
 
-    <!-- 左侧菜单：完整对应流程图5大步骤+系统管理 -->
-    <div class="sidebar">
-        <div class="logo">纺织 ERP + MES 系统</div>
-        
-        <div class="menu-group">
-            <div class="menu-title">1. 订单与库存对比</div>
-            <div class="menu-item active" onclick="switchPage('page-order', this)">📋 客户订单管理</div>
-            <div class="menu-item" onclick="switchPage('page-stock', this)">🔍 成品/原料库存</div>
-        </div>
+<!-- 左侧菜单：全模块 -->
+<div class="sidebar">
+<div class="logo">纺织ERP + MES</div>
 
-        <div class="menu-group">
-            <div class="menu-title">2. 采购与来料管理</div>
-            <div class="menu-item" onclick="switchPage('page-purchase', this)">🛒 采购单管理</div>
-            <div class="menu-item" onclick="switchPage('page-iqc', this)">🔬 IQC 来料品检</div>
-        </div>
+<div class="menu-group">
+<div class="menu-title">📁 基础资料</div>
+<div class="menu-item" onclick="showList('list-goods',this)">商品管理</div>
+<div class="menu-item" onclick="showList('list-customer',this)">客户管理</div>
+<div class="menu-item" onclick="showList('list-supplier',this)">供应商管理</div>
+<div class="menu-item" onclick="showList('list-warehouse',this)">仓库管理</div>
+</div>
 
-        <div class="menu-group">
-            <div class="menu-title">3. 车间扫码与生产</div>
-            <div class="menu-item" onclick="switchPage('page-mes1', this)">1️⃣ 发料扫码出仓</div>
-            <div class="menu-item" onclick="switchPage('page-mes2', this)">2️⃣ 打纱扫码开料</div>
-            <div class="menu-item" onclick="switchPage('page-mes3', this)">3️⃣ 上机扫码生产</div>
-            <div class="menu-item" onclick="switchPage('page-mes4', this)">4️⃣ 打号上卷/绑定缸号</div>
-        </div>
+<div class="menu-group">
+<div class="menu-title">💰 销售管理</div>
+<div class="menu-item active" onclick="showList('list-order',this)">销售订单</div>
+<div class="menu-item" onclick="showList('list-quote',this)">客户报价</div>
+<div class="menu-item" onclick="showList('list-return',this)">销售退货</div>
+</div>
 
-        <div class="menu-group">
-            <div class="menu-title">4. 品质控制与补单</div>
-            <div class="menu-item" onclick="switchPage('page-qc', this)">✅ QC 质量检验</div>
-            <div class="menu-item" onclick="switchPage('page-rework', this)">🔄 欠数重订/补单</div>
-        </div>
+<div class="menu-group">
+<div class="menu-title">🛒 采购管理</div>
+<div class="menu-item" onclick="showList('list-purchase',this)">采购订单</div>
+<div class="menu-item" onclick="showList('list-iqc',this)">IQC检验</div>
+<div class="menu-item" onclick="showList('list-preturn',this)">采购退货</div>
+</div>
 
-        <div class="menu-group">
-            <div class="menu-title">5. 装箱、报关与财务</div>
-            <div class="menu-item" onclick="switchPage('page-ship', this)">📦 装箱管理</div>
-            <div class="menu-item" onclick="switchPage('page-customs', this)">🛃 报关出货</div>
-            <div class="menu-item" onclick="switchPage('page-finance', this)">💰 财务结算(AR)</div>
-        </div>
+<div class="menu-group">
+<div class="menu-title">📦 库存管理</div>
+<div class="menu-item" onclick="showList('list-stock',this)">库存查询</div>
+<div class="menu-item" onclick="showList('list-transfer',this)">库存调拨</div>
+<div class="menu-item" onclick="showList('list-check',this)">库存盘点</div>
+</div>
 
-        <div class="menu-group">
-            <div class="menu-title">系统管理</div>
-            <div class="menu-item" onclick="switchPage('page-user', this)">👤 用户管理</div>
-            <div class="menu-item" onclick="switchPage('page-role', this)">🔑 角色管理</div>
-            <div class="menu-item" onclick="switchPage('page-menu', this)">📑 菜单管理</div>
-        </div>
-    </div>
+<div class="menu-group">
+<div class="menu-title">🏭 生产管理</div>
+<div class="menu-item" onclick="showList('list-plan',this)">生产计划</div>
+<div class="menu-item" onclick="showList('list-mes',this)">生产工单</div>
+<div class="menu-item" onclick="showList('list-material',this)">领料/退料</div>
+</div>
 
-    <!-- 右侧主区域 -->
-    <div class="main">
-        <div class="header">
-            <h2 id="page-title">客户订单管理</h2>
-            <div class="user-info">
-                <span>当前用户：张三（业务员）</span>
-                <button class="btn btn-default" onclick="alert('退出成功')">退出</button>
-            </div>
-        </div>
+<div class="menu-group">
+<div class="menu-title">✅ 品质管理</div>
+<div class="menu-item" onclick="showList('list-qc',this)">QC检验</div>
+<div class="menu-item" onclick="showList('list-rework',this)">欠数补单</div>
+</div>
 
-        <div class="content">
-            <!-- ============ 1. 客户订单管理 ============ -->
-            <div id="page-order" class="card active">
-                <h3>客户订单管理 <button class="btn btn-primary" onclick="openModal('modal-order-add')">+ 新增订单</button></h3>
-                <div class="search-bar">
-                    <input type="text" placeholder="订单编号">
-                    <input type="text" placeholder="客户名称">
-                    <select><option>全部状态</option><option>待确认</option><option>生产中</option><option>已完成</option></select>
-                    <button class="btn btn-primary" onclick="alert('查询完成')">🔍 查询</button>
-                    <button class="btn btn-default" onclick="alert('已重置')">重置</button>
-                </div>
-                <table>
-                    <thead><tr><th>订单编号</th><th>客户名称</th><th>产品SKU</th><th>数量</th><th>交货日期</th><th>状态</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>SO-20231024-001</td><td>广州纺织公司</td><td>涤纶纱-32S</td><td>1000</td><td>2023-11-15</td><td><span class="tag tag-orange">待确认</span></td>
-                            <td>
-                                <button class="btn-link" onclick="openModal('modal-order-detail')">详情</button>
-                                <button class="btn-link" onclick="openModal('modal-order-edit')">编辑</button>
-                                <button class="btn-link" style="color:#ff4d4f;" onclick="if(confirm('确认删除?'))alert('已删除')">删除</button>
-                            </td>
-                        </tr>
-                        <tr><td>SO-20231024-002</td><td>深圳织造厂</td><td>涤纶纱-40S</td><td>2000</td><td>2023-11-20</td><td><span class="tag tag-blue">生产中</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-order-detail')">详情</button><button class="btn-link" onclick="openModal('modal-order-edit')">编辑</button><button class="btn-link" style="color:#ff4d4f;" onclick="if(confirm('确认删除?'))alert('已删除')">删除</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<div class="menu-group">
+<div class="menu-title">🚚 出货与财务</div>
+<div class="menu-item" onclick="showList('list-ship',this)">装箱单</div>
+<div class="menu-item" onclick="showList('list-customs',this)">报关出货</div>
+<div class="menu-item" onclick="showList('list-finance',this)">财务应收</div>
+<div class="menu-item" onclick="showList('list-payable',this)">财务应付</div>
+</div>
 
-            <!-- ============ 2. 库存查询 ============ -->
-            <div id="page-stock" class="card">
-                <h3>成品/原料库存</h3>
-                <div class="search-bar">
-                    <input type="text" placeholder="物料编码">
-                    <select><option>全部仓库</option><option>原料仓</option><option>成品仓</option></select>
-                    <button class="btn btn-primary" onclick="alert('查询完成')">🔍 查询</button>
-                </div>
-                <table>
-                    <thead><tr><th>仓库</th><th>物料编码</th><th>物料名称</th><th>批次号</th><th>库存数量</th><th>可用量</th><th>库位</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>成品仓</td><td>FG-001</td><td>涤纶纱成品</td><td>G-001</td><td>300 件</td><td>300</td><td>B-02-03</td><td><button class="btn-link" onclick="alert('查看库存流水')">流水</button></td></tr>
-                        <tr><td>原料仓</td><td>RM-001</td><td>32S涤纶纱</td><td>B20231024</td><td>1200 kg</td><td>1000</td><td>A-01-01</td><td><button class="btn-link" onclick="alert('查看库存流水')">流水</button></td></tr>
-                    </tbody>
-                </table>
-            </div>
+<div class="menu-group">
+<div class="menu-title">📊 报表中心</div>
+<div class="menu-item" onclick="showList('list-report1',this)">销售报表</div>
+<div class="menu-item" onclick="showList('list-report2',this)">库存报表</div>
+</div>
 
-            <!-- ============ 3. 采购单管理 ============ -->
-            <div id="page-purchase" class="card">
-                <h3>采购单管理 <button class="btn btn-primary" onclick="openModal('modal-purchase-add')">+ 新增采购单</button></h3>
-                <div class="search-bar">
-                    <input type="text" placeholder="采购单号">
-                    <input type="text" placeholder="供应商">
-                    <button class="btn btn-primary" onclick="alert('查询完成')">🔍 查询</button>
-                </div>
-                <table>
-                    <thead><tr><th>采购单号</th><th>关联生产单</th><th>原料名称</th><th>采购数量</th><th>供应商</th><th>预计到货</th><th>状态</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>PO-20231024-01</td><td>MO-20231024-01</td><td>32S涤纶纱</td><td>1200 kg</td><td>某某纱厂</td><td>2023-10-28</td><td><span class="tag tag-blue">在途</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-purchase-detail')">详情</button><button class="btn-link" onclick="openModal('modal-purchase-edit')">编辑</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<div class="menu-group">
+<div class="menu-title">⚙️ 系统管理</div>
+<div class="menu-item" onclick="showList('list-user',this)">用户管理</div>
+<div class="menu-item" onclick="showList('list-role',this)">角色管理</div>
+<div class="menu-item" onclick="showList('list-menu',this)">菜单管理</div>
+</div>
+</div>
 
-            <!-- ============ 4. IQC 来料品检 ============ -->
-            <div id="page-iqc" class="card">
-                <h3>IQC 来料品检</h3>
-                <div class="search-bar">
-                    <input type="text" placeholder="采购单号">
-                    <input type="text" placeholder="到货批次">
-                    <button class="btn btn-primary" onclick="alert('查询完成')">🔍 查询</button>
-                </div>
-                <table>
-                    <thead><tr><th>采购单号</th><th>到货批次</th><th>抽检数</th><th>合格数</th><th>不合格数</th><th>检验结果</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>PO-20231024-01</td><td>B20231024</td><td>100</td><td>95</td><td>5</td><td><span class="tag tag-red">不合格</span></td>
-                            <td>
-                                <button class="btn-link" onclick="alert('已入库，生成生产单')">合格入库</button>
-                                <button class="btn-link" style="color:#ff4d4f;" onclick="alert('已生成退货单，退回供应商补料')">退货/补料</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- 右侧主区 -->
+<div class="main">
+<div class="header">
+<h2 id="page-title">销售订单</h2>
+<div class="user">admin@纺织ERP</div>
+</div>
 
-            <!-- ============ 5. 车间 1：发料扫码出仓 ============ -->
-            <div id="page-mes1" class="card">
-                <h3>1. 发料扫码出仓 <button class="btn btn-primary" onclick="openModal('modal-mes1-add')">+ 新增扫码记录</button></h3>
-                <div class="search-bar">
-                    <input type="text" placeholder="生产工单号">
-                    <input type="text" placeholder="原料批次">
-                    <button class="btn btn-primary" onclick="alert('查询完成')">🔍 查询</button>
-                </div>
-                <table>
-                    <thead><tr><th>生产工单号</th><th>原料批次</th><th>领料数量</th><th>领料人</th><th>出仓时间</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>MO-20231024-01</td><td>B20231024</td><td>1200 kg</td><td>李四</td><td>2023-10-24 08:00</td>
-                            <td><button class="btn-link" onclick="openModal('modal-mes1-detail')">详情</button><button class="btn-link" onclick="openModal('modal-mes1-edit')">编辑</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<div class="content" id="content-area">
 
-            <!-- ============ 6. 车间 2：打纱扫码开料 ============ -->
-            <div id="page-mes2" class="card">
-                <h3>2. 打纱扫码开料 <button class="btn btn-primary" onclick="openModal('modal-mes2-add')">+ 新增扫码记录</button></h3>
-                <table>
-                    <thead><tr><th>机台号</th><th>生产工单号</th><th>开料时间</th><th>操作员</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>M-01</td><td>MO-20231024-01</td><td>2023-10-24 09:00</td><td>李四</td>
-                            <td><button class="btn-link" onclick="openModal('modal-mes2-detail')">详情</button><button class="btn-link" onclick="openModal('modal-mes2-edit')">编辑</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 基础资料：商品管理 ========== -->
+<div id="list-goods" class="list-page">
+<div class="list-header"><h3>商品管理</h3><button class="btn btn-primary" onclick="openBill('bill-goods')">+ 新增商品</button></div>
+<div class="search-bar"><input placeholder="商品名称"><button class="btn btn-primary">🔍 查询</button></div>
+<table class="list-table">
+<thead><tr><th>商品编码</th><th>商品名称</th><th>规格</th><th>单位</th><th>操作</th></tr></thead>
+<tbody><tr><td>SP-001</td><td>涤纶纱</td><td>32S</td><td>kg</td>
+<td><button class="btn-link" onclick="openBill('bill-goods')">详情</button><button class="btn-link" onclick="openBill('bill-goods')">编辑</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-goods" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-goods')">← 返回</span> | 商品详情</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label><span class="req">*</span>商品编码</label><input value="SP-001"></div>
+<div class="bill-form-item"><label><span class="req">*</span>商品名称</label><input value="涤纶纱"></div>
+<div class="bill-form-item"><label>规格</label><input value="32S"></div>
+<div class="bill-form-item"><label>单位</label><input value="kg"></div>
+<div class="bill-form-item"><label>默认仓库</label><select><option>原料仓</option></select></div>
+</div>
+</div>
+</div>
 
-            <!-- ============ 7. 车间 3：上机扫码生产 ============ -->
-            <div id="page-mes3" class="card">
-                <h3>3. 上机扫码生产 <button class="btn btn-primary" onclick="openModal('modal-mes3-add')">+ 新增扫码记录</button></h3>
-                <table>
-                    <thead><tr><th>生产工单号</th><th>产出数量</th><th>生产时长</th><th>操作员</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>MO-20231024-01</td><td>500</td><td>4小时</td><td>李四</td>
-                            <td><button class="btn-link" onclick="openModal('modal-mes3-detail')">详情</button><button class="btn-link" onclick="openModal('modal-mes3-edit')">编辑</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 基础资料：客户管理 ========== -->
+<div id="list-customer" class="list-page">
+<div class="list-header"><h3>客户管理</h3><button class="btn btn-primary" onclick="openBill('bill-customer')">+ 新增客户</button></div>
+<table class="list-table">
+<thead><tr><th>客户名称</th><th>联系人</th><th>电话</th><th>操作</th></tr></thead>
+<tbody><tr><td>广州纺织公司</td><td>王经理</td><td>13800138000</td>
+<td><button class="btn-link" onclick="openBill('bill-customer')">详情</button><button class="btn-link" onclick="openBill('bill-customer')">编辑</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-customer" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-customer')">← 返回</span> | 客户详情</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label><span class="req">*</span>客户名称</label><input value="广州纺织公司"></div>
+<div class="bill-form-item"><label>联系人</label><input value="王经理"></div>
+<div class="bill-form-item"><label>电话</label><input value="13800138000"></div>
+<div class="bill-form-item"><label>地址</label><input value="广州市天河区"></div>
+</div>
+</div>
+</div>
 
-            <!-- ============ 8. 车间 4：打号上卷/绑定缸号 ============ -->
-            <div id="page-mes4" class="card">
-                <h3>4. 打号上卷/绑定缸号 <button class="btn btn-primary" onclick="openModal('modal-mes4-add')">+ 新增绑定</button></h3>
-                <table>
-                    <thead><tr><th>缸号</th><th>卷号</th><th>码数</th><th>生产单号</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>G-001</td><td>R-001</td><td>500</td><td>MO-20231024-01</td>
-                            <td><button class="btn-link" onclick="openModal('modal-mes4-detail')">详情</button><button class="btn-link" onclick="openModal('modal-mes4-edit')">编辑</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 基础资料：供应商管理 ========== -->
+<div id="list-supplier" class="list-page">
+<div class="list-header"><h3>供应商管理</h3><button class="btn btn-primary" onclick="openBill('bill-supplier')">+ 新增供应商</button></div>
+<table class="list-table">
+<thead><tr><th>供应商名称</th><th>联系人</th><th>电话</th><th>操作</th></tr></thead>
+<tbody><tr><td>某某纱厂</td><td>李经理</td><td>13900139000</td>
+<td><button class="btn-link" onclick="openBill('bill-supplier')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-supplier" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-supplier')">← 返回</span> | 供应商详情</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>供应商名称</label><input value="某某纱厂"></div>
+<div class="bill-form-item"><label>联系人</label><input value="李经理"></div>
+<div class="bill-form-item"><label>电话</label><input value="13900139000"></div>
+</div>
+</div>
+</div>
 
-            <!-- ============ 9. QC 质量检验 ============ -->
-            <div id="page-qc" class="card">
-                <h3>QC 质量检验</h3>
-                <div class="search-bar">
-                    <input type="text" placeholder="生产工单号">
-                    <input type="text" placeholder="缸号">
-                    <button class="btn btn-primary" onclick="alert('查询完成')">🔍 查询</button>
-                </div>
-                <table>
-                    <thead><tr><th>生产工单号</th><th>缸号</th><th>抽检数</th><th>合格数</th><th>次品/欠数</th><th>检验结果</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>MO-20231024-01</td><td>G-001</td><td>50</td><td>45</td><td>5</td><td><span class="tag tag-red">有次品</span></td>
-                            <td>
-                                <button class="btn-link" onclick="alert('检验合格，流转至装箱')">合格->装箱</button>
-                                <button class="btn-link" style="color:#ff4d4f;" onclick="alert('已生成补单 MO-20231024-02')">生成补单</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 基础资料：仓库管理 ========== -->
+<div id="list-warehouse" class="list-page">
+<div class="list-header"><h3>仓库管理</h3><button class="btn btn-primary" onclick="openBill('bill-warehouse')">+ 新增仓库</button></div>
+<table class="list-table">
+<thead><tr><th>仓库编码</th><th>仓库名称</th><th>库位</th><th>操作</th></tr></thead>
+<tbody><tr><td>WH-001</td><td>原料仓</td><td>A-01-01</td>
+<td><button class="btn-link" onclick="openBill('bill-warehouse')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-warehouse" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-warehouse')">← 返回</span> | 仓库详情</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>仓库编码</label><input value="WH-001"></div>
+<div class="bill-form-item"><label>仓库名称</label><input value="原料仓"></div>
+<div class="bill-form-item"><label>库位</label><input value="A-01-01"></div>
+</div>
+</div>
+</div>
 
-            <!-- ============ 10. 欠数重订/补单 ============ -->
-            <div id="page-rework" class="card">
-                <h3>欠数重订/补单 <button class="btn btn-warning" onclick="openModal('modal-rework-add')">+ 新增补单</button></h3>
-                <table>
-                    <thead><tr><th>原生产单号</th><th>补单号</th><th>补单数量</th><th>补单原因</th><th>状态</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>MO-20231024-01</td><td>MO-20231024-02</td><td>5</td><td>QC次品</td><td><span class="tag tag-orange">待生产</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-rework-detail')">详情</button><button class="btn-link" onclick="openModal('modal-rework-edit')">编辑</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 销售：销售订单 ========== -->
+<div id="list-order" class="list-page active">
+<div class="list-header"><h3>销售订单</h3><button class="btn btn-primary" onclick="openBill('bill-order')">+ 新增订单</button></div>
+<div class="search-bar"><input placeholder="订单编号"><input placeholder="客户"><button class="btn btn-primary">🔍 查询</button></div>
+<table class="list-table">
+<thead><tr><th>订单编号</th><th>客户</th><th>金额</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>XHDD0329</td><td>零售客户</td><td>¥57.5</td><td><span class="tag tag-orange">待审核</span></td>
+<td><button class="btn-link" onclick="openBill('bill-order')">详情</button><button class="btn-link" onclick="openBill('bill-order')">编辑</button></td></tr>
+</tbody>
+</table>
+</div>
+<div id="bill-order" class="bill-page">
+<div class="stamp">已审核</div>
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-order')">← 返回</span> | 销货订单详情</div>
+<div class="actions"><button class="btn">反审核</button><button class="btn">生成</button><button class="btn">打印</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label><span class="req">*</span>客户</label><select><option>零售客户</option></select></div>
+<div class="bill-form-item"><label><span class="req">*</span>单据日期</label><input type="date" value="2026-10-14"></div>
+<div class="bill-form-item"><label><span class="req">*</span>单据编号</label><input value="XHDD0329" class="readonly" readonly></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>操作</th><th>商品名称</th><th>规格</th><th>单位</th><th>仓库</th><th>单价</th><th>含税单价</th><th>数量</th><th>金额</th><th>税额</th><th>价税合计</th></tr></thead>
+<tbody><tr><td>1</td><td><span class="action-btn">🗑️</span></td>
+<td><input value="可口可乐"></td><td><input value="330"></td><td><input value="瓶"></td>
+<td><select><option>华海国际</option></select></td><td><input type="number" value="2.5"></td><td><input type="number" value="2.5"></td>
+<td><input type="number" value="23"></td><td><input value="57.5" readonly></td><td><input value="0" readonly></td><td><input value="57.5" readonly></td></tr></tbody>
+</table>
+<div class="bill-summary"><div>总条数：<span>1</span> | 总数量：<span>23</span> | 总税额：<span>0</span></div></div>
+<div class="bill-extra">
+<div class="bill-form-item"><label>单据金额</label><input value="57.5" class="readonly" readonly></div>
+<div class="bill-form-item"><label><span class="req">*</span>优惠金额</label><input type="number" value="0"></div>
+<div class="bill-form-item"><label><span class="req">*</span>客承费用</label><input type="number" value="0"></div>
+<div class="bill-form-item"><label><span class="req">*</span>实际金额</label><input value="57.5" class="readonly" readonly></div>
+<div class="bill-form-item"><label>组织架构</label><select><option>技术部</option></select></div>
+<div class="bill-form-item"><label>制单用户</label><select><option>admin08</option></select></div>
+<div class="bill-form-item"><label>关联人员</label><select><option>请选择</option></select></div>
+<div class="bill-form-item"><label>物流信息</label><input placeholder="物流单号"></div>
+</div>
+</div>
+</div>
 
-            <!-- ============ 11. 装箱管理 ============ -->
-            <div id="page-ship" class="card">
-                <h3>装箱管理 <button class="btn btn-primary" onclick="openModal('modal-ship-add')">+ 新增装箱单</button></h3>
-                <table>
-                    <thead><tr><th>装箱单号</th><th>关联订单号</th><th>箱号</th><th>净重</th><th>毛重</th><th>体积</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>PL-20231024-01</td><td>SO-20231024-001</td><td>1/10</td><td>20kg</td><td>22kg</td><td>0.5CBM</td>
-                            <td><button class="btn-link" onclick="openModal('modal-ship-detail')">详情</button><button class="btn-link" onclick="openModal('modal-ship-edit')">编辑</button><button class="btn-link" onclick="alert('外箱条码已打印')">打印条码</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 销售：客户报价 ========== -->
+<div id="list-quote" class="list-page">
+<div class="list-header"><h3>客户报价</h3><button class="btn btn-primary" onclick="openBill('bill-quote')">+ 新增报价</button></div>
+<table class="list-table">
+<thead><tr><th>报价单号</th><th>客户</th><th>产品</th><th>单价</th><th>状态</th><th>操作</th></tr></thead>
+<tbody><tr><td>QT-001</td><td>广州纺织</td><td>涤纶纱-32S</td><td>¥50</td><td><span class="tag tag-orange">待确认</span></td>
+<td><button class="btn-link" onclick="openBill('bill-quote')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-quote" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-quote')">← 返回</span> | 客户报价单</div>
+<div class="actions"><button class="btn">转订单</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label><span class="req">*</span>客户</label><select><option>广州纺织</option></select></div>
+<div class="bill-form-item"><label><span class="req">*</span>报价日期</label><input type="date" value="2026-10-14"></div>
+<div class="bill-form-item"><label>报价单号</label><input value="QT-001" class="readonly" readonly></div>
+<div class="bill-form-item"><label>有效期至</label><input type="date" value="2026-11-14"></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>产品</th><th>规格</th><th>单位</th><th>数量</th><th>单价</th><th>金额</th></tr></thead>
+<tbody><tr><td>1</td><td><input value="涤纶纱"></td><td><input value="32S"></td><td><input value="kg"></td><td><input type="number" value="1000"></td><td><input type="number" value="50"></td><td><input value="50000" readonly></td></tr></tbody>
+</table>
+</div>
+</div>
 
-            <!-- ============ 12. 报关出货 ============ -->
-            <div id="page-customs" class="card">
-                <h3>报关出货</h3>
-                <table>
-                    <thead><tr><th>报关单号</th><th>关联装箱单</th><th>出货日期</th><th>船名/航次</th><th>状态</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>CUS-20231024-01</td><td>PL-20231024-01</td><td>2023-10-30</td><td>COSCO-123E</td><td><span class="tag tag-blue">已报关</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-customs-detail')">详情</button><button class="btn-link" onclick="openModal('modal-customs-edit')">编辑</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 销售：销售退货 ========== -->
+<div id="list-return" class="list-page">
+<div class="list-header"><h3>销售退货</h3><button class="btn btn-primary" onclick="openBill('bill-return')">+ 新增退货</button></div>
+<table class="list-table">
+<thead><tr><th>退货单号</th><th>原订单</th><th>客户</th><th>金额</th><th>操作</th></tr></thead>
+<tbody><tr><td>RT-001</td><td>XHDD0329</td><td>零售客户</td><td>¥57.5</td>
+<td><button class="btn-link" onclick="openBill('bill-return')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-return" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-return')">← 返回</span> | 销售退货单</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>退货单号</label><input value="RT-001" class="readonly" readonly></div>
+<div class="bill-form-item"><label>原订单</label><input value="XHDD0329" class="readonly" readonly></div>
+<div class="bill-form-item"><label>客户</label><input value="零售客户" class="readonly" readonly></div>
+<div class="bill-form-item"><label>退货日期</label><input type="date" value="2026-10-14"></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>商品</th><th>规格</th><th>退货数量</th><th>单价</th><th>金额</th><th>退货原因</th></tr></thead>
+<tbody><tr><td>1</td><td><input value="可口可乐"></td><td><input value="330"></td><td><input type="number" value="1"></td><td><input value="2.5"></td><td><input value="2.5" readonly></td><td><input value="客户退单"></td></tr></tbody>
+</table>
+</div>
+</div>
 
-            <!-- ============ 13. 财务结算 ============ -->
-            <div id="page-finance" class="card">
-                <h3>财务结算(AR)</h3>
-                <table>
-                    <thead><tr><th>订单号</th><th>应收金额</th><th>发票号</th><th>回款状态</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>SO-20231024-001</td><td>¥50,000</td><td>INV-20231024-01</td><td><span class="tag tag-orange">未回款</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-finance-detail')">详情</button><button class="btn-link" onclick="openModal('modal-finance-edit')">编辑</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 采购：采购订单 ========== -->
+<div id="list-purchase" class="list-page">
+<div class="list-header"><h3>采购订单</h3><button class="btn btn-primary" onclick="openBill('bill-purchase')">+ 新增采购</button></div>
+<div class="search-bar"><input placeholder="采购单号"><button class="btn btn-primary">🔍 查询</button></div>
+<table class="list-table">
+<thead><tr><th>采购单号</th><th>供应商</th><th>关联生产单</th><th>金额</th><th>状态</th><th>操作</th></tr></thead>
+<tbody><tr><td>PO-20231024-01</td><td>某某纱厂</td><td>MO-01</td><td>¥12,000</td><td><span class="tag tag-blue">在途</span></td>
+<td><button class="btn-link" onclick="openBill('bill-purchase')">详情</button><button class="btn-link" onclick="openBill('bill-purchase')">编辑</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-purchase" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-purchase')">← 返回</span> | 采购订单</div>
+<div class="actions"><button class="btn">生成入库</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label><span class="req">*</span>供应商</label><select><option>某某纱厂</option></select></div>
+<div class="bill-form-item"><label><span class="req">*</span>单据日期</label><input type="date" value="2026-10-14"></div>
+<div class="bill-form-item"><label>采购单号</label><input value="PO-20231024-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>关联生产单</label><input value="MO-01" class="readonly" readonly></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>原料名称</th><th>规格</th><th>单位</th><th>仓库</th><th>单价</th><th>数量</th><th>金额</th></tr></thead>
+<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input value="32S"></td><td><input value="kg"></td><td><select><option>原料仓</option></select></td><td><input type="number" value="10"></td><td><input type="number" value="1200"></td><td><input value="12000" readonly></td></tr></tbody>
+</table>
+<div class="bill-summary"><div>总数量：<span>1200</span> | 总金额：<span>¥12,000</span></div></div>
+</div>
+</div>
 
-            <!-- ============ 14. 用户管理 ============ -->
-            <div id="page-user" class="card">
-                <h3>用户管理 <button class="btn btn-primary" onclick="openModal('modal-user-add')">+ 新增用户</button></h3>
-                <div class="search-bar">
-                    <input type="text" placeholder="用户名/姓名">
-                    <select><option>全部角色</option><option>业务员</option><option>车间主任</option><option>质检员</option></select>
-                    <button class="btn btn-primary" onclick="alert('查询完成')">🔍 查询</button>
-                </div>
-                <table>
-                    <thead><tr><th>用户ID</th><th>用户名</th><th>姓名</th><th>角色</th><th>部门</th><th>状态</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>U001</td><td>zhangsan</td><td>张三</td><td>业务员</td><td>销售部</td><td><span class="tag tag-green">启用</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-user-detail')">详情</button><button class="btn-link" onclick="openModal('modal-user-edit')">编辑</button><button class="btn-link" style="color:#ff4d4f;" onclick="if(confirm('确认删除?'))alert('已删除')">删除</button></td>
-                        </tr>
-                        <tr><td>U002</td><td>lisi</td><td>李四</td><td>车间主任</td><td>生产部</td><td><span class="tag tag-green">启用</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-user-detail')">详情</button><button class="btn-link" onclick="openModal('modal-user-edit')">编辑</button><button class="btn-link" style="color:#ff4d4f;" onclick="if(confirm('确认删除?'))alert('已删除')">删除</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 采购：IQC检验 ========== -->
+<div id="list-iqc" class="list-page">
+<div class="list-header"><h3>IQC 来料检验</h3></div>
+<table class="list-table">
+<thead><tr><th>采购单号</th><th>批次</th><th>抽检数</th><th>合格数</th><th>结论</th><th>操作</th></tr></thead>
+<tbody><tr><td>PO-20231024-01</td><td>B20231024</td><td>100</td><td>95</td><td><span class="tag tag-red">不合格</span></td>
+<td><button class="btn-link" onclick="openBill('bill-iqc')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-iqc" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-iqc')">← 返回</span> | IQC 检验单</div>
+<div class="actions"><button class="btn">合格入库</button><button class="btn" style="color:#ff4d4f">退货</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>采购单号</label><input value="PO-20231024-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>到货批次</label><input value="B20231024" class="readonly" readonly></div>
+<div class="bill-form-item"><label>检验日期</label><input type="date" value="2026-10-14"></div>
+<div class="bill-form-item"><label>检验员</label><select><option>王五</option></select></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>检验项目</th><th>标准值</th><th>实测值</th><th>结论</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><input value="纱线细度"></td><td><input value="32S±0.5"></td><td><input value="32.2S"></td><td><select><option>合格</option><option>不合格</option></select></td></tr>
+<tr><td>2</td><td><input value="断裂强度"></td><td><input value="≥15cN"></td><td><input value="14.2cN"></td><td><select><option>不合格</option></select></td></tr>
+</tbody>
+</table>
+</div>
+</div>
 
-            <!-- ============ 15. 角色管理 ============ -->
-            <div id="page-role" class="card">
-                <h3>角色管理 <button class="btn btn-primary" onclick="openModal('modal-role-add')">+ 新增角色</button></h3>
-                <table>
-                    <thead><tr><th>角色ID</th><th>角色名称</th><th>关联菜单权限</th><th>数据权限</th><th>状态</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>R001</td><td>业务员</td><td>订单录入、库存查询</td><td>仅自己订单</td><td><span class="tag tag-green">启用</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-role-detail')">详情</button><button class="btn-link" onclick="openModal('modal-role-edit')">编辑</button><button class="btn-link" style="color:#ff4d4f;" onclick="if(confirm('确认删除?'))alert('已删除')">删除</button></td>
-                        </tr>
-                        <tr><td>R002</td><td>车间主任</td><td>车间扫码、生产管理</td><td>本车间数据</td><td><span class="tag tag-green">启用</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-role-detail')">详情</button><button class="btn-link" onclick="openModal('modal-role-edit')">编辑</button><button class="btn-link" style="color:#ff4d4f;" onclick="if(confirm('确认删除?'))alert('已删除')">删除</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- ========== 采购：采购退货 ========== -->
+<div id="list-preturn" class="list-page">
+<div class="list-header"><h3>采购退货</h3></div>
+<table class="list-table">
+<thead><tr><th>退货单号</th><th>原采购单</th><th>供应商</th><th>金额</th><th>操作</th></tr></thead>
+<tbody><tr><td>PRT-001</td><td>PO-20231024-01</td><td>某某纱厂</td><td>¥50</td>
+<td><button class="btn-link" onclick="openBill('bill-preturn')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-preturn" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-preturn')">← 返回</span> | 采购退货单</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>退货单号</label><input value="PRT-001" class="readonly" readonly></div>
+<div class="bill-form-item"><label>原采购单</label><input value="PO-20231024-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>供应商</label><input value="某某纱厂" class="readonly" readonly></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>原料</th><th>退货数量</th><th>单价</th><th>金额</th><th>退货原因</th></tr></thead>
+<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input type="number" value="5"></td><td><input value="10"></td><td><input value="50" readonly></td><td><input value="IQC不合格"></td></tr></tbody>
+</table>
+</div>
+</div>
 
-            <!-- ============ 16. 菜单管理 ============ -->
-            <div id="page-menu" class="card">
-                <h3>菜单管理 <button class="btn btn-primary" onclick="openModal('modal-menu-add')">+ 新增菜单</button></h3>
-                <table>
-                    <thead><tr><th>菜单ID</th><th>菜单名称</th><th>父级菜单</th><th>路由路径</th><th>排序</th><th>状态</th><th>操作</th></tr></thead>
-                    <tbody>
-                        <tr><td>M001</td><td>订单与库存</td><td>无</td><td>/order</td><td>1</td><td><span class="tag tag-green">启用</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-menu-detail')">详情</button><button class="btn-link" onclick="openModal('modal-menu-edit')">编辑</button><button class="btn-link" style="color:#ff4d4f;" onclick="if(confirm('确认删除?'))alert('已删除')">删除</button></td>
-                        </tr>
-                        <tr><td>M002</td><td>采购与IQC</td><td>无</td><td>/purchase</td><td>2</td><td><span class="tag tag-green">启用</span></td>
-                            <td><button class="btn-link" onclick="openModal('modal-menu-detail')">详情</button><button class="btn-link" onclick="openModal('modal-menu-edit')">编辑</button><button class="btn-link" style="color:#ff4d4f;" onclick="if(confirm('确认删除?'))alert('已删除')">删除</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+<!-- ========== 库存：库存查询 ========== -->
+<div id="list-stock" class="list-page">
+<div class="list-header"><h3>库存查询</h3></div>
+<table class="list-table">
+<thead><tr><th>仓库</th><th>物料</th><th>批次</th><th>数量</th><th>可用量</th><th>库位</th></tr></thead>
+<tbody>
+<tr><td>成品仓</td><td>涤纶纱成品</td><td>G-001</td><td>300件</td><td>300</td><td>B-02-03</td></tr>
+<tr><td>原料仓</td><td>32S涤纶纱</td><td>B20231024</td><td>1200kg</td><td>1000</td><td>A-01-01</td></tr>
+</tbody>
+</table>
+</div>
 
-    <!-- ============ 通用弹窗：新增/编辑/详情 ============ -->
-    <div id="modal-mask" class="modal-mask">
-        <div class="modal">
-            <h4><span id="modal-title">标题</span><button class="close-btn" onclick="closeModal()">×</button></h4>
-            <div id="modal-body">
-                <!-- 动态填充内容 -->
-            </div>
-            <div class="btn-group">
-                <button class="btn btn-default" onclick="closeModal()">取消</button>
-                <button class="btn btn-primary" onclick="alert('保存成功');closeModal()">保存</button>
-            </div>
-        </div>
-    </div>
+<!-- ========== 库存：库存调拨 ========== -->
+<div id="list-transfer" class="list-page">
+<div class="list-header"><h3>库存调拨</h3><button class="btn btn-primary" onclick="openBill('bill-transfer')">+ 新增调拨</button></div>
+<table class="list-table">
+<thead><tr><th>调拨单号</th><th>调出仓</th><th>调入仓</th><th>数量</th><th>状态</th><th>操作</th></tr></thead>
+<tbody><tr><td>TR-001</td><td>原料仓</td><td>车间线边仓</td><td>1200kg</td><td><span class="tag tag-green">已完成</span></td>
+<td><button class="btn-link" onclick="openBill('bill-transfer')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-transfer" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-transfer')">← 返回</span> | 调拨单</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>调拨单号</label><input value="TR-001" class="readonly" readonly></div>
+<div class="bill-form-item"><label>调出仓</label><select><option>原料仓</option></select></div>
+<div class="bill-form-item"><label>调入仓</label><select><option>车间线边仓</option></select></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>物料</th><th>批次</th><th>数量</th></tr></thead>
+<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input value="B20231024"></td><td><input type="number" value="1200"></td></tr></tbody>
+</table>
+</div>
+</div>
 
-    <script>
-        function switchPage(pageId, element) {
-            document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-            element.classList.add('active');
+<!-- ========== 库存：库存盘点 ========== -->
+<div id="list-check" class="list-page">
+<div class="list-header"><h3>库存盘点</h3><button class="btn btn-primary" onclick="openBill('bill-check')">+ 新增盘点</button></div>
+<table class="list-table">
+<thead><tr><th>盘点单号</th><th>仓库</th><th>盘点日期</th><th>差异数</th><th>操作</th></tr></thead>
+<tbody><tr><td>CK-001</td><td>原料仓</td><td>2026-10-14</td><td>0</td>
+<td><button class="btn-link" onclick="openBill('bill-check')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-check" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-check')">← 返回</span> | 盘点单</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>盘点单号</label><input value="CK-001" class="readonly" readonly></div>
+<div class="bill-form-item"><label>仓库</label><select><option>原料仓</option></select></div>
+<div class="bill-form-item"><label>盘点日期</label><input type="date" value="2026-10-14"></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>物料</th><th>账面数量</th><th>实盘数量</th><th>差异</th></tr></thead>
+<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input value="1200"></td><td><input type="number" value="1200"></td><td><input value="0" readonly></td></tr></tbody>
+</table>
+</div>
+</div>
 
-            const titleMap = {
-                'page-order': '客户订单管理', 'page-stock': '成品/原料库存',
-                'page-purchase': '采购单管理', 'page-iqc': 'IQC 来料品检',
-                'page-mes1': '1. 发料扫码出仓', 'page-mes2': '2. 打纱扫码开料',
-                'page-mes3': '3. 上机扫码生产', 'page-mes4': '4. 打号上卷/绑定缸号',
-                'page-qc': 'QC 质量检验', 'page-rework': '欠数重订/补单',
-                'page-ship': '装箱管理', 'page-customs': '报关出货',
-                'page-finance': '财务结算(AR)', 'page-user': '用户管理',
-                'page-role': '角色管理', 'page-menu': '菜单管理'
-            };
-            document.getElementById('page-title').innerText = titleMap[pageId] || '系统管理';
-        }
+<!-- ========== 生产：生产计划 ========== -->
+<div id="list-plan" class="list-page">
+<div class="list-header"><h3>生产计划</h3><button class="btn btn-primary" onclick="openBill('bill-plan')">+ 新增计划</button></div>
+<table class="list-table">
+<thead><tr><th>计划单号</th><th>关联订单</th><th>产品</th><th>计划数量</th><th>状态</th><th>操作</th></tr></thead>
+<tbody><tr><td>PLAN-001</td><td>XHDD0329</td><td>涤纶纱-32S</td><td>1000</td><td><span class="tag tag-blue">已排产</span></td>
+<td><button class="btn-link" onclick="openBill('bill-plan')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-plan" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-plan')">← 返回</span> | 生产计划</div>
+<div class="actions"><button class="btn">生成工单</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>计划单号</label><input value="PLAN-001" class="readonly" readonly></div>
+<div class="bill-form-item"><label>关联订单</label><input value="XHDD0329" class="readonly" readonly></div>
+<div class="bill-form-item"><label>产品</label><input value="涤纶纱-32S"></div>
+<div class="bill-form-item"><label>计划数量</label><input type="number" value="1000"></div>
+<div class="bill-form-item"><label>机台号</label><input value="M-01"></div>
+<div class="bill-form-item"><label>计划开始</label><input type="date" value="2026-10-15"></div>
+<div class="bill-form-item"><label>计划结束</label><input type="date" value="2026-10-18"></div>
+</div>
+</div>
+</div>
 
-        // 弹窗控制
-        function openModal(type) {
-            const modal = document.getElementById('modal-mask');
-            const title = document.getElementById('modal-title');
-            const body = document.getElementById('modal-body');
-            
-            const modalConfig = {
-                'modal-order-add': { title: '新增订单', body: orderForm() },
-                'modal-order-edit': { title: '编辑订单', body: orderForm() },
-                'modal-order-detail': { title: '订单详情', body: orderDetail() },
-                'modal-purchase-add': { title: '新增采购单', body: purchaseForm() },
-                'modal-purchase-edit': { title: '编辑采购单', body: purchaseForm() },
-                'modal-purchase-detail': { title: '采购单详情', body: purchaseDetail() },
-                'modal-mes1-add': { title: '新增发料记录', body: mes1Form() },
-                'modal-mes1-edit': { title: '编辑发料记录', body: mes1Form() },
-                'modal-mes1-detail': { title: '发料记录详情', body: mes1Detail() },
-                'modal-mes2-add': { title: '新增打纱记录', body: mes2Form() },
-                'modal-mes2-edit': { title: '编辑打纱记录', body: mes2Form() },
-                'modal-mes2-detail': { title: '打纱记录详情', body: mes2Detail() },
-                'modal-mes3-add': { title: '新增上机记录', body: mes3Form() },
-                'modal-mes3-edit': { title: '编辑上机记录', body: mes3Form() },
-                'modal-mes3-detail': { title: '上机记录详情', body: mes3Detail() },
-                'modal-mes4-add': { title: '新增绑定记录', body: mes4Form() },
-                'modal-mes4-edit': { title: '编辑绑定记录', body: mes4Form() },
-                'modal-mes4-detail': { title: '绑定记录详情', body: mes4Detail() },
-                'modal-rework-add': { title: '新增补单', body: reworkForm() },
-                'modal-rework-edit': { title: '编辑补单', body: reworkForm() },
-                'modal-rework-detail': { title: '补单详情', body: reworkDetail() },
-                'modal-ship-add': { title: '新增装箱单', body: shipForm() },
-                'modal-ship-edit': { title: '编辑装箱单', body: shipForm() },
-                'modal-ship-detail': { title: '装箱单详情', body: shipDetail() },
-                'modal-customs-detail': { title: '报关详情', body: customsDetail() },
-                'modal-customs-edit': { title: '编辑报关', body: customsForm() },
-                'modal-finance-detail': { title: '财务详情', body: financeDetail() },
-                'modal-finance-edit': { title: '编辑财务', body: financeForm() },
-                'modal-user-add': { title: '新增用户', body: userForm() },
-                'modal-user-edit': { title: '编辑用户', body: userForm() },
-                'modal-user-detail': { title: '用户详情', body: userDetail() },
-                'modal-role-add': { title: '新增角色', body: roleForm() },
-                'modal-role-edit': { title: '编辑角色', body: roleForm() },
-                'modal-role-detail': { title: '角色详情', body: roleDetail() },
-                'modal-menu-add': { title: '新增菜单', body: menuForm() },
-                'modal-menu-edit': { title: '编辑菜单', body: menuForm() },
-                'modal-menu-detail': { title: '菜单详情', body: menuDetail() }
-            };
-            
-            const config = modalConfig[type] || { title: '操作', body: '<p>暂无内容</p>' };
-            title.innerText = config.title;
-            body.innerHTML = config.body;
-            modal.classList.add('show');
-        }
+<!-- ========== 生产：生产工单 ========== -->
+<div id="list-mes" class="list-page">
+<div class="list-header"><h3>生产工单</h3></div>
+<table class="list-table">
+<thead><tr><th>工单号</th><th>关联订单</th><th>产品</th><th>数量</th><th>状态</th><th>操作</th></tr></thead>
+<tbody><tr><td>MO-20231024-01</td><td>XHDD0329</td><td>涤纶纱-32S</td><td>500</td><td><span class="tag tag-blue">生产中</span></td>
+<td><button class="btn-link" onclick="openBill('bill-mes')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-mes" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-mes')">← 返回</span> | 生产工单</div>
+<div class="actions"><button class="btn">扫码发料</button><button class="btn">扫码开工</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>生产工单号</label><input value="MO-20231024-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>关联订单</label><input value="XHDD0329" class="readonly" readonly></div>
+<div class="bill-form-item"><label>产品</label><input value="涤纶纱-32S"></div>
+<div class="bill-form-item"><label>计划数量</label><input type="number" value="500"></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>步骤</th><th>操作</th><th>扫码记录</th><th>操作员</th><th>时间</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>发料出仓</td><td><input value="B20231024 / 1200kg"></td><td><input value="李四"></td><td><input value="2026-10-14 08:00"></td><td><span class="tag tag-green">已完成</span></td></tr>
+<tr><td>2</td><td>打纱开料</td><td><input value="M-01"></td><td><input value="李四"></td><td><input value="2026-10-14 09:00"></td><td><span class="tag tag-green">已完成</span></td></tr>
+<tr><td>3</td><td>上机生产</td><td><input value="500"></td><td><input value="李四"></td><td><input value="2026-10-14 13:00"></td><td><span class="tag tag-blue">进行中</span></td></tr>
+<tr><td>4</td><td>绑定缸号</td><td><input value="G-001 / 500码"></td><td><input></td><td><input></td><td><span class="tag tag-orange">待处理</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
 
-        function closeModal() {
-            document.getElementById('modal-mask').classList.remove('show');
-        }
+<!-- ========== 生产：领料/退料 ========== -->
+<div id="list-material" class="list-page">
+<div class="list-header"><h3>领料/退料</h3><button class="btn btn-primary" onclick="openBill('bill-material')">+ 新增领料</button></div>
+<table class="list-table">
+<thead><tr><th>单据号</th><th>类型</th><th>关联工单</th><th>物料</th><th>数量</th><th>操作</th></tr></thead>
+<tbody><tr><td>LL-001</td><td><span class="tag tag-blue">领料</span></td><td>MO-01</td><td>32S涤纶纱</td><td>1200kg</td>
+<td><button class="btn-link" onclick="openBill('bill-material')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-material" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-material')">← 返回</span> | 领料单</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>单据号</label><input value="LL-001" class="readonly" readonly></div>
+<div class="bill-form-item"><label>类型</label><select><option>领料</option><option>退料</option></select></div>
+<div class="bill-form-item"><label>关联工单</label><input value="MO-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>领料人</label><select><option>李四</option></select></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>物料</th><th>批次</th><th>数量</th><th>仓库</th></tr></thead>
+<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input value="B20231024"></td><td><input type="number" value="1200"></td><td><select><option>原料仓</option></select></td></tr></tbody>
+</table>
+</div>
+</div>
 
-        // 通用表单生成器
-        function formGrid(fields) {
-            return `<div class="form-grid">${fields.map(f => `
-                <div class="form-group">
-                    <label>${f.label}</label>
-                    ${f.type === 'select' ? `<select>${f.options.map(o => `<option>${o}</option>`).join('')}</select>` : `<input type="${f.type || 'text'}" value="${f.value || ''}" placeholder="${f.placeholder || ''}">`}
-                </div>
-            `).join('')}</div>`;
-        }
+<!-- ========== 品质：QC检验 ========== -->
+<div id="list-qc" class="list-page">
+<div class="list-header"><h3>QC 质量检验</h3></div>
+<table class="list-table">
+<thead><tr><th>工单</th><th>缸号</th><th>抽检数</th><th>合格数</th><th>次品/欠数</th><th>操作</th></tr></thead>
+<tbody><tr><td>MO-01</td><td>G-001</td><td>50</td><td>45</td><td>5</td>
+<td><button class="btn-link" onclick="openBill('bill-qc')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-qc" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-qc')">← 返回</span> | QC 质量检验单</div>
+<div class="actions"><button class="btn">合格装箱</button><button class="btn" style="color:#ff4d4f">生成补单</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>生产工单号</label><input value="MO-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>缸号</label><input value="G-001" class="readonly" readonly></div>
+<div class="bill-form-item"><label>抽检数量</label><input type="number" value="50"></div>
+<div class="bill-form-item"><label>合格数量</label><input type="number" value="45"></div>
+<div class="bill-form-item"><label>次品/欠数</label><input type="number" value="5" class="readonly" readonly></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>检验项目</th><th>标准</th><th>实测</th><th>结论</th><th>次品原因</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><input value="纱线均匀度"></td><td><input value="±3%"></td><td><input value="2%"></td><td><select><option>合格</option></select></td><td><input></td></tr>
+<tr><td>2</td><td><input value="色差"></td><td><input value="4级"></td><td><input value="3.5级"></td><td><select><option>不合格</option></select></td><td><input value="色差"></td></tr>
+</tbody>
+</table>
+</div>
+</div>
 
-        // 各种表单/详情生成函数
-        function orderForm() { return formGrid([
-            {label:'客户名称', value:'广州纺织公司'}, {label:'订单编号', value:'SO-20231024-001', readonly:true},
-            {label:'产品SKU', value:'涤纶纱-32S'}, {label:'下单数量', value:'1000', type:'number'},
-            {label:'交货日期', value:'2023-11-15', type:'date'}, {label:'备注', placeholder:'特殊要求'}
-        ]); }
-        function orderDetail() { return `<table><tr><td>客户名称</td><td>广州纺织公司</td></tr><tr><td>订单编号</td><td>SO-20231024-001</td></tr><tr><td>产品SKU</td><td>涤纶纱-32S</td></tr><tr><td>下单数量</td><td>1000</td></tr><tr><td>交货日期</td><td>2023-11-15</td></tr><tr><td>状态</td><td><span class="tag tag-orange">待确认</span></td></tr></table>`; }
+<!-- ========== 品质：欠数补单 ========== -->
+<div id="list-rework" class="list-page">
+<div class="list-header"><h3>欠数补单</h3></div>
+<table class="list-table">
+<thead><tr><th>原工单</th><th>补单号</th><th>数量</th><th>原因</th><th>操作</th></tr></thead>
+<tbody><tr><td>MO-01</td><td>MO-02</td><td>5</td><td>QC次品</td>
+<td><button class="btn-link" onclick="openBill('bill-rework')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-rework" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-rework')">← 返回</span> | 补单详情</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>原工单</label><input value="MO-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>补单号</label><input value="MO-02" class="readonly" readonly></div>
+<div class="bill-form-item"><label>补单数量</label><input type="number" value="5"></div>
+<div class="bill-form-item"><label>原因</label><input value="QC次品"></div>
+</div>
+</div>
+</div>
 
-        function purchaseForm() { return formGrid([
-            {label:'采购单号', value:'PO-20231024-01', readonly:true}, {label:'关联生产单', value:'MO-20231024-01', readonly:true},
-            {label:'原料名称', value:'32S涤纶纱'}, {label:'采购数量', value:'1200', type:'number'},
-            {label:'供应商', value:'某某纱厂'}, {label:'预计到货', value:'2023-10-28', type:'date'}
-        ]); }
-        function purchaseDetail() { return `<table><tr><td>采购单号</td><td>PO-20231024-01</td></tr><tr><td>关联生产单</td><td>MO-20231024-01</td></tr><tr><td>原料名称</td><td>32S涤纶纱</td></tr><tr><td>采购数量</td><td>1200 kg</td></tr><tr><td>供应商</td><td>某某纱厂</td></tr><tr><td>状态</td><td><span class="tag tag-blue">在途</span></td></tr></table>`; }
+<!-- ========== 出货：装箱单 ========== -->
+<div id="list-ship" class="list-page">
+<div class="list-header"><h3>装箱单</h3><button class="btn btn-primary" onclick="openBill('bill-ship')">+ 新增装箱</button></div>
+<table class="list-table">
+<thead><tr><th>装箱单号</th><th>关联订单</th><th>箱号</th><th>净重</th><th>操作</th></tr></thead>
+<tbody><tr><td>PL-20231024-01</td><td>XHDD0329</td><td>1/10</td><td>20kg</td>
+<td><button class="btn-link" onclick="openBill('bill-ship')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-ship" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-ship')">← 返回</span> | 装箱单</div>
+<div class="actions"><button class="btn">打印条码</button><button class="btn">报关</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>装箱单号</label><input value="PL-20231024-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>关联订单</label><input value="XHDD0329" class="readonly" readonly></div>
+<div class="bill-form-item"><label>制单日期</label><input type="date" value="2026-10-14"></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>箱号</th><th>商品</th><th>数量</th><th>净重(kg)</th><th>毛重(kg)</th><th>体积(CBM)</th></tr></thead>
+<tbody><tr><td>1</td><td><input value="1/10"></td><td><input value="涤纶纱-32S"></td><td><input type="number" value="300"></td><td><input type="number" value="20"></td><td><input type="number" value="22"></td><td><input type="number" value="0.5"></td></tr></tbody>
+</table>
+<div class="bill-summary"><div>总箱数：<span>10</span> | 总数量：<span>300</span> | 总毛重：<span>220kg</span></div></div>
+</div>
+</div>
 
-        function mes1Form() { return formGrid([
-            {label:'生产工单号', value:'MO-20231024-01'}, {label:'原料批次', value:'B20231024'},
-            {label:'领料数量', value:'1200', type:'number'}, {label:'领料人', value:'李四'}
-        ]); }
-        function mes1Detail() { return `<table><tr><td>生产工单号</td><td>MO-20231024-01</td></tr><tr><td>原料批次</td><td>B20231024</td></tr><tr><td>领料数量</td><td>1200 kg</td></tr><tr><td>领料人</td><td>李四</td></tr><tr><td>出仓时间</td><td>2023-10-24 08:00</td></tr></table>`; }
+<!-- ========== 出货：报关出货 ========== -->
+<div id="list-customs" class="list-page">
+<div class="list-header"><h3>报关出货</h3></div>
+<table class="list-table">
+<thead><tr><th>报关单号</th><th>关联装箱单</th><th>出货日期</th><th>状态</th><th>操作</th></tr></thead>
+<tbody><tr><td>CUS-001</td><td>PL-20231024-01</td><td>2026-10-30</td><td><span class="tag tag-blue">已报关</span></td>
+<td><button class="btn-link" onclick="openBill('bill-customs')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-customs" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-customs')">← 返回</span> | 报关单</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>报关单号</label><input value="CUS-001" class="readonly" readonly></div>
+<div class="bill-form-item"><label>关联装箱单</label><input value="PL-20231024-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>出货日期</label><input type="date" value="2026-10-30"></div>
+<div class="bill-form-item"><label>船名/航次</label><input value="COSCO-123E"></div>
+</div>
+</div>
+</div>
 
-        function mes2Form() { return formGrid([
-            {label:'机台号', value:'M-01'}, {label:'生产工单号', value:'MO-20231024-01'}, {label:'操作员', value:'李四'}
-        ]); }
-        function mes2Detail() { return `<table><tr><td>机台号</td><td>M-01</td></tr><tr><td>生产工单号</td><td>MO-20231024-01</td></tr><tr><td>开料时间</td><td>2023-10-24 09:00</td></tr><tr><td>操作员</td><td>李四</td></tr></table>`; }
+<!-- ========== 财务：应收 ========== -->
+<div id="list-finance" class="list-page">
+<div class="list-header"><h3>财务应收 (AR)</h3></div>
+<table class="list-table">
+<thead><tr><th>订单号</th><th>客户</th><th>应收金额</th><th>状态</th><th>操作</th></tr></thead>
+<tbody><tr><td>XHDD0329</td><td>零售客户</td><td>¥57.5</td><td><span class="tag tag-orange">未回款</span></td>
+<td><button class="btn-link" onclick="openBill('bill-finance')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-finance" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-finance')">← 返回</span> | 应收结算单</div>
+<div class="actions"><button class="btn">登记回款</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>订单号</label><input value="XHDD0329" class="readonly" readonly></div>
+<div class="bill-form-item"><label>客户</label><input value="零售客户" class="readonly" readonly></div>
+<div class="bill-form-item"><label>应收金额</label><input value="¥57.5" class="readonly" readonly></div>
+<div class="bill-form-item"><label>发票号</label><input value="INV-001"></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>回款日期</th><th>回款金额</th><th>收款账户</th></tr></thead>
+<tbody><tr><td>1</td><td><input type="date"></td><td><input type="number"></td><td><select><option>工商银行</option></select></td></tr></tbody>
+</table>
+<div class="bill-summary"><div>已回款：<span>¥0</span> | 未回款：<span>¥57.5</span></div></div>
+</div>
+</div>
 
-        function mes3Form() { return formGrid([
-            {label:'生产工单号', value:'MO-20231024-01'}, {label:'产出数量', value:'500', type:'number'}, {label:'生产时长', value:'4小时'}
-        ]); }
-        function mes3Detail() { return `<table><tr><td>生产工单号</td><td>MO-20231024-01</td></tr><tr><td>产出数量</td><td>500</td></tr><tr><td>生产时长</td><td>4小时</td></tr></table>`; }
+<!-- ========== 财务：应付 ========== -->
+<div id="list-payable" class="list-page">
+<div class="list-header"><h3>财务应付 (AP)</h3></div>
+<table class="list-table">
+<thead><tr><th>采购单号</th><th>供应商</th><th>应付金额</th><th>状态</th><th>操作</th></tr></thead>
+<tbody><tr><td>PO-20231024-01</td><td>某某纱厂</td><td>¥12,000</td><td><span class="tag tag-orange">未付款</span></td>
+<td><button class="btn-link" onclick="openBill('bill-payable')">详情</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-payable" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-payable')">← 返回</span> | 应付结算单</div>
+<div class="actions"><button class="btn">登记付款</button><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>采购单号</label><input value="PO-20231024-01" class="readonly" readonly></div>
+<div class="bill-form-item"><label>供应商</label><input value="某某纱厂" class="readonly" readonly></div>
+<div class="bill-form-item"><label>应付金额</label><input value="¥12,000" class="readonly" readonly></div>
+</div>
+<table class="bill-table">
+<thead><tr><th>#</th><th>付款日期</th><th>付款金额</th><th>付款账户</th></tr></thead>
+<tbody><tr><td>1</td><td><input type="date"></td><td><input type="number"></td><td><select><option>工商银行</option></select></td></tr></tbody>
+</table>
+</div>
+</div>
 
-        function mes4Form() { return formGrid([
-            {label:'缸号', value:'G-001'}, {label:'卷号', value:'R-001'},
-            {label:'码数', value:'500', type:'number'}, {label:'生产单号', value:'MO-20231024-01'}
-        ]); }
-        function mes4Detail() { return `<table><tr><td>缸号</td><td>G-001</td></tr><tr><td>卷号</td><td>R-001</td></tr><tr><td>码数</td><td>500</td></tr><tr><td>生产单号</td><td>MO-20231024-01</td></tr></table>`; }
+<!-- ========== 报表：销售报表 ========== -->
+<div id="list-report1" class="list-page">
+<div class="list-header"><h3>销售报表</h3></div>
+<div class="search-bar"><input type="date"><input type="date"><button class="btn btn-primary">🔍 查询</button></div>
+<table class="list-table">
+<thead><tr><th>日期</th><th>订单数</th><th>销售金额</th><th>退货金额</th><th>净销售额</th></tr></thead>
+<tbody>
+<tr><td>2026-10-14</td><td>2</td><td>¥57.5</td><td>¥2.5</td><td>¥55</td></tr>
+</tbody>
+</table>
+</div>
 
-        function reworkForm() { return formGrid([
-            {label:'原生产单号', value:'MO-20231024-01'}, {label:'补单数量', value:'5', type:'number'},
-            {label:'补单原因', value:'QC次品'}
-        ]); }
-        function reworkDetail() { return `<table><tr><td>原生产单号</td><td>MO-20231024-01</td></tr><tr><td>补单号</td><td>MO-20231024-02</td></tr><tr><td>补单数量</td><td>5</td></tr><tr><td>补单原因</td><td>QC次品</td></tr><tr><td>状态</td><td><span class="tag tag-orange">待生产</span></td></tr></table>`; }
+<!-- ========== 报表：库存报表 ========== -->
+<div id="list-report2" class="list-page">
+<div class="list-header"><h3>库存报表</h3></div>
+<table class="list-table">
+<thead><tr><th>仓库</th><th>物料</th><th>期初</th><th>入库</th><th>出库</th><th>期末</th></tr></thead>
+<tbody>
+<tr><td>原料仓</td><td>32S涤纶纱</td><td>0</td><td>1200</td><td>1200</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
 
-        function shipForm() { return formGrid([
-            {label:'装箱单号', value:'PL-20231024-01'}, {label:'关联订单号', value:'SO-20231024-001'},
-            {label:'箱号', value:'1/10'}, {label:'净重(kg)', value:'20', type:'number'},
-            {label:'毛重(kg)', value:'22', type:'number'}, {label:'体积(CBM)', value:'0.5', type:'number'}
-        ]); }
-        function shipDetail() { return `<table><tr><td>装箱单号</td><td>PL-20231024-01</td></tr><tr><td>关联订单号</td><td>SO-20231024-001</td></tr><tr><td>箱号</td><td>1/10</td></tr><tr><td>净重</td><td>20kg</td></tr><tr><td>毛重</td><td>22kg</td></tr><tr><td>体积</td><td>0.5CBM</td></tr></table>`; }
+<!-- ========== 系统：用户 ========== -->
+<div id="list-user" class="list-page">
+<div class="list-header"><h3>用户管理</h3><button class="btn btn-primary" onclick="openBill('bill-user')">+ 新增用户</button></div>
+<table class="list-table">
+<thead><tr><th>用户ID</th><th>用户名</th><th>姓名</th><th>角色</th><th>操作</th></tr></thead>
+<tbody><tr><td>U001</td><td>zhangsan</td><td>张三</td><td>业务员</td>
+<td><button class="btn-link" onclick="openBill('bill-user')">编辑</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-user" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-user')">← 返回</span> | 用户详情</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>用户名</label><input value="zhangsan"></div>
+<div class="bill-form-item"><label>姓名</label><input value="张三"></div>
+<div class="bill-form-item"><label>角色</label><select><option>业务员</option></select></div>
+<div class="bill-form-item"><label>部门</label><input value="销售部"></div>
+</div>
+</div>
+</div>
 
-        function customsForm() { return formGrid([
-            {label:'报关单号', value:'CUS-20231024-01'}, {label:'出货日期', value:'2023-10-30', type:'date'},
-            {label:'船名/航次', value:'COSCO-123E'}
-        ]); }
-        function customsDetail() { return `<table><tr><td>报关单号</td><td>CUS-20231024-01</td></tr><tr><td>关联装箱单</td><td>PL-20231024-01</td></tr><tr><td>出货日期</td><td>2023-10-30</td></tr><tr><td>船名/航次</td><td>COSCO-123E</td></tr></table>`; }
+<!-- ========== 系统：角色 ========== -->
+<div id="list-role" class="list-page">
+<div class="list-header"><h3>角色管理</h3><button class="btn btn-primary" onclick="openBill('bill-role')">+ 新增角色</button></div>
+<table class="list-table">
+<thead><tr><th>角色ID</th><th>角色名称</th><th>权限</th><th>操作</th></tr></thead>
+<tbody><tr><td>R001</td><td>业务员</td><td>订单录入、库存查询</td>
+<td><button class="btn-link" onclick="openBill('bill-role')">编辑</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-role" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-role')">← 返回</span> | 角色详情</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>角色名称</label><input value="业务员"></div>
+<div class="bill-form-item"><label>数据权限</label><select><option>仅自己订单</option></select></div>
+<div class="bill-form-item"><label>关联菜单</label><input value="订单录入、库存查询"></div>
+</div>
+</div>
+</div>
 
-        function financeForm() { return formGrid([
-            {label:'订单号', value:'SO-20231024-001'}, {label:'应收金额', value:'¥50,000'},
-            {label:'发票号', value:'INV-20231024-01'}, {label:'回款状态', type:'select', options:['未回款','部分回款','已回款']}
-        ]); }
-        function financeDetail() { return `<table><tr><td>订单号</td><td>SO-20231024-001</td></tr><tr><td>应收金额</td><td>¥50,000</td></tr><tr><td>发票号</td><td>INV-20231024-01</td></tr><tr><td>回款状态</td><td><span class="tag tag-orange">未回款</span></td></tr></table>`; }
+<!-- ========== 系统：菜单 ========== -->
+<div id="list-menu" class="list-page">
+<div class="list-header"><h3>菜单管理</h3><button class="btn btn-primary" onclick="openBill('bill-menu')">+ 新增菜单</button></div>
+<table class="list-table">
+<thead><tr><th>菜单ID</th><th>菜单名称</th><th>路由</th><th>操作</th></tr></thead>
+<tbody><tr><td>M001</td><td>销售订单</td><td>/order</td>
+<td><button class="btn-link" onclick="openBill('bill-menu')">编辑</button></td></tr></tbody>
+</table>
+</div>
+<div id="bill-menu" class="bill-page">
+<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-menu')">← 返回</span> | 菜单详情</div>
+<div class="actions"><button class="btn btn-primary">保存</button></div></div>
+<div class="bill-body">
+<div class="bill-form-row">
+<div class="bill-form-item"><label>菜单名称</label><input value="销售订单"></div>
+<div class="bill-form-item"><label>路由</label><input value="/order"></div>
+<div class="bill-form-item"><label>排序</label><input type="number" value="1"></div>
+</div>
+</div>
+</div>
 
-        function userForm() { return formGrid([
-            {label:'用户名', value:'zhangsan'}, {label:'姓名', value:'张三'},
-            {label:'角色', type:'select', options:['业务员','车间主任','质检员','财务','系统管理员']},
-            {label:'部门', value:'销售部'}, {label:'密码', type:'password', placeholder:'••••••'}
-        ]); }
-        function userDetail() { return `<table><tr><td>用户ID</td><td>U001</td></tr><tr><td>用户名</td><td>zhangsan</td></tr><tr><td>姓名</td><td>张三</td></tr><tr><td>角色</td><td>业务员</td></tr><tr><td>部门</td><td>销售部</td></tr></table>`; }
+</div><!-- /content -->
+</div><!-- /main -->
 
-        function roleForm() { return formGrid([
-            {label:'角色名称', value:'业务员'}, {label:'数据权限', type:'select', options:['仅自己订单','本车间数据','全部数据']},
-            {label:'关联菜单', value:'订单录入、库存查询'}
-        ]); }
-        function roleDetail() { return `<table><tr><td>角色ID</td><td>R001</td></tr><tr><td>角色名称</td><td>业务员</td></tr><tr><td>关联菜单权限</td><td>订单录入、库存查询</td></tr><tr><td>数据权限</td><td>仅自己订单</td></tr></table>`; }
-
-        function menuForm() { return formGrid([
-            {label:'菜单名称', value:'订单与库存'}, {label:'父级菜单', value:'无'},
-            {label:'路由路径', value:'/order'}, {label:'排序', value:'1', type:'number'}
-        ]); }
-        function menuDetail() { return `<table><tr><td>菜单ID</td><td>M001</td></tr><tr><td>菜单名称</td><td>订单与库存</td></tr><tr><td>路由路径</td><td>/order</td></tr><tr><td>排序</td><td>1</td></tr></table>`; }
-
-        function checkStock() {
-            document.getElementById('stock-result').style.display = 'block';
-            alert('系统已自动对比成品和原料库存！');
-        }
-    </script>
+<script>
+function showList(id, el){
+  document.querySelectorAll('.list-page,.bill-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('page-title').innerText = el.innerText.trim();
+}
+function openBill(id){
+  document.querySelectorAll('.list-page,.bill-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function closeBill(listId){
+  document.querySelectorAll('.list-page,.bill-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(listId).classList.add('active');
+}
+document.querySelectorAll('.bill-table input[type="number"]').forEach(inp=>{
+  inp.addEventListener('input', function(){
+    const row = this.closest('tr');
+    const price = parseFloat(row.cells[6]?.querySelector('input')?.value)||0;
+    const qty = parseFloat(row.cells[8]?.querySelector('input')?.value)||0;
+    if(row.cells[9]?.querySelector('input')) row.cells[9].querySelector('input').value = (price*qty).toFixed(2);
+  });
+});
+</script>
 </body>
 </html>
