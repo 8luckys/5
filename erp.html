@@ -2,824 +2,2173 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>纺织ERP - 全模块完整原型</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进销存管理系统 - 全闭环（含详情/编辑）</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
-body{background:#f0f2f5;font-size:13px;color:#333;display:flex;height:100vh;overflow:hidden;}
-.sidebar{width:230px;background:#001529;color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
-.logo{height:50px;display:flex;align-items:center;justify-content:center;font-weight:bold;background:#002140;font-size:14px;border-bottom:1px solid #1f3a5f;}
-.menu-group{padding:6px 0;border-bottom:1px solid #1f3a5f;}
-.menu-title{padding:8px 16px;font-size:11px;color:#8c9bab;}
-.menu-item{padding:7px 16px 7px 32px;cursor:pointer;font-size:12px;color:#ccc;border-left:3px solid transparent;transition:.2s;}
-.menu-item:hover{background:#1f3a5f;color:#fff;}
-.menu-item.active{background:#1890ff;color:#fff;border-left-color:#fff;}
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.header{height:50px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e8e8e8;}
-.header h2{font-size:14px;}
-.header .user{font-size:12px;color:#666;}
-.content{flex:1;overflow-y:auto;padding:15px;}
-.list-page{display:none;background:#fff;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-.list-page.active{display:block;}
-.list-header{padding:12px 20px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;}
-.list-header h3{font-size:14px;}
-.search-bar{padding:12px 20px;background:#fafafa;border-bottom:1px solid #eee;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-.search-bar input,.search-bar select{padding:5px 10px;border:1px solid #d9d9d9;border-radius:3px;font-size:12px;}
-.list-table{width:100%;border-collapse:collapse;font-size:12px;}
-.list-table th,.list-table td{padding:10px;border-bottom:1px solid #eee;text-align:left;}
-.list-table th{background:#fafafa;font-weight:600;}
-.list-table tr:hover{background:#f5f5f5;}
-.tag{padding:2px 8px;border-radius:3px;font-size:11px;}
-.tag-green{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f;}
-.tag-red{background:#fff2f0;color:#ff4d4f;border:1px solid #ffccc7;}
-.tag-blue{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff;}
-.tag-orange{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591;}
-.btn{padding:5px 14px;border:1px solid #d9d9d9;background:#fff;border-radius:3px;cursor:pointer;font-size:12px;color:#333;transition:.2s;}
-.btn:hover{color:#1890ff;border-color:#1890ff;}
-.btn-primary{background:#1890ff;color:#fff;border-color:#1890ff;}
-.btn-primary:hover{background:#40a9ff;color:#fff;}
-.btn-link{background:none;border:none;color:#1890ff;cursor:pointer;font-size:12px;padding:0 5px;}
-.btn-link:hover{text-decoration:underline;}
-.bill-page{display:none;background:#fff;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08);position:relative;}
-.bill-page.active{display:block;}
-.bill-header{padding:12px 20px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;}
-.bill-header .title{font-size:14px;font-weight:bold;display:flex;align-items:center;gap:10px;}
-.bill-header .back{color:#1890ff;cursor:pointer;}
-.bill-header .actions{display:flex;gap:8px;}
-.bill-body{padding:20px;}
-.bill-form-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px;}
-.bill-form-item{display:flex;align-items:center;gap:6px;}
-.bill-form-item label{color:#666;white-space:nowrap;font-size:12px;}
-.bill-form-item label .req{color:#ff4d4f;margin-right:2px;}
-.bill-form-item input,.bill-form-item select{padding:5px 8px;border:1px solid #d9d9d9;border-radius:3px;font-size:12px;width:160px;outline:none;}
-.bill-form-item input:focus,.bill-form-item select:focus{border-color:#1890ff;}
-.bill-form-item input.readonly{background:#f5f5f5;}
-.bill-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
-.bill-table th,.bill-table td{border:1px solid #e8e8e8;padding:6px;text-align:center;}
-.bill-table th{background:#fafafa;font-weight:600;font-size:11px;}
-.bill-table td input,.bill-table td select{border:none;width:100%;text-align:center;font-size:12px;outline:none;background:transparent;}
-.bill-table td input:focus{background:#e6f7ff;border:1px solid #1890ff;}
-.bill-table .action-btn{color:#1890ff;cursor:pointer;margin:0 2px;}
-.bill-summary{padding:10px 0;border-top:1px solid #e8e8e8;margin-top:10px;display:flex;justify-content:space-between;font-size:12px;color:#666;}
-.bill-summary span{color:#333;font-weight:bold;}
-.bill-extra{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:15px;}
-.bill-extra .bill-form-item input,.bill-extra .bill-form-item select{width:100%;}
-.stamp{position:absolute;right:50px;top:200px;color:#ff4d4f;font-size:28px;font-weight:bold;border:3px solid #ff4d4f;padding:8px 18px;transform:rotate(-15deg);opacity:.7;pointer-events:none;}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", sans-serif; }
+body { display: flex; height: 100vh; background: #f0f2f5; overflow: hidden; }
+
+/* ========== 侧边栏 ========== */
+.sidebar { width: 240px; background: #001529; color: #fff; overflow-y: auto; flex-shrink: 0; }
+.sidebar .logo { padding: 16px; font-size: 16px; font-weight: bold; text-align: center; border-bottom: 1px solid #1f3a5f; color: #4fc3f7; }
+.sidebar .menu-group { padding: 10px 16px 4px; font-size: 12px; color: #6b7a8f; margin-top: 8px; }
+.sidebar .menu-item { padding: 10px 16px 10px 28px; cursor: pointer; font-size: 14px; color: #b8c7ce; transition: all .2s; display: flex; align-items: center; gap: 8px; }
+.sidebar .menu-item:hover { background: #1f3a5f; color: #fff; }
+.sidebar .menu-item.active { background: #1890ff; color: #fff; }
+
+/* ========== 主区域 ========== */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.header { height: 56px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; box-shadow: 0 1px 4px rgba(0,0,0,.08); z-index: 10; }
+.header .title { font-size: 16px; font-weight: bold; color: #333; }
+.header .user { display: flex; align-items: center; gap: 12px; font-size: 14px; color: #666; }
+.header .user .avatar { width: 32px; height: 32px; border-radius: 50%; background: #1890ff; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+.content { flex: 1; padding: 16px; overflow-y: auto; }
+
+/* ========== 卡片 ========== */
+.card { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.card-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; color: #333; display: flex; justify-content: space-between; align-items: center; }
+
+/* ========== 表格 ========== */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+th { background: #fafafa; color: #666; font-weight: 500; }
+tr:hover td { background: #f5faff; }
+
+/* ========== 状态标签 ========== */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+.tag-green { background: #e6f7e6; color: #52c41a; }
+.tag-blue { background: #e6f4ff; color: #1890ff; }
+.tag-orange { background: #fff7e6; color: #fa8c16; }
+.tag-red { background: #fff1f0; color: #f5222d; }
+.tag-gray { background: #f5f5f5; color: #999; }
+.tag-purple { background: #f9f0ff; color: #722ed1; }
+.tag-cyan { background: #e6fffb; color: #13c2c2; }
+
+/* ========== 按钮 ========== */
+.btn { padding: 6px 14px; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; transition: .2s; }
+.btn-primary { background: #1890ff; color: #fff; }
+.btn-primary:hover { background: #40a9ff; }
+.btn-success { background: #52c41a; color: #fff; }
+.btn-warning { background: #fa8c16; color: #fff; }
+.btn-danger { background: #f5222d; color: #fff; }
+.btn-default { background: #fff; color: #333; border: 1px solid #d9d9d9; }
+.btn-sm { padding: 3px 10px; font-size: 12px; }
+.btn-purple { background: #722ed1; color: #fff; }
+.btn-cyan { background: #13c2c2; color: #fff; }
+
+/* ========== 统计卡片 ========== */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.stat-card { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.stat-card .label { font-size: 13px; color: #999; }
+.stat-card .value { font-size: 24px; font-weight: bold; color: #333; margin-top: 8px; }
+.stat-card .value.blue { color: #1890ff; }
+.stat-card .value.green { color: #52c41a; }
+.stat-card .value.orange { color: #fa8c16; }
+.stat-card .value.red { color: #f5222d; }
+
+/* ========== 弹窗 ========== */
+.modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 999; }
+.modal-mask.show { display: flex; }
+.modal { background: #fff; border-radius: 8px; width: 620px; max-height: 85vh; overflow-y: auto; padding: 20px; }
+.modal-lg { width: 780px; }
+.modal h3 { margin-bottom: 16px; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+.modal h3 .modal-close { cursor: pointer; color: #999; font-size: 20px; line-height: 1; }
+.modal h3 .modal-close:hover { color: #333; }
+
+.form-item { margin-bottom: 14px; }
+.form-item label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
+.form-item label .required { color: #f5222d; margin-left: 2px; }
+.form-item input, .form-item select, .form-item textarea { width: 100%; padding: 8px 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
+.form-item textarea { resize: vertical; min-height: 60px; }
+.form-item .readonly-value { padding: 8px 10px; background: #f5f5f5; border-radius: 4px; font-size: 13px; color: #333; min-height: 34px; display: flex; align-items: center; }
+.form-row { display: flex; gap: 12px; }
+.form-row .form-item { flex: 1; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+
+/* ========== 详情描述列表 ========== */
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-bottom: 16px; }
+.detail-item { display: flex; flex-direction: column; gap: 4px; }
+.detail-item .label { font-size: 12px; color: #999; }
+.detail-item .value { font-size: 14px; color: #333; }
+.detail-item.full { grid-column: 1 / -1; }
+.detail-section { margin-bottom: 16px; }
+.detail-section .section-title { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f0f0f0; }
+
+/* ========== 隐藏 ========== */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ========== 进度条 ========== */
+.progress { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
+.progress-bar { height: 100%; background: #1890ff; border-radius: 3px; transition: width .3s; }
+
+/* ========== 流程指示器 ========== */
+.flow-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px; vertical-align: middle; }
+.flow-purple { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+.flow-cyan { background: #e6fffb; color: #13c2c2; border: 1px solid #87e8de; }
+.flow-orange { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+.flow-red { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
+.flow-green { background: #e6f7e6; color: #52c41a; border: 1px solid #b7eb8f; }
 </style>
 </head>
 <body>
 
-<!-- 左侧菜单：全模块 -->
+<!-- ==================== 侧边栏 ==================== -->
 <div class="sidebar">
-<div class="logo">纺织ERP + MES</div>
+  <div class="logo">📦 进销存 ERP 全闭环</div>
+  <div class="menu-group">工作台</div>
+  <div class="menu-item active" onclick="switchPage('dashboard', this)">📊 数据看板</div>
 
-<div class="menu-group">
-<div class="menu-title">📁 基础资料</div>
-<div class="menu-item" onclick="showList('list-goods',this)">商品管理</div>
-<div class="menu-item" onclick="showList('list-customer',this)">客户管理</div>
-<div class="menu-item" onclick="showList('list-supplier',this)">供应商管理</div>
-<div class="menu-item" onclick="showList('list-warehouse',this)">仓库管理</div>
+  <div class="menu-group">1. 销售与库存检查</div>
+  <div class="menu-item" onclick="switchPage('sales', this)">🛒 销售订单</div>
+  <div class="menu-item" onclick="switchPage('stockCheck', this)">🔍 库存对比查询</div>
+  <div class="menu-item" onclick="switchPage('outbound', this)">📤 销售出库</div>
+
+  <div class="menu-group">2. 采购与来料管理</div>
+  <div class="menu-item" onclick="switchPage('purchase', this)">📝 采购订单</div>
+  <div class="menu-item" onclick="switchPage('inbound', this)">📥 采购入库 / IQC</div>
+  <div class="menu-item" onclick="switchPage('purReturn', this)">↩️ 采购退货</div>
+
+  <div class="menu-group">3. 车间扫码与生产</div>
+  <div class="menu-item" onclick="switchPage('requisition', this)">🏭 生产领料/发料</div>
+  <div class="menu-item" onclick="switchPage('warping', this)">🧵 打纱/扫码开料</div>
+  <div class="menu-item" onclick="switchPage('machine', this)">⚙️ 上机生产记录</div>
+  <div class="menu-item" onclick="switchPage('binding', this)">📦 打号绑定/上卷</div>
+
+  <div class="menu-group">4. 品质控制与补单</div>
+  <div class="menu-item" onclick="switchPage('qc', this)">🔬 QC 质量检验</div>
+  <div class="menu-item" onclick="switchPage('rework', this)">🔄 欠数重订/补单</div>
+
+  <div class="menu-group">5. 装箱报关与财务</div>
+  <div class="menu-item" onclick="switchPage('packing', this)">📦 装箱资料录入</div>
+  <div class="menu-item" onclick="switchPage('customs', this)">🛃 报关出货</div>
+  <div class="menu-item" onclick="switchPage('receivable', this)">💰 应收账款 AR</div>
+  <div class="menu-item" onclick="switchPage('profit', this)">📈 利润报表</div>
+
+  <div class="menu-group">基础档案</div>
+  <div class="menu-item" onclick="switchPage('supplier', this)">🏢 供应商</div>
+  <div class="menu-item" onclick="switchPage('customer', this)">👥 客户</div>
+  <div class="menu-item" onclick="switchPage('material', this)">📦 物料/商品</div>
+  <div class="menu-item" onclick="switchPage('warehouse', this)">🏬 仓库</div>
+
+  <div class="menu-group">系统管理</div>
+  <div class="menu-item" onclick="switchPage('user', this)">👤 用户管理</div>
+  <div class="menu-item" onclick="switchPage('role', this)">🔑 角色管理</div>
+  <div class="menu-item" onclick="switchPage('log', this)">📜 操作日志</div>
 </div>
 
-<div class="menu-group">
-<div class="menu-title">💰 销售管理</div>
-<div class="menu-item active" onclick="showList('list-order',this)">销售订单</div>
-<div class="menu-item" onclick="showList('list-quote',this)">客户报价</div>
-<div class="menu-item" onclick="showList('list-return',this)">销售退货</div>
-</div>
-
-<div class="menu-group">
-<div class="menu-title">🛒 采购管理</div>
-<div class="menu-item" onclick="showList('list-purchase',this)">采购订单</div>
-<div class="menu-item" onclick="showList('list-iqc',this)">IQC检验</div>
-<div class="menu-item" onclick="showList('list-preturn',this)">采购退货</div>
-</div>
-
-<div class="menu-group">
-<div class="menu-title">📦 库存管理</div>
-<div class="menu-item" onclick="showList('list-stock',this)">库存查询</div>
-<div class="menu-item" onclick="showList('list-transfer',this)">库存调拨</div>
-<div class="menu-item" onclick="showList('list-check',this)">库存盘点</div>
-</div>
-
-<div class="menu-group">
-<div class="menu-title">🏭 生产管理</div>
-<div class="menu-item" onclick="showList('list-plan',this)">生产计划</div>
-<div class="menu-item" onclick="showList('list-mes',this)">生产工单</div>
-<div class="menu-item" onclick="showList('list-material',this)">领料/退料</div>
-</div>
-
-<div class="menu-group">
-<div class="menu-title">✅ 品质管理</div>
-<div class="menu-item" onclick="showList('list-qc',this)">QC检验</div>
-<div class="menu-item" onclick="showList('list-rework',this)">欠数补单</div>
-</div>
-
-<div class="menu-group">
-<div class="menu-title">🚚 出货与财务</div>
-<div class="menu-item" onclick="showList('list-ship',this)">装箱单</div>
-<div class="menu-item" onclick="showList('list-customs',this)">报关出货</div>
-<div class="menu-item" onclick="showList('list-finance',this)">财务应收</div>
-<div class="menu-item" onclick="showList('list-payable',this)">财务应付</div>
-</div>
-
-<div class="menu-group">
-<div class="menu-title">📊 报表中心</div>
-<div class="menu-item" onclick="showList('list-report1',this)">销售报表</div>
-<div class="menu-item" onclick="showList('list-report2',this)">库存报表</div>
-</div>
-
-<div class="menu-group">
-<div class="menu-title">⚙️ 系统管理</div>
-<div class="menu-item" onclick="showList('list-user',this)">用户管理</div>
-<div class="menu-item" onclick="showList('list-role',this)">角色管理</div>
-<div class="menu-item" onclick="showList('list-menu',this)">菜单管理</div>
-</div>
-</div>
-
-<!-- 右侧主区 -->
+<!-- ==================== 主区域 ==================== -->
 <div class="main">
-<div class="header">
-<h2 id="page-title">销售订单</h2>
-<div class="user">admin@纺织ERP</div>
+  <div class="header">
+    <div class="title" id="pageTitle">数据看板</div>
+    <div class="user">
+      <span>👤 管理员</span>
+      <div class="avatar">A</div>
+    </div>
+  </div>
+  <div class="content" id="content">
+
+    <!-- ========== 1. 数据看板 ========== -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats">
+        <div class="stat-card"><div class="label">本月采购额</div><div class="value blue">¥ 128,500</div></div>
+        <div class="stat-card"><div class="label">本月销售额</div><div class="value green">¥ 256,800</div></div>
+        <div class="stat-card"><div class="label">当前库存总值</div><div class="value orange">¥ 89,200</div></div>
+        <div class="stat-card"><div class="label">本月净利润</div><div class="value red">¥ 42,300</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 库存预警（低于安全库存）</div>
+        <table>
+          <thead><tr><th>物料编码</th><th>物料名称</th><th>当前库存</th><th>安全库存</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>M001</td><td>螺丝M4</td><td>50</td><td>200</td><td><span class="tag tag-red">严重不足</span></td><td><button class="btn btn-primary btn-sm" onclick="alert('已发送采购通知给采购员')">发起采购</button></td></tr>
+            <tr><td>M003</td><td>钢材Q235</td><td>180</td><td>500</td><td><span class="tag tag-orange">偏低</span></td><td><button class="btn btn-primary btn-sm" onclick="alert('已发送采购通知给采购员')">发起采购</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 待办事项</div>
+        <table>
+          <thead><tr><th>类型</th><th>内容</th><th>发起人</th><th>时间</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-blue">审批</span></td><td>采购订单 PO20261015-001 待审批</td><td>张三</td><td>2026-10-15 09:30</td><td><button class="btn btn-success btn-sm" onclick="alert('已通过审批')">通过</button> <button class="btn btn-danger btn-sm" onclick="alert('已驳回')">驳回</button></td></tr>
+            <tr><td><span class="tag tag-orange">付款</span></td><td>供应商「华为」应付账款 ¥25,000 即将到期</td><td>系统</td><td>2026-10-20</td><td><button class="btn btn-primary btn-sm" onclick="alert('跳转付款页面')">去付款</button></td></tr>
+            <tr><td><span class="tag tag-red">IQC</span></td><td>来料批次 IQC-20261015-001 待检验</td><td>系统</td><td>2026-10-15 10:00</td><td><button class="btn btn-warning btn-sm" onclick="alert('跳转IQC检验页面')">去检验</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 2. 销售订单 ========== -->
+    <div class="page" id="page-sales">
+      <div class="card">
+        <div class="card-title">
+          <span>🛒 销售订单 <span class="flow-badge flow-purple">流程1：订单与库存对比</span></span>
+          <button class="btn btn-primary" onclick="openModal('modalSales')">+ 新建销售单</button>
+        </div>
+        <table>
+          <thead><tr><th>销售单号</th><th>客户</th><th>销售员</th><th>商品</th><th>数量</th><th>总金额</th><th>库存状态</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>SO20261015-001</td><td>腾讯科技</td><td>赵六</td><td>智能网关</td><td>50</td><td>¥ 58,200</td>
+              <td><span class="tag tag-green">成品充足</span></td>
+              <td><span class="tag tag-blue">待发货</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('sales', 'SO20261015-001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('sales', 'SO20261015-001')">编辑</button>
+                <button class="btn btn-success btn-sm" onclick="alert('已发货')">发货</button>
+              </td>
+            </tr>
+            <tr>
+              <td>SO20261014-002</td><td>阿里巴巴</td><td>赵六</td><td>智能摄像头</td><td>100</td><td>¥ 128,500</td>
+              <td><span class="tag tag-orange">需生产</span></td>
+              <td><span class="tag tag-green">已完成</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('sales', 'SO20261014-002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('sales', 'SO20261014-002')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>SO20261013-003</td><td>字节跳动</td><td>孙七</td><td>智能网关</td><td>200</td><td>¥ 240,000</td>
+              <td><span class="tag tag-red">缺料</span></td>
+              <td><span class="tag tag-orange">待采购</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('sales', 'SO20261013-003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('sales', 'SO20261013-003')">编辑</button>
+                <button class="btn btn-primary btn-sm" onclick="alert('已生成采购申请')">生成采购</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 3. 库存对比查询 ========== -->
+    <div class="page" id="page-stockCheck">
+      <div class="card">
+        <div class="card-title"><span>🔍 订单与库存对比查询 <span class="flow-badge flow-purple">流程1核心</span></span></div>
+        <div style="padding: 12px; background: #fafafa; border-radius: 6px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <label style="font-size: 13px;">销售订单号：</label>
+          <input type="text" id="stockCheckOrder" value="SO20261015-001" style="padding: 6px 10px; border: 1px solid #d9d9d9; border-radius: 4px; width: 200px;">
+          <button class="btn btn-primary" onclick="doStockCheck()">查询对比</button>
+          <span style="font-size: 12px; color: #999;">输入订单号后点击查询，系统自动对比成品与原料库存</span>
+        </div>
+        <table>
+          <thead><tr><th>商品</th><th>订单数量</th><th>成品仓库存</th><th>差额</th><th>原料库存</th><th>判定结果</th><th>建议操作</th></tr></thead>
+          <tbody id="stockCheckBody">
+            <tr><td>智能网关 GW-1000</td><td>50</td><td>50</td><td>0</td><td>-</td><td><span class="tag tag-green">成品充足</span></td><td><button class="btn btn-success btn-sm" onclick="alert('跳转按单装箱')">按单装箱</button></td></tr>
+            <tr><td>智能摄像头 SC-200</td><td>100</td><td>30</td><td>-70</td><td>芯片充足，外壳缺200</td><td><span class="tag tag-orange">需生产</span></td><td><button class="btn btn-warning btn-sm" onclick="alert('跳转采购申请')">生成采购</button></td></tr>
+            <tr><td>智能音箱 SP-100</td><td>200</td><td>0</td><td>-200</td><td>无原料</td><td><span class="tag tag-red">缺料严重</span></td><td><button class="btn btn-danger btn-sm" onclick="alert('跳转紧急采购')">紧急采购</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 4. 销售出库 ========== -->
+    <div class="page" id="page-outbound">
+      <div class="card">
+        <div class="card-title"><span>📤 销售出库单 <span class="flow-badge flow-purple">流程1</span></span></div>
+        <table>
+          <thead><tr><th>出库单号</th><th>关联销售单</th><th>客户</th><th>仓库</th><th>物流公司</th><th>物流单号</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>OUT20261014-002</td><td>SO20261014-002</td><td>阿里巴巴</td><td>主仓库</td><td>顺丰</td><td>SF1234567890</td><td><span class="tag tag-green">已出库</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('outbound', 'OUT20261014-002')">详情</button></td>
+            </tr>
+            <tr>
+              <td>OUT20261015-003</td><td>SO20261015-001</td><td>腾讯科技</td><td>主仓库</td><td>京东</td><td>JD9876543210</td><td><span class="tag tag-blue">待出库</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('outbound', 'OUT20261015-003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('outbound', 'OUT20261015-003')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 5. 采购订单 ========== -->
+    <div class="page" id="page-purchase">
+      <div class="card">
+        <div class="card-title">
+          <span>📝 采购订单 <span class="flow-badge flow-purple">流程2：采购与来料</span></span>
+          <button class="btn btn-primary" onclick="openModal('modalPurchase')">+ 新建采购单</button>
+        </div>
+        <table>
+          <thead><tr><th>采购单号</th><th>供应商</th><th>采购员</th><th>物料</th><th>数量</th><th>总金额</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>PO20261015-001</td><td>华为技术</td><td>张三</td><td>芯片RK3588</td><td>1000</td><td>¥ 25,000</td><td><span class="tag tag-orange">待审批</span></td><td>2026-10-15</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('purchase', 'PO20261015-001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('purchase', 'PO20261015-001')">编辑</button>
+                <button class="btn btn-success btn-sm" onclick="alert('审批通过')">审批</button>
+              </td>
+            </tr>
+            <tr>
+              <td>PO20261014-003</td><td>小米科技</td><td>李四</td><td>螺丝M4</td><td>5000</td><td>¥ 12,800</td><td><span class="tag tag-green">已入库</span></td><td>2026-10-14</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('purchase', 'PO20261014-003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('purchase', 'PO20261014-003')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>PO20261013-002</td><td>比亚迪</td><td>王五</td><td>钢材Q235</td><td>2000</td><td>¥ 56,000</td><td><span class="tag tag-red">已驳回</span></td><td>2026-10-13</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('purchase', 'PO20261013-002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('purchase', 'PO20261013-002')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>PO20261015-004</td><td>华为技术</td><td>张三</td><td>芯片RK3588</td><td>500</td><td>¥ 12,500</td><td><span class="tag tag-cyan">待收货</span></td><td>2026-10-15</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('purchase', 'PO20261015-004')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('purchase', 'PO20261015-004')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 6. 采购入库 / IQC ========== -->
+    <div class="page" id="page-inbound">
+      <div class="card">
+        <div class="card-title"><span>📥 采购入库 / IQC 来料品检 <span class="flow-badge flow-purple">流程2核心</span></span><button class="btn btn-primary" onclick="alert('新建入库单')">+ 新建入库</button></div>
+        <table>
+          <thead><tr><th>入库单号</th><th>关联采购单</th><th>供应商</th><th>物料</th><th>到货数量</th><th>IQC结果</th><th>合格数量</th><th>不合格数量</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>IN20261015-001</td><td>PO20261014-003</td><td>小米科技</td><td>螺丝M4</td><td>5000</td><td><span class="tag tag-green">合格</span></td><td>5000</td><td>0</td><td><span class="tag tag-green">已入库</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('inbound', 'IN20261015-001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('inbound', 'IN20261015-001')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>IN20261014-002</td><td>PO20261013-001</td><td>华为技术</td><td>芯片RK3588</td><td>1000</td><td><span class="tag tag-green">合格</span></td><td>1000</td><td>0</td><td><span class="tag tag-green">已入库</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('inbound', 'IN20261014-002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('inbound', 'IN20261014-002')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>IN20261015-005</td><td>PO20261015-004</td><td>华为技术</td><td>芯片RK3588</td><td>500</td><td><span class="tag tag-orange">待检验</span></td><td>-</td><td>-</td><td><span class="tag tag-orange">待IQC</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('inbound', 'IN20261015-005')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('inbound', 'IN20261015-005')">编辑</button>
+                <button class="btn btn-warning btn-sm" onclick="alert('跳转IQC检验')">去检验</button>
+              </td>
+            </tr>
+            <tr>
+              <td>IN20261015-006</td><td>PO20261015-005</td><td>比亚迪</td><td>钢材Q235</td><td>200</td><td><span class="tag tag-red">不合格</span></td><td>0</td><td>200</td><td><span class="tag tag-red">退货中</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('inbound', 'IN20261015-006')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('inbound', 'IN20261015-006')">编辑</button>
+                <button class="btn btn-danger btn-sm" onclick="alert('跳转退货')">退货</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 7. 采购退货 ========== -->
+    <div class="page" id="page-purReturn">
+      <div class="card">
+        <div class="card-title"><span>↩️ 采购退货单 <span class="flow-badge flow-purple">流程2</span></span><button class="btn btn-primary" onclick="alert('新建退货单')">+ 新建退货</button></div>
+        <table>
+          <thead><tr><th>退货单号</th><th>供应商</th><th>关联入库单</th><th>物料</th><th>退货数量</th><th>退货金额</th><th>退货原因</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>PR20261012-001</td><td>比亚迪</td><td>IN20261010-001</td><td>钢材Q235</td><td>100</td><td>¥ 3,200</td><td>质量不合格</td><td><span class="tag tag-green">已退货</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('purReturn', 'PR20261012-001')">详情</button></td>
+            </tr>
+            <tr>
+              <td>PR20261015-002</td><td>比亚迪</td><td>IN20261015-006</td><td>钢材Q235</td><td>200</td><td>¥ 5,600</td><td>IQC不合格</td><td><span class="tag tag-orange">退货中</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('purReturn', 'PR20261015-002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('purReturn', 'PR20261015-002')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 8. 生产领料/发料 ========== -->
+    <div class="page" id="page-requisition">
+      <div class="card">
+        <div class="card-title"><span>🏭 生产领料/发料 — 扫码记录出仓 <span class="flow-badge flow-cyan">流程3：车间扫码</span></span><button class="btn btn-primary" onclick="alert('新建领料单')">+ 新建领料</button></div>
+        <table>
+          <thead><tr><th>领料单号</th><th>物料</th><th>领用数量</th><th>生产员</th><th>关联工单</th><th>扫码状态</th><th>领料时间</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>PR20261015-001</td><td>螺丝M4</td><td>150</td><td>王五</td><td>WO20261015-001</td><td><span class="tag tag-green">已扫码出仓</span></td><td>2026-10-15 09:00</td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('requisition', 'PR20261015-001')">详情</button></td>
+            </tr>
+            <tr>
+              <td>PR20261014-003</td><td>芯片RK3588</td><td>50</td><td>王五</td><td>WO20261014-002</td><td><span class="tag tag-green">已扫码出仓</span></td><td>2026-10-14 14:00</td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('requisition', 'PR20261014-003')">详情</button></td>
+            </tr>
+            <tr>
+              <td>PR20261015-004</td><td>钢材Q235</td><td>300</td><td>赵六</td><td>WO20261015-003</td><td><span class="tag tag-orange">待扫码</span></td><td>2026-10-15 11:00</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('requisition', 'PR20261015-004')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('requisition', 'PR20261015-004')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 9. 打纱/扫码开料 ========== -->
+    <div class="page" id="page-warping">
+      <div class="card">
+        <div class="card-title"><span>🧵 打纱 — 扫码记录已开料 <span class="flow-badge flow-cyan">流程3</span></span></div>
+        <table>
+          <thead><tr><th>工单号</th><th>产品</th><th>开料数量</th><th>操作员</th><th>扫码时间</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>WO20261015-001</td><td>智能网关 GW-1000</td><td>50</td><td>王五</td><td>2026-10-15 09:15</td><td><span class="tag tag-green">已开料</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('warping', 'WO20261015-001')">详情</button></td>
+            </tr>
+            <tr>
+              <td>WO20261014-002</td><td>智能摄像头 SC-200</td><td>100</td><td>李四</td><td>2026-10-14 14:30</td><td><span class="tag tag-green">已开料</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('warping', 'WO20261014-002')">详情</button></td>
+            </tr>
+            <tr>
+              <td>WO20261015-003</td><td>智能音箱 SP-100</td><td>200</td><td>赵六</td><td>2026-10-15 11:20</td><td><span class="tag tag-orange">进行中</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('warping', 'WO20261015-003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('warping', 'WO20261015-003')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 10. 上机生产记录 ========== -->
+    <div class="page" id="page-machine">
+      <div class="card">
+        <div class="card-title"><span>⚙️ 上机生产 — 扫码记录已生产 <span class="flow-badge flow-cyan">流程3</span></span></div>
+        <table>
+          <thead><tr><th>工单号</th><th>产品</th><th>机台号</th><th>生产数量</th><th>操作员</th><th>扫码时间</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>WO20261015-001</td><td>智能网关 GW-1000</td><td>M-01</td><td>50</td><td>王五</td><td>2026-10-15 10:00</td><td><span class="tag tag-green">已生产</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('machine', 'WO20261015-001')">详情</button></td>
+            </tr>
+            <tr>
+              <td>WO20261014-002</td><td>智能摄像头 SC-200</td><td>M-02</td><td>100</td><td>李四</td><td>2026-10-14 16:00</td><td><span class="tag tag-green">已生产</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('machine', 'WO20261014-002')">详情</button></td>
+            </tr>
+            <tr>
+              <td>WO20261015-003</td><td>智能音箱 SP-100</td><td>M-03</td><td>150</td><td>赵六</td><td>2026-10-15 12:00</td><td><span class="tag tag-orange">生产中</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('machine', 'WO20261015-003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('machine', 'WO20261015-003')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 11. 打号绑定/上卷 ========== -->
+    <div class="page" id="page-binding">
+      <div class="card">
+        <div class="card-title"><span>📦 打号按单上卷 / 绑定缸号 <span class="flow-badge flow-cyan">流程3</span></span></div>
+        <table>
+          <thead><tr><th>工单号</th><th>产品</th><th>缸号</th><th>卷号</th><th>绑定数量</th><th>操作员</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>WO20261015-001</td><td>智能网关 GW-1000</td><td>G-20261015-01</td><td>J-001</td><td>50</td><td>王五</td><td><span class="tag tag-green">已绑定</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('binding', 'WO20261015-001')">详情</button></td>
+            </tr>
+            <tr>
+              <td>WO20261014-002</td><td>智能摄像头 SC-200</td><td>G-20261014-02</td><td>J-002</td><td>100</td><td>李四</td><td><span class="tag tag-green">已绑定</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('binding', 'WO20261014-002')">详情</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 12. QC 质量检验 ========== -->
+    <div class="page" id="page-qc">
+      <div class="card">
+        <div class="card-title"><span>🔬 QC 质量检验 <span class="flow-badge flow-red">流程4：品质控制</span></span></div>
+        <table>
+          <thead><tr><th>工单号</th><th>产品</th><th>送检数量</th><th>合格数量</th><th>次品/欠数</th><th>检验员</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>WO20261015-001</td><td>智能网关 GW-1000</td><td>50</td><td>50</td><td>0</td><td>质检-张</td><td><span class="tag tag-green">合格</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('qc', 'WO20261015-001')">详情</button></td>
+            </tr>
+            <tr>
+              <td>WO20261014-002</td><td>智能摄像头 SC-200</td><td>100</td><td>95</td><td>5</td><td>质检-李</td><td><span class="tag tag-red">次品</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('qc', 'WO20261014-002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('qc', 'WO20261014-002')">编辑</button>
+                <button class="btn btn-warning btn-sm" onclick="alert('跳转补单')">补单</button>
+              </td>
+            </tr>
+            <tr>
+              <td>WO20261015-003</td><td>智能音箱 SP-100</td><td>150</td><td>150</td><td>0</td><td>质检-王</td><td><span class="tag tag-green">合格</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('qc', 'WO20261015-003')">详情</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 13. 欠数重订/补单 ========== -->
+    <div class="page" id="page-rework">
+      <div class="card">
+        <div class="card-title"><span>🔄 欠数重订 / 补单 <span class="flow-badge flow-red">流程4</span></span><button class="btn btn-primary" onclick="alert('新建补单')">+ 新建补单</button></div>
+        <table>
+          <thead><tr><th>补单号</th><th>关联工单</th><th>产品</th><th>欠数/次品数量</th><th>补单状态</th><th>创建时间</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>RW20261015-001</td><td>WO20261014-002</td><td>智能摄像头 SC-200</td><td>5</td><td><span class="tag tag-orange">待生产</span></td><td>2026-10-15</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('rework', 'RW20261015-001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('rework', 'RW20261015-001')">编辑</button>
+                <button class="btn btn-primary btn-sm" onclick="alert('已排产')">排产</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 14. 装箱资料录入 ========== -->
+    <div class="page" id="page-packing">
+      <div class="card">
+        <div class="card-title"><span>📦 装箱资料录入 <span class="flow-badge flow-green">流程5：装箱报关</span></span></div>
+        <table>
+          <thead><tr><th>装箱单号</th><th>关联销售单</th><th>客户</th><th>箱数</th><th>外箱条码</th><th>录入员</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>PK20261015-001</td><td>SO20261015-001</td><td>腾讯科技</td><td>5</td><td>BOX-20261015-001~005</td><td>办公室-刘</td><td><span class="tag tag-green">已录入</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('packing', 'PK20261015-001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('packing', 'PK20261015-001')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>PK20261014-002</td><td>SO20261014-002</td><td>阿里巴巴</td><td>10</td><td>BOX-20261014-002~011</td><td>办公室-刘</td><td><span class="tag tag-green">已录入</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('packing', 'PK20261014-002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('packing', 'PK20261014-002')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 15. 报关出货 ========== -->
+    <div class="page" id="page-customs">
+      <div class="card">
+        <div class="card-title"><span>🛃 报关出货 — 按资料报关出货 <span class="flow-badge flow-green">流程5</span></span></div>
+        <table>
+          <thead><tr><th>报关单号</th><th>关联装箱单</th><th>客户</th><th>报关行</th><th>报关日期</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>CD20261015-001</td><td>PK20261015-001</td><td>腾讯科技</td><td>深圳报关行</td><td>2026-10-15</td><td><span class="tag tag-green">已报关</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('customs', 'CD20261015-001')">详情</button></td>
+            </tr>
+            <tr>
+              <td>CD20261014-002</td><td>PK20261014-002</td><td>阿里巴巴</td><td>深圳报关行</td><td>2026-10-14</td><td><span class="tag tag-green">已报关</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('customs', 'CD20261014-002')">详情</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 16. 应收账款 AR ========== -->
+    <div class="page" id="page-receivable">
+      <div class="card">
+        <div class="card-title"><span>💰 应收账款 AR / 财务结算 <span class="flow-badge flow-green">流程5</span></span></div>
+        <table>
+          <thead><tr><th>客户</th><th>关联销售单</th><th>应收金额</th><th>已收金额</th><th>未收金额</th><th>到期日</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>腾讯科技</td><td>SO20261015-001</td><td>¥ 58,200</td><td>¥ 0</td><td>¥ 58,200</td><td>2026-11-15</td><td><span class="tag tag-red">未收款</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('receivable', 'SO20261015-001')">详情</button>
+                <button class="btn btn-success btn-sm" onclick="alert('去收款')">收款</button>
+              </td>
+            </tr>
+            <tr>
+              <td>阿里巴巴</td><td>SO20261014-002</td><td>¥ 128,500</td><td>¥ 128,500</td><td>¥ 0</td><td>2026-10-14</td><td><span class="tag tag-green">已结清</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('receivable', 'SO20261014-002')">详情</button></td>
+            </tr>
+            <tr>
+              <td>字节跳动</td><td>SO20261013-003</td><td>¥ 240,000</td><td>¥ 0</td><td>¥ 240,000</td><td>2026-11-13</td><td><span class="tag tag-orange">待收款</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('receivable', 'SO20261013-003')">详情</button>
+                <button class="btn btn-success btn-sm" onclick="alert('去收款')">收款</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 17. 利润报表 ========== -->
+    <div class="page" id="page-profit">
+      <div class="card">
+        <div class="card-title"><span>📈 利润报表（2026年10月）</span><button class="btn btn-primary" onclick="alert('导出报表')">导出</button></div>
+        <table>
+          <thead><tr><th>项目</th><th>金额</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>总销售收入</td><td>¥ 256,800</td><td>本月所有销售订单金额</td></tr>
+            <tr><td>总销售成本</td><td>- ¥ 180,000</td><td>对应出库商品的采购成本</td></tr>
+            <tr><td>总运费</td><td>- ¥ 3,500</td><td>本月销售订单运费</td></tr>
+            <tr><td><strong>毛利润</strong></td><td><strong>¥ 73,300</strong></td><td>收入 - 成本 - 运费</td></tr>
+            <tr><td>其他费用</td><td>- ¥ 31,000</td><td>人工、房租、水电等</td></tr>
+            <tr><td><strong>净利润</strong></td><td><strong style="color:#52c41a">¥ 42,300</strong></td><td>毛利润 - 其他费用</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 18. 供应商 ========== -->
+    <div class="page" id="page-supplier">
+      <div class="card">
+        <div class="card-title"><span>🏢 供应商档案</span><button class="btn btn-primary" onclick="alert('新建供应商')">+ 新建供应商</button></div>
+        <table>
+          <thead><tr><th>编码</th><th>供应商名称</th><th>联系人</th><th>电话</th><th>付款条件</th><th>信用额度</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>SUP001</td><td>华为技术有限公司</td><td>张经理</td><td>138****8888</td><td>月结30天</td><td>¥ 500,000</td><td><span class="tag tag-green">合作中</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('supplier', 'SUP001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('supplier', 'SUP001')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>SUP002</td><td>小米科技有限责任公司</td><td>李经理</td><td>139****9999</td><td>货到付款</td><td>¥ 200,000</td><td><span class="tag tag-green">合作中</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('supplier', 'SUP002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('supplier', 'SUP002')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>SUP003</td><td>比亚迪股份有限公司</td><td>王经理</td><td>137****7777</td><td>月结60天</td><td>¥ 1,000,000</td><td><span class="tag tag-gray">黑名单</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('supplier', 'SUP003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('supplier', 'SUP003')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 19. 客户 ========== -->
+    <div class="page" id="page-customer">
+      <div class="card">
+        <div class="card-title"><span>👥 客户档案</span><button class="btn btn-primary" onclick="alert('新建客户')">+ 新建客户</button></div>
+        <table>
+          <thead><tr><th>编码</th><th>客户名称</th><th>联系人</th><th>电话</th><th>价格等级</th><th>信用额度</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>CUS001</td><td>腾讯科技有限公司</td><td>刘总</td><td>136****6666</td><td>VIP1</td><td>¥ 1,000,000</td><td><span class="tag tag-green">合作中</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('customer', 'CUS001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('customer', 'CUS001')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>CUS002</td><td>阿里巴巴集团</td><td>陈总</td><td>135****5555</td><td>VIP2</td><td>¥ 2,000,000</td><td><span class="tag tag-green">合作中</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('customer', 'CUS002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('customer', 'CUS002')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>CUS003</td><td>字节跳动</td><td>周总</td><td>134****4444</td><td>VIP1</td><td>¥ 1,500,000</td><td><span class="tag tag-green">合作中</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('customer', 'CUS003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('customer', 'CUS003')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 20. 物料 ========== -->
+    <div class="page" id="page-material">
+      <div class="card">
+        <div class="card-title"><span>📦 物料/商品档案</span><button class="btn btn-primary" onclick="alert('新建物料')">+ 新建物料</button></div>
+        <table>
+          <thead><tr><th>编码</th><th>名称</th><th>规格</th><th>单位</th><th>分类</th><th>安全库存</th><th>参考进价</th><th>参考售价</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>M001</td><td>螺丝M4</td><td>M4×10mm</td><td>个</td><td>原料</td><td>200</td><td>¥ 0.5</td><td>-</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('material', 'M001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('material', 'M001')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>M002</td><td>芯片RK3588</td><td>BGA封装</td><td>片</td><td>原料</td><td>500</td><td>¥ 80</td><td>-</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('material', 'M002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('material', 'M002')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>M003</td><td>钢材Q235</td><td>10mm×1500mm</td><td>kg</td><td>原料</td><td>500</td><td>¥ 5.6</td><td>-</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('material', 'M003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('material', 'M003')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>P001</td><td>智能网关</td><td>GW-1000</td><td>台</td><td>产成品</td><td>50</td><td>-</td><td>¥ 1,200</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('material', 'P001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('material', 'P001')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>P002</td><td>智能摄像头</td><td>SC-200</td><td>台</td><td>产成品</td><td>30</td><td>-</td><td>¥ 1,285</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('material', 'P002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('material', 'P002')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>P003</td><td>智能音箱</td><td>SP-100</td><td>台</td><td>产成品</td><td>100</td><td>-</td><td>¥ 1,200</td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('material', 'P003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('material', 'P003')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 21. 仓库 ========== -->
+    <div class="page" id="page-warehouse">
+      <div class="card">
+        <div class="card-title"><span>🏬 仓库管理</span><button class="btn btn-primary" onclick="alert('新建仓库')">+ 新建仓库</button></div>
+        <table>
+          <thead><tr><th>编码</th><th>仓库名称</th><th>地址</th><th>负责人</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>WH001</td><td>主仓库</td><td>深圳市南山区科技园</td><td>李四</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('warehouse', 'WH001')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('warehouse', 'WH001')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>WH002</td><td>备件仓</td><td>深圳市宝安区</td><td>王五</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('warehouse', 'WH002')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('warehouse', 'WH002')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>WH003</td><td>成品仓</td><td>深圳市龙岗区</td><td>赵六</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('warehouse', 'WH003')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('warehouse', 'WH003')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 22. 用户管理 ========== -->
+    <div class="page" id="page-user">
+      <div class="card">
+        <div class="card-title"><span>👤 用户管理</span><button class="btn btn-primary" onclick="alert('新建用户')">+ 新建用户</button></div>
+        <table>
+          <thead><tr><th>用户名</th><th>姓名</th><th>部门</th><th>角色</th><th>手机号</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>admin</td><td>管理员</td><td>信息部</td><td>超级管理员</td><td>138****0001</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('user', 'admin')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('user', 'admin')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>zhangsan</td><td>张三</td><td>采购部</td><td>采购员</td><td>138****0002</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('user', 'zhangsan')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('user', 'zhangsan')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>lisi</td><td>李四</td><td>仓储部</td><td>库管员</td><td>138****0003</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('user', 'lisi')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('user', 'lisi')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>wangwu</td><td>王五</td><td>生产部</td><td>车间操作员</td><td>138****0004</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('user', 'wangwu')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('user', 'wangwu')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>zhaoliu</td><td>赵六</td><td>销售部</td><td>销售员</td><td>138****0005</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('user', 'zhaoliu')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('user', 'zhaoliu')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 23. 角色管理 ========== -->
+    <div class="page" id="page-role">
+      <div class="card">
+        <div class="card-title"><span>🔑 角色管理</span><button class="btn btn-primary" onclick="alert('新建角色')">+ 新建角色</button></div>
+        <table>
+          <thead><tr><th>角色名称</th><th>权限字符</th><th>数据范围</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>超级管理员</td><td>admin</td><td>全部数据</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('role', 'admin')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('role', 'admin')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>采购员</td><td>purchaser</td><td>仅本人</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('role', 'purchaser')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('role', 'purchaser')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>库管员</td><td>warehouse</td><td>本部门</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('role', 'warehouse')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('role', 'warehouse')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>财务</td><td>finance</td><td>全部数据</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('role', 'finance')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('role', 'finance')">编辑</button>
+              </td>
+            </tr>
+            <tr>
+              <td>车间操作员</td><td>operator</td><td>仅本人</td><td><span class="tag tag-green">正常</span></td>
+              <td>
+                <button class="btn btn-default btn-sm" onclick="openDetail('role', 'operator')">详情</button>
+                <button class="btn btn-primary btn-sm" onclick="openEdit('role', 'operator')">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 24. 操作日志 ========== -->
+    <div class="page" id="page-log">
+      <div class="card">
+        <div class="card-title"><span>📜 操作日志</span></div>
+        <table>
+          <thead><tr><th>时间</th><th>操作人</th><th>模块</th><th>操作类型</th><th>请求URL</th><th>IP</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>2026-10-15 10:30</td><td>张三</td><td>采购订单</td><td>新增</td><td>/purchase/order</td><td>192.168.1.100</td><td><span class="tag tag-green">成功</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('log', 'log-001')">详情</button></td>
+            </tr>
+            <tr>
+              <td>2026-10-15 10:25</td><td>李四</td><td>采购入库</td><td>新增</td><td>/inventory/inbound</td><td>192.168.1.101</td><td><span class="tag tag-green">成功</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('log', 'log-002')">详情</button></td>
+            </tr>
+            <tr>
+              <td>2026-10-15 09:50</td><td>王五</td><td>生产领料</td><td>新增</td><td>/production/requisition</td><td>192.168.1.102</td><td><span class="tag tag-red">失败</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('log', 'log-003')">详情</button></td>
+            </tr>
+            <tr>
+              <td>2026-10-15 09:15</td><td>王五</td><td>打纱开料</td><td>扫码</td><td>/mes/warping</td><td>192.168.1.103</td><td><span class="tag tag-green">成功</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('log', 'log-004')">详情</button></td>
+            </tr>
+            <tr>
+              <td>2026-10-15 10:00</td><td>李四</td><td>QC检验</td><td>提交</td><td>/quality/qc</td><td>192.168.1.104</td><td><span class="tag tag-green">成功</span></td>
+              <td><button class="btn btn-default btn-sm" onclick="openDetail('log', 'log-005')">详情</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<div class="content" id="content-area">
-
-<!-- ========== 基础资料：商品管理 ========== -->
-<div id="list-goods" class="list-page">
-<div class="list-header"><h3>商品管理</h3><button class="btn btn-primary" onclick="openBill('bill-goods')">+ 新增商品</button></div>
-<div class="search-bar"><input placeholder="商品名称"><button class="btn btn-primary">🔍 查询</button></div>
-<table class="list-table">
-<thead><tr><th>商品编码</th><th>商品名称</th><th>规格</th><th>单位</th><th>操作</th></tr></thead>
-<tbody><tr><td>SP-001</td><td>涤纶纱</td><td>32S</td><td>kg</td>
-<td><button class="btn-link" onclick="openBill('bill-goods')">详情</button><button class="btn-link" onclick="openBill('bill-goods')">编辑</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-goods" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-goods')">← 返回</span> | 商品详情</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label><span class="req">*</span>商品编码</label><input value="SP-001"></div>
-<div class="bill-form-item"><label><span class="req">*</span>商品名称</label><input value="涤纶纱"></div>
-<div class="bill-form-item"><label>规格</label><input value="32S"></div>
-<div class="bill-form-item"><label>单位</label><input value="kg"></div>
-<div class="bill-form-item"><label>默认仓库</label><select><option>原料仓</option></select></div>
-</div>
-</div>
+<!-- ==================== 详情弹窗（通用） ==================== -->
+<div class="modal-mask" id="modalDetail">
+  <div class="modal modal-lg" id="modalDetailContent">
+    <!-- 动态填充 -->
+  </div>
 </div>
 
-<!-- ========== 基础资料：客户管理 ========== -->
-<div id="list-customer" class="list-page">
-<div class="list-header"><h3>客户管理</h3><button class="btn btn-primary" onclick="openBill('bill-customer')">+ 新增客户</button></div>
-<table class="list-table">
-<thead><tr><th>客户名称</th><th>联系人</th><th>电话</th><th>操作</th></tr></thead>
-<tbody><tr><td>广州纺织公司</td><td>王经理</td><td>13800138000</td>
-<td><button class="btn-link" onclick="openBill('bill-customer')">详情</button><button class="btn-link" onclick="openBill('bill-customer')">编辑</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-customer" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-customer')">← 返回</span> | 客户详情</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label><span class="req">*</span>客户名称</label><input value="广州纺织公司"></div>
-<div class="bill-form-item"><label>联系人</label><input value="王经理"></div>
-<div class="bill-form-item"><label>电话</label><input value="13800138000"></div>
-<div class="bill-form-item"><label>地址</label><input value="广州市天河区"></div>
-</div>
-</div>
+<!-- ==================== 编辑弹窗（通用） ==================== -->
+<div class="modal-mask" id="modalEdit">
+  <div class="modal modal-lg" id="modalEditContent">
+    <!-- 动态填充 -->
+  </div>
 </div>
 
-<!-- ========== 基础资料：供应商管理 ========== -->
-<div id="list-supplier" class="list-page">
-<div class="list-header"><h3>供应商管理</h3><button class="btn btn-primary" onclick="openBill('bill-supplier')">+ 新增供应商</button></div>
-<table class="list-table">
-<thead><tr><th>供应商名称</th><th>联系人</th><th>电话</th><th>操作</th></tr></thead>
-<tbody><tr><td>某某纱厂</td><td>李经理</td><td>13900139000</td>
-<td><button class="btn-link" onclick="openBill('bill-supplier')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-supplier" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-supplier')">← 返回</span> | 供应商详情</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>供应商名称</label><input value="某某纱厂"></div>
-<div class="bill-form-item"><label>联系人</label><input value="李经理"></div>
-<div class="bill-form-item"><label>电话</label><input value="13900139000"></div>
-</div>
-</div>
-</div>
-
-<!-- ========== 基础资料：仓库管理 ========== -->
-<div id="list-warehouse" class="list-page">
-<div class="list-header"><h3>仓库管理</h3><button class="btn btn-primary" onclick="openBill('bill-warehouse')">+ 新增仓库</button></div>
-<table class="list-table">
-<thead><tr><th>仓库编码</th><th>仓库名称</th><th>库位</th><th>操作</th></tr></thead>
-<tbody><tr><td>WH-001</td><td>原料仓</td><td>A-01-01</td>
-<td><button class="btn-link" onclick="openBill('bill-warehouse')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-warehouse" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-warehouse')">← 返回</span> | 仓库详情</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>仓库编码</label><input value="WH-001"></div>
-<div class="bill-form-item"><label>仓库名称</label><input value="原料仓"></div>
-<div class="bill-form-item"><label>库位</label><input value="A-01-01"></div>
-</div>
-</div>
+<!-- ==================== 新建采购单弹窗 ==================== -->
+<div class="modal-mask" id="modalPurchase">
+  <div class="modal">
+    <h3>新建采购单 <span class="flow-badge flow-purple">流程2</span></h3>
+    <div class="form-item"><label>供应商 <span class="required">*</span></label>
+      <select>
+        <option value="">请选择供应商</option>
+        <option>华为技术有限公司</option>
+        <option>小米科技有限责任公司</option>
+        <option>比亚迪股份有限公司</option>
+      </select>
+    </div>
+    <div class="form-item"><label>物料 <span class="required">*</span></label>
+      <select>
+        <option value="">请选择物料</option>
+        <option>螺丝M4</option>
+        <option>芯片RK3588</option>
+        <option>钢材Q235</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-item"><label>采购数量 <span class="required">*</span></label><input type="number" placeholder="请输入数量" value="1000"></div>
+      <div class="form-item"><label>采购单价 <span class="required">*</span></label><input type="number" placeholder="请输入单价" value="0.5"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-item"><label>期望到货日期</label><input type="date" value="2026-10-20"></div>
+      <div class="form-item"><label>采购员</label>
+        <select><option>张三</option><option>李四</option><option>王五</option></select>
+      </div>
+    </div>
+    <div class="form-item"><label>备注</label><textarea placeholder="请输入备注"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('modalPurchase')">取消</button>
+      <button class="btn btn-primary" onclick="submitPurchase()">提交审批</button>
+    </div>
+  </div>
 </div>
 
-<!-- ========== 销售：销售订单 ========== -->
-<div id="list-order" class="list-page active">
-<div class="list-header"><h3>销售订单</h3><button class="btn btn-primary" onclick="openBill('bill-order')">+ 新增订单</button></div>
-<div class="search-bar"><input placeholder="订单编号"><input placeholder="客户"><button class="btn btn-primary">🔍 查询</button></div>
-<table class="list-table">
-<thead><tr><th>订单编号</th><th>客户</th><th>金额</th><th>状态</th><th>操作</th></tr></thead>
-<tbody>
-<tr><td>XHDD0329</td><td>零售客户</td><td>¥57.5</td><td><span class="tag tag-orange">待审核</span></td>
-<td><button class="btn-link" onclick="openBill('bill-order')">详情</button><button class="btn-link" onclick="openBill('bill-order')">编辑</button></td></tr>
-</tbody>
-</table>
+<!-- ==================== 新建销售单弹窗 ==================== -->
+<div class="modal-mask" id="modalSales">
+  <div class="modal">
+    <h3>新建销售单 <span class="flow-badge flow-purple">流程1</span></h3>
+    <div class="form-item"><label>客户 <span class="required">*</span></label>
+      <select>
+        <option value="">请选择客户</option>
+        <option>腾讯科技有限公司</option>
+        <option>阿里巴巴集团</option>
+        <option>字节跳动</option>
+      </select>
+    </div>
+    <div class="form-item"><label>商品 <span class="required">*</span></label>
+      <select>
+        <option value="">请选择商品</option>
+        <option>智能网关 GW-1000</option>
+        <option>智能摄像头 SC-200</option>
+        <option>智能音箱 SP-100</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-item"><label>销售数量 <span class="required">*</span></label><input type="number" placeholder="请输入数量" value="50"></div>
+      <div class="form-item"><label>销售单价（一客一价） <span class="required">*</span></label><input type="number" placeholder="请输入单价" value="1200"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-item"><label>运费</label><input type="number" placeholder="请输入运费" value="200"></div>
+      <div class="form-item"><label>销售员</label>
+        <select><option>赵六</option><option>孙七</option><option>周八</option></select>
+      </div>
+    </div>
+    <div class="form-item"><label>收货地址</label><input type="text" placeholder="请输入收货地址" value="深圳市南山区腾讯大厦"></div>
+    <div class="form-row">
+      <div class="form-item"><label>收货人</label><input type="text" placeholder="收货人"></div>
+      <div class="form-item"><label>联系电话</label><input type="text" placeholder="电话"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('modalSales')">取消</button>
+      <button class="btn btn-primary" onclick="submitSales()">提交订单</button>
+    </div>
+  </div>
 </div>
-<div id="bill-order" class="bill-page">
-<div class="stamp">已审核</div>
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-order')">← 返回</span> | 销货订单详情</div>
-<div class="actions"><button class="btn">反审核</button><button class="btn">生成</button><button class="btn">打印</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label><span class="req">*</span>客户</label><select><option>零售客户</option></select></div>
-<div class="bill-form-item"><label><span class="req">*</span>单据日期</label><input type="date" value="2026-10-14"></div>
-<div class="bill-form-item"><label><span class="req">*</span>单据编号</label><input value="XHDD0329" class="readonly" readonly></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>操作</th><th>商品名称</th><th>规格</th><th>单位</th><th>仓库</th><th>单价</th><th>含税单价</th><th>数量</th><th>金额</th><th>税额</th><th>价税合计</th></tr></thead>
-<tbody><tr><td>1</td><td><span class="action-btn">🗑️</span></td>
-<td><input value="可口可乐"></td><td><input value="330"></td><td><input value="瓶"></td>
-<td><select><option>华海国际</option></select></td><td><input type="number" value="2.5"></td><td><input type="number" value="2.5"></td>
-<td><input type="number" value="23"></td><td><input value="57.5" readonly></td><td><input value="0" readonly></td><td><input value="57.5" readonly></td></tr></tbody>
-</table>
-<div class="bill-summary"><div>总条数：<span>1</span> | 总数量：<span>23</span> | 总税额：<span>0</span></div></div>
-<div class="bill-extra">
-<div class="bill-form-item"><label>单据金额</label><input value="57.5" class="readonly" readonly></div>
-<div class="bill-form-item"><label><span class="req">*</span>优惠金额</label><input type="number" value="0"></div>
-<div class="bill-form-item"><label><span class="req">*</span>客承费用</label><input type="number" value="0"></div>
-<div class="bill-form-item"><label><span class="req">*</span>实际金额</label><input value="57.5" class="readonly" readonly></div>
-<div class="bill-form-item"><label>组织架构</label><select><option>技术部</option></select></div>
-<div class="bill-form-item"><label>制单用户</label><select><option>admin08</option></select></div>
-<div class="bill-form-item"><label>关联人员</label><select><option>请选择</option></select></div>
-<div class="bill-form-item"><label>物流信息</label><input placeholder="物流单号"></div>
-</div>
-</div>
-</div>
-
-<!-- ========== 销售：客户报价 ========== -->
-<div id="list-quote" class="list-page">
-<div class="list-header"><h3>客户报价</h3><button class="btn btn-primary" onclick="openBill('bill-quote')">+ 新增报价</button></div>
-<table class="list-table">
-<thead><tr><th>报价单号</th><th>客户</th><th>产品</th><th>单价</th><th>状态</th><th>操作</th></tr></thead>
-<tbody><tr><td>QT-001</td><td>广州纺织</td><td>涤纶纱-32S</td><td>¥50</td><td><span class="tag tag-orange">待确认</span></td>
-<td><button class="btn-link" onclick="openBill('bill-quote')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-quote" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-quote')">← 返回</span> | 客户报价单</div>
-<div class="actions"><button class="btn">转订单</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label><span class="req">*</span>客户</label><select><option>广州纺织</option></select></div>
-<div class="bill-form-item"><label><span class="req">*</span>报价日期</label><input type="date" value="2026-10-14"></div>
-<div class="bill-form-item"><label>报价单号</label><input value="QT-001" class="readonly" readonly></div>
-<div class="bill-form-item"><label>有效期至</label><input type="date" value="2026-11-14"></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>产品</th><th>规格</th><th>单位</th><th>数量</th><th>单价</th><th>金额</th></tr></thead>
-<tbody><tr><td>1</td><td><input value="涤纶纱"></td><td><input value="32S"></td><td><input value="kg"></td><td><input type="number" value="1000"></td><td><input type="number" value="50"></td><td><input value="50000" readonly></td></tr></tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 销售：销售退货 ========== -->
-<div id="list-return" class="list-page">
-<div class="list-header"><h3>销售退货</h3><button class="btn btn-primary" onclick="openBill('bill-return')">+ 新增退货</button></div>
-<table class="list-table">
-<thead><tr><th>退货单号</th><th>原订单</th><th>客户</th><th>金额</th><th>操作</th></tr></thead>
-<tbody><tr><td>RT-001</td><td>XHDD0329</td><td>零售客户</td><td>¥57.5</td>
-<td><button class="btn-link" onclick="openBill('bill-return')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-return" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-return')">← 返回</span> | 销售退货单</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>退货单号</label><input value="RT-001" class="readonly" readonly></div>
-<div class="bill-form-item"><label>原订单</label><input value="XHDD0329" class="readonly" readonly></div>
-<div class="bill-form-item"><label>客户</label><input value="零售客户" class="readonly" readonly></div>
-<div class="bill-form-item"><label>退货日期</label><input type="date" value="2026-10-14"></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>商品</th><th>规格</th><th>退货数量</th><th>单价</th><th>金额</th><th>退货原因</th></tr></thead>
-<tbody><tr><td>1</td><td><input value="可口可乐"></td><td><input value="330"></td><td><input type="number" value="1"></td><td><input value="2.5"></td><td><input value="2.5" readonly></td><td><input value="客户退单"></td></tr></tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 采购：采购订单 ========== -->
-<div id="list-purchase" class="list-page">
-<div class="list-header"><h3>采购订单</h3><button class="btn btn-primary" onclick="openBill('bill-purchase')">+ 新增采购</button></div>
-<div class="search-bar"><input placeholder="采购单号"><button class="btn btn-primary">🔍 查询</button></div>
-<table class="list-table">
-<thead><tr><th>采购单号</th><th>供应商</th><th>关联生产单</th><th>金额</th><th>状态</th><th>操作</th></tr></thead>
-<tbody><tr><td>PO-20231024-01</td><td>某某纱厂</td><td>MO-01</td><td>¥12,000</td><td><span class="tag tag-blue">在途</span></td>
-<td><button class="btn-link" onclick="openBill('bill-purchase')">详情</button><button class="btn-link" onclick="openBill('bill-purchase')">编辑</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-purchase" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-purchase')">← 返回</span> | 采购订单</div>
-<div class="actions"><button class="btn">生成入库</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label><span class="req">*</span>供应商</label><select><option>某某纱厂</option></select></div>
-<div class="bill-form-item"><label><span class="req">*</span>单据日期</label><input type="date" value="2026-10-14"></div>
-<div class="bill-form-item"><label>采购单号</label><input value="PO-20231024-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>关联生产单</label><input value="MO-01" class="readonly" readonly></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>原料名称</th><th>规格</th><th>单位</th><th>仓库</th><th>单价</th><th>数量</th><th>金额</th></tr></thead>
-<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input value="32S"></td><td><input value="kg"></td><td><select><option>原料仓</option></select></td><td><input type="number" value="10"></td><td><input type="number" value="1200"></td><td><input value="12000" readonly></td></tr></tbody>
-</table>
-<div class="bill-summary"><div>总数量：<span>1200</span> | 总金额：<span>¥12,000</span></div></div>
-</div>
-</div>
-
-<!-- ========== 采购：IQC检验 ========== -->
-<div id="list-iqc" class="list-page">
-<div class="list-header"><h3>IQC 来料检验</h3></div>
-<table class="list-table">
-<thead><tr><th>采购单号</th><th>批次</th><th>抽检数</th><th>合格数</th><th>结论</th><th>操作</th></tr></thead>
-<tbody><tr><td>PO-20231024-01</td><td>B20231024</td><td>100</td><td>95</td><td><span class="tag tag-red">不合格</span></td>
-<td><button class="btn-link" onclick="openBill('bill-iqc')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-iqc" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-iqc')">← 返回</span> | IQC 检验单</div>
-<div class="actions"><button class="btn">合格入库</button><button class="btn" style="color:#ff4d4f">退货</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>采购单号</label><input value="PO-20231024-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>到货批次</label><input value="B20231024" class="readonly" readonly></div>
-<div class="bill-form-item"><label>检验日期</label><input type="date" value="2026-10-14"></div>
-<div class="bill-form-item"><label>检验员</label><select><option>王五</option></select></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>检验项目</th><th>标准值</th><th>实测值</th><th>结论</th></tr></thead>
-<tbody>
-<tr><td>1</td><td><input value="纱线细度"></td><td><input value="32S±0.5"></td><td><input value="32.2S"></td><td><select><option>合格</option><option>不合格</option></select></td></tr>
-<tr><td>2</td><td><input value="断裂强度"></td><td><input value="≥15cN"></td><td><input value="14.2cN"></td><td><select><option>不合格</option></select></td></tr>
-</tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 采购：采购退货 ========== -->
-<div id="list-preturn" class="list-page">
-<div class="list-header"><h3>采购退货</h3></div>
-<table class="list-table">
-<thead><tr><th>退货单号</th><th>原采购单</th><th>供应商</th><th>金额</th><th>操作</th></tr></thead>
-<tbody><tr><td>PRT-001</td><td>PO-20231024-01</td><td>某某纱厂</td><td>¥50</td>
-<td><button class="btn-link" onclick="openBill('bill-preturn')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-preturn" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-preturn')">← 返回</span> | 采购退货单</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>退货单号</label><input value="PRT-001" class="readonly" readonly></div>
-<div class="bill-form-item"><label>原采购单</label><input value="PO-20231024-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>供应商</label><input value="某某纱厂" class="readonly" readonly></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>原料</th><th>退货数量</th><th>单价</th><th>金额</th><th>退货原因</th></tr></thead>
-<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input type="number" value="5"></td><td><input value="10"></td><td><input value="50" readonly></td><td><input value="IQC不合格"></td></tr></tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 库存：库存查询 ========== -->
-<div id="list-stock" class="list-page">
-<div class="list-header"><h3>库存查询</h3></div>
-<table class="list-table">
-<thead><tr><th>仓库</th><th>物料</th><th>批次</th><th>数量</th><th>可用量</th><th>库位</th></tr></thead>
-<tbody>
-<tr><td>成品仓</td><td>涤纶纱成品</td><td>G-001</td><td>300件</td><td>300</td><td>B-02-03</td></tr>
-<tr><td>原料仓</td><td>32S涤纶纱</td><td>B20231024</td><td>1200kg</td><td>1000</td><td>A-01-01</td></tr>
-</tbody>
-</table>
-</div>
-
-<!-- ========== 库存：库存调拨 ========== -->
-<div id="list-transfer" class="list-page">
-<div class="list-header"><h3>库存调拨</h3><button class="btn btn-primary" onclick="openBill('bill-transfer')">+ 新增调拨</button></div>
-<table class="list-table">
-<thead><tr><th>调拨单号</th><th>调出仓</th><th>调入仓</th><th>数量</th><th>状态</th><th>操作</th></tr></thead>
-<tbody><tr><td>TR-001</td><td>原料仓</td><td>车间线边仓</td><td>1200kg</td><td><span class="tag tag-green">已完成</span></td>
-<td><button class="btn-link" onclick="openBill('bill-transfer')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-transfer" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-transfer')">← 返回</span> | 调拨单</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>调拨单号</label><input value="TR-001" class="readonly" readonly></div>
-<div class="bill-form-item"><label>调出仓</label><select><option>原料仓</option></select></div>
-<div class="bill-form-item"><label>调入仓</label><select><option>车间线边仓</option></select></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>物料</th><th>批次</th><th>数量</th></tr></thead>
-<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input value="B20231024"></td><td><input type="number" value="1200"></td></tr></tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 库存：库存盘点 ========== -->
-<div id="list-check" class="list-page">
-<div class="list-header"><h3>库存盘点</h3><button class="btn btn-primary" onclick="openBill('bill-check')">+ 新增盘点</button></div>
-<table class="list-table">
-<thead><tr><th>盘点单号</th><th>仓库</th><th>盘点日期</th><th>差异数</th><th>操作</th></tr></thead>
-<tbody><tr><td>CK-001</td><td>原料仓</td><td>2026-10-14</td><td>0</td>
-<td><button class="btn-link" onclick="openBill('bill-check')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-check" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-check')">← 返回</span> | 盘点单</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>盘点单号</label><input value="CK-001" class="readonly" readonly></div>
-<div class="bill-form-item"><label>仓库</label><select><option>原料仓</option></select></div>
-<div class="bill-form-item"><label>盘点日期</label><input type="date" value="2026-10-14"></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>物料</th><th>账面数量</th><th>实盘数量</th><th>差异</th></tr></thead>
-<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input value="1200"></td><td><input type="number" value="1200"></td><td><input value="0" readonly></td></tr></tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 生产：生产计划 ========== -->
-<div id="list-plan" class="list-page">
-<div class="list-header"><h3>生产计划</h3><button class="btn btn-primary" onclick="openBill('bill-plan')">+ 新增计划</button></div>
-<table class="list-table">
-<thead><tr><th>计划单号</th><th>关联订单</th><th>产品</th><th>计划数量</th><th>状态</th><th>操作</th></tr></thead>
-<tbody><tr><td>PLAN-001</td><td>XHDD0329</td><td>涤纶纱-32S</td><td>1000</td><td><span class="tag tag-blue">已排产</span></td>
-<td><button class="btn-link" onclick="openBill('bill-plan')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-plan" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-plan')">← 返回</span> | 生产计划</div>
-<div class="actions"><button class="btn">生成工单</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>计划单号</label><input value="PLAN-001" class="readonly" readonly></div>
-<div class="bill-form-item"><label>关联订单</label><input value="XHDD0329" class="readonly" readonly></div>
-<div class="bill-form-item"><label>产品</label><input value="涤纶纱-32S"></div>
-<div class="bill-form-item"><label>计划数量</label><input type="number" value="1000"></div>
-<div class="bill-form-item"><label>机台号</label><input value="M-01"></div>
-<div class="bill-form-item"><label>计划开始</label><input type="date" value="2026-10-15"></div>
-<div class="bill-form-item"><label>计划结束</label><input type="date" value="2026-10-18"></div>
-</div>
-</div>
-</div>
-
-<!-- ========== 生产：生产工单 ========== -->
-<div id="list-mes" class="list-page">
-<div class="list-header"><h3>生产工单</h3></div>
-<table class="list-table">
-<thead><tr><th>工单号</th><th>关联订单</th><th>产品</th><th>数量</th><th>状态</th><th>操作</th></tr></thead>
-<tbody><tr><td>MO-20231024-01</td><td>XHDD0329</td><td>涤纶纱-32S</td><td>500</td><td><span class="tag tag-blue">生产中</span></td>
-<td><button class="btn-link" onclick="openBill('bill-mes')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-mes" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-mes')">← 返回</span> | 生产工单</div>
-<div class="actions"><button class="btn">扫码发料</button><button class="btn">扫码开工</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>生产工单号</label><input value="MO-20231024-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>关联订单</label><input value="XHDD0329" class="readonly" readonly></div>
-<div class="bill-form-item"><label>产品</label><input value="涤纶纱-32S"></div>
-<div class="bill-form-item"><label>计划数量</label><input type="number" value="500"></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>步骤</th><th>操作</th><th>扫码记录</th><th>操作员</th><th>时间</th><th>状态</th></tr></thead>
-<tbody>
-<tr><td>1</td><td>发料出仓</td><td><input value="B20231024 / 1200kg"></td><td><input value="李四"></td><td><input value="2026-10-14 08:00"></td><td><span class="tag tag-green">已完成</span></td></tr>
-<tr><td>2</td><td>打纱开料</td><td><input value="M-01"></td><td><input value="李四"></td><td><input value="2026-10-14 09:00"></td><td><span class="tag tag-green">已完成</span></td></tr>
-<tr><td>3</td><td>上机生产</td><td><input value="500"></td><td><input value="李四"></td><td><input value="2026-10-14 13:00"></td><td><span class="tag tag-blue">进行中</span></td></tr>
-<tr><td>4</td><td>绑定缸号</td><td><input value="G-001 / 500码"></td><td><input></td><td><input></td><td><span class="tag tag-orange">待处理</span></td></tr>
-</tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 生产：领料/退料 ========== -->
-<div id="list-material" class="list-page">
-<div class="list-header"><h3>领料/退料</h3><button class="btn btn-primary" onclick="openBill('bill-material')">+ 新增领料</button></div>
-<table class="list-table">
-<thead><tr><th>单据号</th><th>类型</th><th>关联工单</th><th>物料</th><th>数量</th><th>操作</th></tr></thead>
-<tbody><tr><td>LL-001</td><td><span class="tag tag-blue">领料</span></td><td>MO-01</td><td>32S涤纶纱</td><td>1200kg</td>
-<td><button class="btn-link" onclick="openBill('bill-material')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-material" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-material')">← 返回</span> | 领料单</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>单据号</label><input value="LL-001" class="readonly" readonly></div>
-<div class="bill-form-item"><label>类型</label><select><option>领料</option><option>退料</option></select></div>
-<div class="bill-form-item"><label>关联工单</label><input value="MO-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>领料人</label><select><option>李四</option></select></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>物料</th><th>批次</th><th>数量</th><th>仓库</th></tr></thead>
-<tbody><tr><td>1</td><td><input value="32S涤纶纱"></td><td><input value="B20231024"></td><td><input type="number" value="1200"></td><td><select><option>原料仓</option></select></td></tr></tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 品质：QC检验 ========== -->
-<div id="list-qc" class="list-page">
-<div class="list-header"><h3>QC 质量检验</h3></div>
-<table class="list-table">
-<thead><tr><th>工单</th><th>缸号</th><th>抽检数</th><th>合格数</th><th>次品/欠数</th><th>操作</th></tr></thead>
-<tbody><tr><td>MO-01</td><td>G-001</td><td>50</td><td>45</td><td>5</td>
-<td><button class="btn-link" onclick="openBill('bill-qc')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-qc" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-qc')">← 返回</span> | QC 质量检验单</div>
-<div class="actions"><button class="btn">合格装箱</button><button class="btn" style="color:#ff4d4f">生成补单</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>生产工单号</label><input value="MO-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>缸号</label><input value="G-001" class="readonly" readonly></div>
-<div class="bill-form-item"><label>抽检数量</label><input type="number" value="50"></div>
-<div class="bill-form-item"><label>合格数量</label><input type="number" value="45"></div>
-<div class="bill-form-item"><label>次品/欠数</label><input type="number" value="5" class="readonly" readonly></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>检验项目</th><th>标准</th><th>实测</th><th>结论</th><th>次品原因</th></tr></thead>
-<tbody>
-<tr><td>1</td><td><input value="纱线均匀度"></td><td><input value="±3%"></td><td><input value="2%"></td><td><select><option>合格</option></select></td><td><input></td></tr>
-<tr><td>2</td><td><input value="色差"></td><td><input value="4级"></td><td><input value="3.5级"></td><td><select><option>不合格</option></select></td><td><input value="色差"></td></tr>
-</tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 品质：欠数补单 ========== -->
-<div id="list-rework" class="list-page">
-<div class="list-header"><h3>欠数补单</h3></div>
-<table class="list-table">
-<thead><tr><th>原工单</th><th>补单号</th><th>数量</th><th>原因</th><th>操作</th></tr></thead>
-<tbody><tr><td>MO-01</td><td>MO-02</td><td>5</td><td>QC次品</td>
-<td><button class="btn-link" onclick="openBill('bill-rework')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-rework" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-rework')">← 返回</span> | 补单详情</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>原工单</label><input value="MO-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>补单号</label><input value="MO-02" class="readonly" readonly></div>
-<div class="bill-form-item"><label>补单数量</label><input type="number" value="5"></div>
-<div class="bill-form-item"><label>原因</label><input value="QC次品"></div>
-</div>
-</div>
-</div>
-
-<!-- ========== 出货：装箱单 ========== -->
-<div id="list-ship" class="list-page">
-<div class="list-header"><h3>装箱单</h3><button class="btn btn-primary" onclick="openBill('bill-ship')">+ 新增装箱</button></div>
-<table class="list-table">
-<thead><tr><th>装箱单号</th><th>关联订单</th><th>箱号</th><th>净重</th><th>操作</th></tr></thead>
-<tbody><tr><td>PL-20231024-01</td><td>XHDD0329</td><td>1/10</td><td>20kg</td>
-<td><button class="btn-link" onclick="openBill('bill-ship')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-ship" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-ship')">← 返回</span> | 装箱单</div>
-<div class="actions"><button class="btn">打印条码</button><button class="btn">报关</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>装箱单号</label><input value="PL-20231024-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>关联订单</label><input value="XHDD0329" class="readonly" readonly></div>
-<div class="bill-form-item"><label>制单日期</label><input type="date" value="2026-10-14"></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>箱号</th><th>商品</th><th>数量</th><th>净重(kg)</th><th>毛重(kg)</th><th>体积(CBM)</th></tr></thead>
-<tbody><tr><td>1</td><td><input value="1/10"></td><td><input value="涤纶纱-32S"></td><td><input type="number" value="300"></td><td><input type="number" value="20"></td><td><input type="number" value="22"></td><td><input type="number" value="0.5"></td></tr></tbody>
-</table>
-<div class="bill-summary"><div>总箱数：<span>10</span> | 总数量：<span>300</span> | 总毛重：<span>220kg</span></div></div>
-</div>
-</div>
-
-<!-- ========== 出货：报关出货 ========== -->
-<div id="list-customs" class="list-page">
-<div class="list-header"><h3>报关出货</h3></div>
-<table class="list-table">
-<thead><tr><th>报关单号</th><th>关联装箱单</th><th>出货日期</th><th>状态</th><th>操作</th></tr></thead>
-<tbody><tr><td>CUS-001</td><td>PL-20231024-01</td><td>2026-10-30</td><td><span class="tag tag-blue">已报关</span></td>
-<td><button class="btn-link" onclick="openBill('bill-customs')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-customs" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-customs')">← 返回</span> | 报关单</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>报关单号</label><input value="CUS-001" class="readonly" readonly></div>
-<div class="bill-form-item"><label>关联装箱单</label><input value="PL-20231024-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>出货日期</label><input type="date" value="2026-10-30"></div>
-<div class="bill-form-item"><label>船名/航次</label><input value="COSCO-123E"></div>
-</div>
-</div>
-</div>
-
-<!-- ========== 财务：应收 ========== -->
-<div id="list-finance" class="list-page">
-<div class="list-header"><h3>财务应收 (AR)</h3></div>
-<table class="list-table">
-<thead><tr><th>订单号</th><th>客户</th><th>应收金额</th><th>状态</th><th>操作</th></tr></thead>
-<tbody><tr><td>XHDD0329</td><td>零售客户</td><td>¥57.5</td><td><span class="tag tag-orange">未回款</span></td>
-<td><button class="btn-link" onclick="openBill('bill-finance')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-finance" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-finance')">← 返回</span> | 应收结算单</div>
-<div class="actions"><button class="btn">登记回款</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>订单号</label><input value="XHDD0329" class="readonly" readonly></div>
-<div class="bill-form-item"><label>客户</label><input value="零售客户" class="readonly" readonly></div>
-<div class="bill-form-item"><label>应收金额</label><input value="¥57.5" class="readonly" readonly></div>
-<div class="bill-form-item"><label>发票号</label><input value="INV-001"></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>回款日期</th><th>回款金额</th><th>收款账户</th></tr></thead>
-<tbody><tr><td>1</td><td><input type="date"></td><td><input type="number"></td><td><select><option>工商银行</option></select></td></tr></tbody>
-</table>
-<div class="bill-summary"><div>已回款：<span>¥0</span> | 未回款：<span>¥57.5</span></div></div>
-</div>
-</div>
-
-<!-- ========== 财务：应付 ========== -->
-<div id="list-payable" class="list-page">
-<div class="list-header"><h3>财务应付 (AP)</h3></div>
-<table class="list-table">
-<thead><tr><th>采购单号</th><th>供应商</th><th>应付金额</th><th>状态</th><th>操作</th></tr></thead>
-<tbody><tr><td>PO-20231024-01</td><td>某某纱厂</td><td>¥12,000</td><td><span class="tag tag-orange">未付款</span></td>
-<td><button class="btn-link" onclick="openBill('bill-payable')">详情</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-payable" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-payable')">← 返回</span> | 应付结算单</div>
-<div class="actions"><button class="btn">登记付款</button><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>采购单号</label><input value="PO-20231024-01" class="readonly" readonly></div>
-<div class="bill-form-item"><label>供应商</label><input value="某某纱厂" class="readonly" readonly></div>
-<div class="bill-form-item"><label>应付金额</label><input value="¥12,000" class="readonly" readonly></div>
-</div>
-<table class="bill-table">
-<thead><tr><th>#</th><th>付款日期</th><th>付款金额</th><th>付款账户</th></tr></thead>
-<tbody><tr><td>1</td><td><input type="date"></td><td><input type="number"></td><td><select><option>工商银行</option></select></td></tr></tbody>
-</table>
-</div>
-</div>
-
-<!-- ========== 报表：销售报表 ========== -->
-<div id="list-report1" class="list-page">
-<div class="list-header"><h3>销售报表</h3></div>
-<div class="search-bar"><input type="date"><input type="date"><button class="btn btn-primary">🔍 查询</button></div>
-<table class="list-table">
-<thead><tr><th>日期</th><th>订单数</th><th>销售金额</th><th>退货金额</th><th>净销售额</th></tr></thead>
-<tbody>
-<tr><td>2026-10-14</td><td>2</td><td>¥57.5</td><td>¥2.5</td><td>¥55</td></tr>
-</tbody>
-</table>
-</div>
-
-<!-- ========== 报表：库存报表 ========== -->
-<div id="list-report2" class="list-page">
-<div class="list-header"><h3>库存报表</h3></div>
-<table class="list-table">
-<thead><tr><th>仓库</th><th>物料</th><th>期初</th><th>入库</th><th>出库</th><th>期末</th></tr></thead>
-<tbody>
-<tr><td>原料仓</td><td>32S涤纶纱</td><td>0</td><td>1200</td><td>1200</td><td>0</td></tr>
-</tbody>
-</table>
-</div>
-
-<!-- ========== 系统：用户 ========== -->
-<div id="list-user" class="list-page">
-<div class="list-header"><h3>用户管理</h3><button class="btn btn-primary" onclick="openBill('bill-user')">+ 新增用户</button></div>
-<table class="list-table">
-<thead><tr><th>用户ID</th><th>用户名</th><th>姓名</th><th>角色</th><th>操作</th></tr></thead>
-<tbody><tr><td>U001</td><td>zhangsan</td><td>张三</td><td>业务员</td>
-<td><button class="btn-link" onclick="openBill('bill-user')">编辑</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-user" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-user')">← 返回</span> | 用户详情</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>用户名</label><input value="zhangsan"></div>
-<div class="bill-form-item"><label>姓名</label><input value="张三"></div>
-<div class="bill-form-item"><label>角色</label><select><option>业务员</option></select></div>
-<div class="bill-form-item"><label>部门</label><input value="销售部"></div>
-</div>
-</div>
-</div>
-
-<!-- ========== 系统：角色 ========== -->
-<div id="list-role" class="list-page">
-<div class="list-header"><h3>角色管理</h3><button class="btn btn-primary" onclick="openBill('bill-role')">+ 新增角色</button></div>
-<table class="list-table">
-<thead><tr><th>角色ID</th><th>角色名称</th><th>权限</th><th>操作</th></tr></thead>
-<tbody><tr><td>R001</td><td>业务员</td><td>订单录入、库存查询</td>
-<td><button class="btn-link" onclick="openBill('bill-role')">编辑</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-role" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-role')">← 返回</span> | 角色详情</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>角色名称</label><input value="业务员"></div>
-<div class="bill-form-item"><label>数据权限</label><select><option>仅自己订单</option></select></div>
-<div class="bill-form-item"><label>关联菜单</label><input value="订单录入、库存查询"></div>
-</div>
-</div>
-</div>
-
-<!-- ========== 系统：菜单 ========== -->
-<div id="list-menu" class="list-page">
-<div class="list-header"><h3>菜单管理</h3><button class="btn btn-primary" onclick="openBill('bill-menu')">+ 新增菜单</button></div>
-<table class="list-table">
-<thead><tr><th>菜单ID</th><th>菜单名称</th><th>路由</th><th>操作</th></tr></thead>
-<tbody><tr><td>M001</td><td>销售订单</td><td>/order</td>
-<td><button class="btn-link" onclick="openBill('bill-menu')">编辑</button></td></tr></tbody>
-</table>
-</div>
-<div id="bill-menu" class="bill-page">
-<div class="bill-header"><div class="title"><span class="back" onclick="closeBill('list-menu')">← 返回</span> | 菜单详情</div>
-<div class="actions"><button class="btn btn-primary">保存</button></div></div>
-<div class="bill-body">
-<div class="bill-form-row">
-<div class="bill-form-item"><label>菜单名称</label><input value="销售订单"></div>
-<div class="bill-form-item"><label>路由</label><input value="/order"></div>
-<div class="bill-form-item"><label>排序</label><input type="number" value="1"></div>
-</div>
-</div>
-</div>
-
-</div><!-- /content -->
-</div><!-- /main -->
 
 <script>
-function showList(id, el){
-  document.querySelectorAll('.list-page,.bill-page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
+// ========== 全局数据模拟 ==========
+const DB = {
+  sales: {
+    'SO20261015-001': {
+      title: '销售订单详情', flow: '流程1',
+      fields: [
+        { label: '销售单号', key: 'orderNo', value: 'SO20261015-001' },
+        { label: '客户', key: 'customer', value: '腾讯科技有限公司', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '销售员', key: 'salesman', value: '赵六', type: 'select', options: ['赵六', '孙七', '周八'] },
+        { label: '商品', key: 'product', value: '智能网关 GW-1000', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '数量', key: 'qty', value: '50', type: 'number' },
+        { label: '销售单价', key: 'price', value: '1164' },
+        { label: '运费', key: 'freight', value: '200' },
+        { label: '总金额', key: 'total', value: '¥ 58,200', readonly: true },
+        { label: '库存状态', key: 'stockStatus', value: '成品充足', type: 'select', options: ['成品充足', '需生产', '缺料'] },
+        { label: '状态', key: 'status', value: '待发货', type: 'select', options: ['待发货', '已完成', '待采购'] },
+        { label: '收货地址', key: 'address', value: '深圳市南山区腾讯大厦', full: true },
+        { label: '收货人', key: 'receiver', value: '刘总' },
+        { label: '联系电话', key: 'phone', value: '136****6666' },
+        { label: '下单时间', key: 'createTime', value: '2026-10-15 09:30', readonly: true },
+      ]
+    },
+    'SO20261014-002': {
+      title: '销售订单详情', flow: '流程1',
+      fields: [
+        { label: '销售单号', key: 'orderNo', value: 'SO20261014-002' },
+        { label: '客户', key: 'customer', value: '阿里巴巴集团', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '销售员', key: 'salesman', value: '赵六', type: 'select', options: ['赵六', '孙七', '周八'] },
+        { label: '商品', key: 'product', value: '智能摄像头 SC-200', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '数量', key: 'qty', value: '100', type: 'number' },
+        { label: '销售单价', key: 'price', value: '1280' },
+        { label: '运费', key: 'freight', value: '500' },
+        { label: '总金额', key: 'total', value: '¥ 128,500', readonly: true },
+        { label: '库存状态', key: 'stockStatus', value: '需生产', type: 'select', options: ['成品充足', '需生产', '缺料'] },
+        { label: '状态', key: 'status', value: '已完成', type: 'select', options: ['待发货', '已完成', '待采购'] },
+        { label: '收货地址', key: 'address', value: '杭州市余杭区阿里巴巴西溪园区', full: true },
+        { label: '收货人', key: 'receiver', value: '陈总' },
+        { label: '联系电话', key: 'phone', value: '135****5555' },
+        { label: '下单时间', key: 'createTime', value: '2026-10-14 14:20', readonly: true },
+      ]
+    },
+    'SO20261013-003': {
+      title: '销售订单详情', flow: '流程1',
+      fields: [
+        { label: '销售单号', key: 'orderNo', value: 'SO20261013-003' },
+        { label: '客户', key: 'customer', value: '字节跳动', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '销售员', key: 'salesman', value: '孙七', type: 'select', options: ['赵六', '孙七', '周八'] },
+        { label: '商品', key: 'product', value: '智能网关 GW-1000', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '数量', key: 'qty', value: '200', type: 'number' },
+        { label: '销售单价', key: 'price', value: '1200' },
+        { label: '运费', key: 'freight', value: '0' },
+        { label: '总金额', key: 'total', value: '¥ 240,000', readonly: true },
+        { label: '库存状态', key: 'stockStatus', value: '缺料', type: 'select', options: ['成品充足', '需生产', '缺料'] },
+        { label: '状态', key: 'status', value: '待采购', type: 'select', options: ['待发货', '已完成', '待采购'] },
+        { label: '收货地址', key: 'address', value: '北京市海淀区知春路字节跳动', full: true },
+        { label: '收货人', key: 'receiver', value: '周总' },
+        { label: '联系电话', key: 'phone', value: '134****4444' },
+        { label: '下单时间', key: 'createTime', value: '2026-10-13 10:15', readonly: true },
+      ]
+    }
+  },
+  purchase: {
+    'PO20261015-001': {
+      title: '采购订单详情', flow: '流程2',
+      fields: [
+        { label: '采购单号', key: 'orderNo', value: 'PO20261015-001' },
+        { label: '供应商', key: 'supplier', value: '华为技术有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '采购员', key: 'buyer', value: '张三', type: 'select', options: ['张三', '李四', '王五'] },
+        { label: '物料', key: 'material', value: '芯片RK3588', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '数量', key: 'qty', value: '1000', type: 'number' },
+        { label: '采购单价', key: 'price', value: '25' },
+        { label: '总金额', key: 'total', value: '¥ 25,000', readonly: true },
+        { label: '状态', key: 'status', value: '待审批', type: 'select', options: ['待审批', '已入库', '已驳回', '待收货'] },
+        { label: '期望到货日期', key: 'expectDate', value: '2026-10-20' },
+        { label: '创建时间', key: 'createTime', value: '2026-10-15 09:30', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'PO20261014-003': {
+      title: '采购订单详情', flow: '流程2',
+      fields: [
+        { label: '采购单号', key: 'orderNo', value: 'PO20261014-003' },
+        { label: '供应商', key: 'supplier', value: '小米科技有限责任公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '采购员', key: 'buyer', value: '李四', type: 'select', options: ['张三', '李四', '王五'] },
+        { label: '物料', key: 'material', value: '螺丝M4', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '数量', key: 'qty', value: '5000', type: 'number' },
+        { label: '采购单价', key: 'price', value: '2.56' },
+        { label: '总金额', key: 'total', value: '¥ 12,800', readonly: true },
+        { label: '状态', key: 'status', value: '已入库', type: 'select', options: ['待审批', '已入库', '已驳回', '待收货'] },
+        { label: '期望到货日期', key: 'expectDate', value: '2026-10-16' },
+        { label: '创建时间', key: 'createTime', value: '2026-10-14 11:00', readonly: true },
+        { label: '备注', key: 'remark', value: '加急', full: true },
+      ]
+    },
+    'PO20261013-002': {
+      title: '采购订单详情', flow: '流程2',
+      fields: [
+        { label: '采购单号', key: 'orderNo', value: 'PO20261013-002' },
+        { label: '供应商', key: 'supplier', value: '比亚迪股份有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '采购员', key: 'buyer', value: '王五', type: 'select', options: ['张三', '李四', '王五'] },
+        { label: '物料', key: 'material', value: '钢材Q235', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '数量', key: 'qty', value: '2000', type: 'number' },
+        { label: '采购单价', key: 'price', value: '28' },
+        { label: '总金额', key: 'total', value: '¥ 56,000', readonly: true },
+        { label: '状态', key: 'status', value: '已驳回', type: 'select', options: ['待审批', '已入库', '已驳回', '待收货'] },
+        { label: '期望到货日期', key: 'expectDate', value: '2026-10-18' },
+        { label: '创建时间', key: 'createTime', value: '2026-10-13 16:40', readonly: true },
+        { label: '备注', key: 'remark', value: '价格偏高，驳回重新议价', full: true },
+      ]
+    },
+    'PO20261015-004': {
+      title: '采购订单详情', flow: '流程2',
+      fields: [
+        { label: '采购单号', key: 'orderNo', value: 'PO20261015-004' },
+        { label: '供应商', key: 'supplier', value: '华为技术有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '采购员', key: 'buyer', value: '张三', type: 'select', options: ['张三', '李四', '王五'] },
+        { label: '物料', key: 'material', value: '芯片RK3588', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '数量', key: 'qty', value: '500', type: 'number' },
+        { label: '采购单价', key: 'price', value: '25' },
+        { label: '总金额', key: 'total', value: '¥ 12,500', readonly: true },
+        { label: '状态', key: 'status', value: '待收货', type: 'select', options: ['待审批', '已入库', '已驳回', '待收货'] },
+        { label: '期望到货日期', key: 'expectDate', value: '2026-10-18' },
+        { label: '创建时间', key: 'createTime', value: '2026-10-15 10:00', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    }
+  },
+  inbound: {
+    'IN20261015-001': {
+      title: '采购入库详情', flow: '流程2',
+      fields: [
+        { label: '入库单号', key: 'inboundNo', value: 'IN20261015-001' },
+        { label: '关联采购单', key: 'purchaseNo', value: 'PO20261014-003' },
+        { label: '供应商', key: 'supplier', value: '小米科技有限责任公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '物料', key: 'material', value: '螺丝M4', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '到货数量', key: 'arrivalQty', value: '5000' },
+        { label: 'IQC结果', key: 'iqcResult', value: '合格', type: 'select', options: ['待检验', '合格', '不合格'] },
+        { label: '合格数量', key: 'passQty', value: '5000' },
+        { label: '不合格数量', key: 'failQty', value: '0' },
+        { label: '状态', key: 'status', value: '已入库', type: 'select', options: ['待IQC', '已入库', '退货中'] },
+        { label: '检验员', key: 'inspector', value: '质检-张' },
+        { label: '入库时间', key: 'inboundTime', value: '2026-10-15 10:20', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'IN20261014-002': {
+      title: '采购入库详情', flow: '流程2',
+      fields: [
+        { label: '入库单号', key: 'inboundNo', value: 'IN20261014-002' },
+        { label: '关联采购单', key: 'purchaseNo', value: 'PO20261013-001' },
+        { label: '供应商', key: 'supplier', value: '华为技术有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '物料', key: 'material', value: '芯片RK3588', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '到货数量', key: 'arrivalQty', value: '1000' },
+        { label: 'IQC结果', key: 'iqcResult', value: '合格', type: 'select', options: ['待检验', '合格', '不合格'] },
+        { label: '合格数量', key: 'passQty', value: '1000' },
+        { label: '不合格数量', key: 'failQty', value: '0' },
+        { label: '状态', key: 'status', value: '已入库', type: 'select', options: ['待IQC', '已入库', '退货中'] },
+        { label: '检验员', key: 'inspector', value: '质检-李' },
+        { label: '入库时间', key: 'inboundTime', value: '2026-10-14 16:30', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'IN20261015-005': {
+      title: '采购入库详情', flow: '流程2',
+      fields: [
+        { label: '入库单号', key: 'inboundNo', value: 'IN20261015-005' },
+        { label: '关联采购单', key: 'purchaseNo', value: 'PO20261015-004' },
+        { label: '供应商', key: 'supplier', value: '华为技术有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '物料', key: 'material', value: '芯片RK3588', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '到货数量', key: 'arrivalQty', value: '500' },
+        { label: 'IQC结果', key: 'iqcResult', value: '待检验', type: 'select', options: ['待检验', '合格', '不合格'] },
+        { label: '合格数量', key: 'passQty', value: '-' },
+        { label: '不合格数量', key: 'failQty', value: '-' },
+        { label: '状态', key: 'status', value: '待IQC', type: 'select', options: ['待IQC', '已入库', '退货中'] },
+        { label: '检验员', key: 'inspector', value: '-' },
+        { label: '入库时间', key: 'inboundTime', value: '2026-10-15 10:00', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'IN20261015-006': {
+      title: '采购入库详情', flow: '流程2',
+      fields: [
+        { label: '入库单号', key: 'inboundNo', value: 'IN20261015-006' },
+        { label: '关联采购单', key: 'purchaseNo', value: 'PO20261015-005' },
+        { label: '供应商', key: 'supplier', value: '比亚迪股份有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '物料', key: 'material', value: '钢材Q235', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '到货数量', key: 'arrivalQty', value: '200' },
+        { label: 'IQC结果', key: 'iqcResult', value: '不合格', type: 'select', options: ['待检验', '合格', '不合格'] },
+        { label: '合格数量', key: 'passQty', value: '0' },
+        { label: '不合格数量', key: 'failQty', value: '200' },
+        { label: '状态', key: 'status', value: '退货中', type: 'select', options: ['待IQC', '已入库', '退货中'] },
+        { label: '检验员', key: 'inspector', value: '质检-王' },
+        { label: '入库时间', key: 'inboundTime', value: '2026-10-15 11:00', readonly: true },
+        { label: '备注', key: 'remark', value: '表面锈蚀，不合格', full: true },
+      ]
+    }
+  },
+  outbound: {
+    'OUT20261014-002': {
+      title: '销售出库详情', flow: '流程1',
+      fields: [
+        { label: '出库单号', key: 'outboundNo', value: 'OUT20261014-002' },
+        { label: '关联销售单', key: 'salesNo', value: 'SO20261014-002' },
+        { label: '客户', key: 'customer', value: '阿里巴巴集团', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '仓库', key: 'warehouse', value: '主仓库', type: 'select', options: ['主仓库', '备件仓', '成品仓'] },
+        { label: '物流公司', key: 'logistics', value: '顺丰' },
+        { label: '物流单号', key: 'trackingNo', value: 'SF1234567890' },
+        { label: '状态', key: 'status', value: '已出库', type: 'select', options: ['待出库', '已出库'] },
+        { label: '出库时间', key: 'outboundTime', value: '2026-10-14 16:30', readonly: true },
+      ]
+    },
+    'OUT20261015-003': {
+      title: '销售出库详情', flow: '流程1',
+      fields: [
+        { label: '出库单号', key: 'outboundNo', value: 'OUT20261015-003' },
+        { label: '关联销售单', key: 'salesNo', value: 'SO20261015-001' },
+        { label: '客户', key: 'customer', value: '腾讯科技有限公司', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '仓库', key: 'warehouse', value: '主仓库', type: 'select', options: ['主仓库', '备件仓', '成品仓'] },
+        { label: '物流公司', key: 'logistics', value: '京东' },
+        { label: '物流单号', key: 'trackingNo', value: 'JD9876543210' },
+        { label: '状态', key: 'status', value: '待出库', type: 'select', options: ['待出库', '已出库'] },
+        { label: '出库时间', key: 'outboundTime', value: '-', readonly: true },
+      ]
+    }
+  },
+  purReturn: {
+    'PR20261012-001': {
+      title: '采购退货详情', flow: '流程2',
+      fields: [
+        { label: '退货单号', key: 'returnNo', value: 'PR20261012-001' },
+        { label: '供应商', key: 'supplier', value: '比亚迪股份有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '关联入库单', key: 'inboundNo', value: 'IN20261010-001' },
+        { label: '物料', key: 'material', value: '钢材Q235', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '退货数量', key: 'qty', value: '100' },
+        { label: '退货金额', key: 'amount', value: '¥ 3,200' },
+        { label: '退货原因', key: 'reason', value: '质量不合格', full: true },
+        { label: '状态', key: 'status', value: '已退货', type: 'select', options: ['退货中', '已退货'] },
+        { label: '退货时间', key: 'returnTime', value: '2026-10-12 14:00', readonly: true },
+      ]
+    },
+    'PR20261015-002': {
+      title: '采购退货详情', flow: '流程2',
+      fields: [
+        { label: '退货单号', key: 'returnNo', value: 'PR20261015-002' },
+        { label: '供应商', key: 'supplier', value: '比亚迪股份有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '关联入库单', key: 'inboundNo', value: 'IN20261015-006' },
+        { label: '物料', key: 'material', value: '钢材Q235', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '退货数量', key: 'qty', value: '200' },
+        { label: '退货金额', key: 'amount', value: '¥ 5,600' },
+        { label: '退货原因', key: 'reason', value: 'IQC不合格', full: true },
+        { label: '状态', key: 'status', value: '退货中', type: 'select', options: ['退货中', '已退货'] },
+        { label: '退货时间', key: 'returnTime', value: '2026-10-15 11:30', readonly: true },
+      ]
+    }
+  },
+  requisition: {
+    'PR20261015-001': {
+      title: '生产领料详情', flow: '流程3',
+      fields: [
+        { label: '领料单号', key: 'reqNo', value: 'PR20261015-001' },
+        { label: '物料', key: 'material', value: '螺丝M4', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '领用数量', key: 'qty', value: '150' },
+        { label: '生产员', key: 'operator', value: '王五', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '关联工单', key: 'workOrder', value: 'WO20261015-001' },
+        { label: '扫码状态', key: 'scanStatus', value: '已扫码出仓', type: 'select', options: ['待扫码', '已扫码出仓'] },
+        { label: '领料时间', key: 'reqTime', value: '2026-10-15 09:00', readonly: true },
+      ]
+    },
+    'PR20261014-003': {
+      title: '生产领料详情', flow: '流程3',
+      fields: [
+        { label: '领料单号', key: 'reqNo', value: 'PR20261014-003' },
+        { label: '物料', key: 'material', value: '芯片RK3588', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '领用数量', key: 'qty', value: '50' },
+        { label: '生产员', key: 'operator', value: '王五', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '关联工单', key: 'workOrder', value: 'WO20261014-002' },
+        { label: '扫码状态', key: 'scanStatus', value: '已扫码出仓', type: 'select', options: ['待扫码', '已扫码出仓'] },
+        { label: '领料时间', key: 'reqTime', value: '2026-10-14 14:00', readonly: true },
+      ]
+    },
+    'PR20261015-004': {
+      title: '生产领料详情', flow: '流程3',
+      fields: [
+        { label: '领料单号', key: 'reqNo', value: 'PR20261015-004' },
+        { label: '物料', key: 'material', value: '钢材Q235', type: 'select', options: ['螺丝M4', '芯片RK3588', '钢材Q235'] },
+        { label: '领用数量', key: 'qty', value: '300' },
+        { label: '生产员', key: 'operator', value: '赵六', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '关联工单', key: 'workOrder', value: 'WO20261015-003' },
+        { label: '扫码状态', key: 'scanStatus', value: '待扫码', type: 'select', options: ['待扫码', '已扫码出仓'] },
+        { label: '领料时间', key: 'reqTime', value: '2026-10-15 11:00', readonly: true },
+      ]
+    }
+  },
+  warping: {
+    'WO20261015-001': {
+      title: '打纱/开料详情', flow: '流程3',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261015-001' },
+        { label: '产品', key: 'product', value: '智能网关 GW-1000', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '开料数量', key: 'qty', value: '50' },
+        { label: '操作员', key: 'operator', value: '王五', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '扫码时间', key: 'scanTime', value: '2026-10-15 09:15', readonly: true },
+        { label: '状态', key: 'status', value: '已开料', type: 'select', options: ['进行中', '已开料'] },
+      ]
+    },
+    'WO20261014-002': {
+      title: '打纱/开料详情', flow: '流程3',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261014-002' },
+        { label: '产品', key: 'product', value: '智能摄像头 SC-200', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '开料数量', key: 'qty', value: '100' },
+        { label: '操作员', key: 'operator', value: '李四', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '扫码时间', key: 'scanTime', value: '2026-10-14 14:30', readonly: true },
+        { label: '状态', key: 'status', value: '已开料', type: 'select', options: ['进行中', '已开料'] },
+      ]
+    },
+    'WO20261015-003': {
+      title: '打纱/开料详情', flow: '流程3',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261015-003' },
+        { label: '产品', key: 'product', value: '智能音箱 SP-100', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '开料数量', key: 'qty', value: '200' },
+        { label: '操作员', key: 'operator', value: '赵六', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '扫码时间', key: 'scanTime', value: '2026-10-15 11:20', readonly: true },
+        { label: '状态', key: 'status', value: '进行中', type: 'select', options: ['进行中', '已开料'] },
+      ]
+    }
+  },
+  machine: {
+    'WO20261015-001': {
+      title: '上机生产详情', flow: '流程3',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261015-001' },
+        { label: '产品', key: 'product', value: '智能网关 GW-1000', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '机台号', key: 'machineNo', value: 'M-01' },
+        { label: '生产数量', key: 'qty', value: '50' },
+        { label: '操作员', key: 'operator', value: '王五', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '扫码时间', key: 'scanTime', value: '2026-10-15 10:00', readonly: true },
+        { label: '状态', key: 'status', value: '已生产', type: 'select', options: ['生产中', '已生产'] },
+      ]
+    },
+    'WO20261014-002': {
+      title: '上机生产详情', flow: '流程3',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261014-002' },
+        { label: '产品', key: 'product', value: '智能摄像头 SC-200', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '机台号', key: 'machineNo', value: 'M-02' },
+        { label: '生产数量', key: 'qty', value: '100' },
+        { label: '操作员', key: 'operator', value: '李四', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '扫码时间', key: 'scanTime', value: '2026-10-14 16:00', readonly: true },
+        { label: '状态', key: 'status', value: '已生产', type: 'select', options: ['生产中', '已生产'] },
+      ]
+    },
+    'WO20261015-003': {
+      title: '上机生产详情', flow: '流程3',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261015-003' },
+        { label: '产品', key: 'product', value: '智能音箱 SP-100', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '机台号', key: 'machineNo', value: 'M-03' },
+        { label: '生产数量', key: 'qty', value: '150' },
+        { label: '操作员', key: 'operator', value: '赵六', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '扫码时间', key: 'scanTime', value: '2026-10-15 12:00', readonly: true },
+        { label: '状态', key: 'status', value: '生产中', type: 'select', options: ['生产中', '已生产'] },
+      ]
+    }
+  },
+  binding: {
+    'WO20261015-001': {
+      title: '打号绑定详情', flow: '流程3',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261015-001' },
+        { label: '产品', key: 'product', value: '智能网关 GW-1000', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '缸号', key: 'batchNo', value: 'G-20261015-01' },
+        { label: '卷号', key: 'rollNo', value: 'J-001' },
+        { label: '绑定数量', key: 'qty', value: '50' },
+        { label: '操作员', key: 'operator', value: '王五', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '状态', key: 'status', value: '已绑定', type: 'select', options: ['待绑定', '已绑定'] },
+      ]
+    },
+    'WO20261014-002': {
+      title: '打号绑定详情', flow: '流程3',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261014-002' },
+        { label: '产品', key: 'product', value: '智能摄像头 SC-200', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '缸号', key: 'batchNo', value: 'G-20261014-02' },
+        { label: '卷号', key: 'rollNo', value: 'J-002' },
+        { label: '绑定数量', key: 'qty', value: '100' },
+        { label: '操作员', key: 'operator', value: '李四', type: 'select', options: ['王五', '李四', '赵六'] },
+        { label: '状态', key: 'status', value: '已绑定', type: 'select', options: ['待绑定', '已绑定'] },
+      ]
+    }
+  },
+  qc: {
+    'WO20261015-001': {
+      title: 'QC质量检验详情', flow: '流程4',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261015-001' },
+        { label: '产品', key: 'product', value: '智能网关 GW-1000', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '送检数量', key: 'qty', value: '50' },
+        { label: '合格数量', key: 'passQty', value: '50' },
+        { label: '次品/欠数', key: 'failQty', value: '0' },
+        { label: '检验员', key: 'inspector', value: '质检-张', type: 'select', options: ['质检-张', '质检-李', '质检-王'] },
+        { label: '状态', key: 'status', value: '合格', type: 'select', options: ['合格', '次品'] },
+        { label: '检验时间', key: 'qcTime', value: '2026-10-15 10:30', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'WO20261014-002': {
+      title: 'QC质量检验详情', flow: '流程4',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261014-002' },
+        { label: '产品', key: 'product', value: '智能摄像头 SC-200', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '送检数量', key: 'qty', value: '100' },
+        { label: '合格数量', key: 'passQty', value: '95' },
+        { label: '次品/欠数', key: 'failQty', value: '5' },
+        { label: '检验员', key: 'inspector', value: '质检-李', type: 'select', options: ['质检-张', '质检-李', '质检-王'] },
+        { label: '状态', key: 'status', value: '次品', type: 'select', options: ['合格', '次品'] },
+        { label: '检验时间', key: 'qcTime', value: '2026-10-14 17:00', readonly: true },
+        { label: '备注', key: 'remark', value: '5件外壳划伤，需补单', full: true },
+      ]
+    },
+    'WO20261015-003': {
+      title: 'QC质量检验详情', flow: '流程4',
+      fields: [
+        { label: '工单号', key: 'workOrder', value: 'WO20261015-003' },
+        { label: '产品', key: 'product', value: '智能音箱 SP-100', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '送检数量', key: 'qty', value: '150' },
+        { label: '合格数量', key: 'passQty', value: '150' },
+        { label: '次品/欠数', key: 'failQty', value: '0' },
+        { label: '检验员', key: 'inspector', value: '质检-王', type: 'select', options: ['质检-张', '质检-李', '质检-王'] },
+        { label: '状态', key: 'status', value: '合格', type: 'select', options: ['合格', '次品'] },
+        { label: '检验时间', key: 'qcTime', value: '2026-10-15 13:00', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    }
+  },
+  rework: {
+    'RW20261015-001': {
+      title: '欠数重订/补单详情', flow: '流程4',
+      fields: [
+        { label: '补单号', key: 'reworkNo', value: 'RW20261015-001' },
+        { label: '关联工单', key: 'workOrder', value: 'WO20261014-002' },
+        { label: '产品', key: 'product', value: '智能摄像头 SC-200', type: 'select', options: ['智能网关 GW-1000', '智能摄像头 SC-200', '智能音箱 SP-100'] },
+        { label: '欠数/次品数量', key: 'qty', value: '5' },
+        { label: '补单状态', key: 'status', value: '待生产', type: 'select', options: ['待生产', '已排产', '已完成'] },
+        { label: '创建时间', key: 'createTime', value: '2026-10-15 08:00', readonly: true },
+        { label: '备注', key: 'remark', value: '外壳划伤，需补5件', full: true },
+      ]
+    }
+  },
+  packing: {
+    'PK20261015-001': {
+      title: '装箱资料详情', flow: '流程5',
+      fields: [
+        { label: '装箱单号', key: 'packingNo', value: 'PK20261015-001' },
+        { label: '关联销售单', key: 'salesNo', value: 'SO20261015-001' },
+        { label: '客户', key: 'customer', value: '腾讯科技有限公司', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '箱数', key: 'boxCount', value: '5' },
+        { label: '外箱条码', key: 'boxBarcode', value: 'BOX-20261015-001~005', full: true },
+        { label: '录入员', key: 'inputer', value: '办公室-刘', type: 'select', options: ['办公室-刘', '办公室-陈', '办公室-黄'] },
+        { label: '状态', key: 'status', value: '已录入', type: 'select', options: ['待录入', '已录入'] },
+        { label: '录入时间', key: 'inputTime', value: '2026-10-15 11:00', readonly: true },
+      ]
+    },
+    'PK20261014-002': {
+      title: '装箱资料详情', flow: '流程5',
+      fields: [
+        { label: '装箱单号', key: 'packingNo', value: 'PK20261014-002' },
+        { label: '关联销售单', key: 'salesNo', value: 'SO20261014-002' },
+        { label: '客户', key: 'customer', value: '阿里巴巴集团', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '箱数', key: 'boxCount', value: '10' },
+        { label: '外箱条码', key: 'boxBarcode', value: 'BOX-20261014-002~011', full: true },
+        { label: '录入员', key: 'inputer', value: '办公室-刘', type: 'select', options: ['办公室-刘', '办公室-陈', '办公室-黄'] },
+        { label: '状态', key: 'status', value: '已录入', type: 'select', options: ['待录入', '已录入'] },
+        { label: '录入时间', key: 'inputTime', value: '2026-10-14 17:00', readonly: true },
+      ]
+    }
+  },
+  customs: {
+    'CD20261015-001': {
+      title: '报关出货详情', flow: '流程5',
+      fields: [
+        { label: '报关单号', key: 'customsNo', value: 'CD20261015-001' },
+        { label: '关联装箱单', key: 'packingNo', value: 'PK20261015-001' },
+        { label: '客户', key: 'customer', value: '腾讯科技有限公司', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '报关行', key: 'customsBroker', value: '深圳报关行', type: 'select', options: ['深圳报关行', '广州报关行', '上海报关行'] },
+        { label: '报关日期', key: 'customsDate', value: '2026-10-15' },
+        { label: '状态', key: 'status', value: '已报关', type: 'select', options: ['待报关', '已报关'] },
+        { label: '报关员', key: 'customsOfficer', value: '办公室-陈' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'CD20261014-002': {
+      title: '报关出货详情', flow: '流程5',
+      fields: [
+        { label: '报关单号', key: 'customsNo', value: 'CD20261014-002' },
+        { label: '关联装箱单', key: 'packingNo', value: 'PK20261014-002' },
+        { label: '客户', key: 'customer', value: '阿里巴巴集团', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '报关行', key: 'customsBroker', value: '深圳报关行', type: 'select', options: ['深圳报关行', '广州报关行', '上海报关行'] },
+        { label: '报关日期', key: 'customsDate', value: '2026-10-14' },
+        { label: '状态', key: 'status', value: '已报关', type: 'select', options: ['待报关', '已报关'] },
+        { label: '报关员', key: 'customsOfficer', value: '办公室-陈' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    }
+  },
+  receivable: {
+    'SO20261015-001': {
+      title: '应收账款详情', flow: '流程5',
+      fields: [
+        { label: '客户', key: 'customer', value: '腾讯科技有限公司', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '关联销售单', key: 'salesNo', value: 'SO20261015-001' },
+        { label: '应收金额', key: 'receivableAmount', value: '¥ 58,200' },
+        { label: '已收金额', key: 'receivedAmount', value: '¥ 0' },
+        { label: '未收金额', key: 'unreceivedAmount', value: '¥ 58,200' },
+        { label: '到期日', key: 'dueDate', value: '2026-11-15' },
+        { label: '状态', key: 'status', value: '未收款', type: 'select', options: ['未收款', '部分收款', '已结清'] },
+        { label: '收款记录', key: 'paymentRecord', value: '暂无', full: true },
+      ]
+    },
+    'SO20261014-002': {
+      title: '应收账款详情', flow: '流程5',
+      fields: [
+        { label: '客户', key: 'customer', value: '阿里巴巴集团', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '关联销售单', key: 'salesNo', value: 'SO20261014-002' },
+        { label: '应收金额', key: 'receivableAmount', value: '¥ 128,500' },
+        { label: '已收金额', key: 'receivedAmount', value: '¥ 128,500' },
+        { label: '未收金额', key: 'unreceivedAmount', value: '¥ 0' },
+        { label: '到期日', key: 'dueDate', value: '2026-10-14' },
+        { label: '状态', key: 'status', value: '已结清', type: 'select', options: ['未收款', '部分收款', '已结清'] },
+        { label: '收款记录', key: 'paymentRecord', value: '2026-10-14 银行转账 ¥128,500', full: true },
+      ]
+    },
+    'SO20261013-003': {
+      title: '应收账款详情', flow: '流程5',
+      fields: [
+        { label: '客户', key: 'customer', value: '字节跳动', type: 'select', options: ['腾讯科技有限公司', '阿里巴巴集团', '字节跳动'] },
+        { label: '关联销售单', key: 'salesNo', value: 'SO20261013-003' },
+        { label: '应收金额', key: 'receivableAmount', value: '¥ 240,000' },
+        { label: '已收金额', key: 'receivedAmount', value: '¥ 0' },
+        { label: '未收金额', key: 'unreceivedAmount', value: '¥ 240,000' },
+        { label: '到期日', key: 'dueDate', value: '2026-11-13' },
+        { label: '状态', key: 'status', value: '待收款', type: 'select', options: ['未收款', '部分收款', '已结清'] },
+        { label: '收款记录', key: 'paymentRecord', value: '暂无', full: true },
+      ]
+    }
+  },
+  supplier: {
+    'SUP001': {
+      title: '供应商详情', flow: '',
+      fields: [
+        { label: '供应商编码', key: 'supplierNo', value: 'SUP001', readonly: true },
+        { label: '供应商名称', key: 'supplierName', value: '华为技术有限公司' },
+        { label: '联系人', key: 'contact', value: '张经理' },
+        { label: '电话', key: 'phone', value: '138****8888' },
+        { label: '付款条件', key: 'paymentTerms', value: '月结30天', type: 'select', options: ['货到付款', '月结30天', '月结60天', '月结90天'] },
+        { label: '信用额度', key: 'creditLimit', value: '¥ 500,000' },
+        { label: '状态', key: 'status', value: '合作中', type: 'select', options: ['合作中', '黑名单', '暂停合作'] },
+        { label: '地址', key: 'address', value: '深圳市龙岗区华为坂田基地', full: true },
+        { label: '开户行', key: 'bank', value: '中国银行深圳分行' },
+        { label: '银行账号', key: 'bankAccount', value: '6222 0000 0000 0001' },
+        { label: '税号', key: 'taxNo', value: '91440300123456789X' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'SUP002': {
+      title: '供应商详情', flow: '',
+      fields: [
+        { label: '供应商编码', key: 'supplierNo', value: 'SUP002', readonly: true },
+        { label: '供应商名称', key: 'supplierName', value: '小米科技有限责任公司' },
+        { label: '联系人', key: 'contact', value: '李经理' },
+        { label: '电话', key: 'phone', value: '139****9999' },
+        { label: '付款条件', key: 'paymentTerms', value: '货到付款', type: 'select', options: ['货到付款', '月结30天', '月结60天', '月结90天'] },
+        { label: '信用额度', key: 'creditLimit', value: '¥ 200,000' },
+        { label: '状态', key: 'status', value: '合作中', type: 'select', options: ['合作中', '黑名单', '暂停合作'] },
+        { label: '地址', key: 'address', value: '北京市海淀区小米科技园', full: true },
+        { label: '开户行', key: 'bank', value: '招商银行北京分行' },
+        { label: '银行账号', key: 'bankAccount', value: '6225 0000 0000 0002' },
+        { label: '税号', key: 'taxNo', value: '91110108567890123Y' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'SUP003': {
+      title: '供应商详情', flow: '',
+      fields: [
+        { label: '供应商编码', key: 'supplierNo', value: 'SUP003', readonly: true },
+        { label: '供应商名称', key: 'supplierName', value: '比亚迪股份有限公司' },
+        { label: '联系人', key: 'contact', value: '王经理' },
+        { label: '电话', key: 'phone', value: '137****7777' },
+        { label: '付款条件', key: 'paymentTerms', value: '月结60天', type: 'select', options: ['货到付款', '月结30天', '月结60天', '月结90天'] },
+        { label: '信用额度', key: 'creditLimit', value: '¥ 1,000,000' },
+        { label: '状态', key: 'status', value: '黑名单', type: 'select', options: ['合作中', '黑名单', '暂停合作'] },
+        { label: '地址', key: 'address', value: '深圳市坪山区比亚迪路', full: true },
+        { label: '开户行', key: 'bank', value: '建设银行深圳分行' },
+        { label: '银行账号', key: 'bankAccount', value: '6227 0000 0000 0003' },
+        { label: '税号', key: 'taxNo', value: '91440300789012345Z' },
+        { label: '备注', key: 'remark', value: 'IQC多次不合格，暂停合作', full: true },
+      ]
+    }
+  },
+  customer: {
+    'CUS001': {
+      title: '客户详情', flow: '',
+      fields: [
+        { label: '客户编码', key: 'customerNo', value: 'CUS001', readonly: true },
+        { label: '客户名称', key: 'customerName', value: '腾讯科技有限公司' },
+        { label: '联系人', key: 'contact', value: '刘总' },
+        { label: '电话', key: 'phone', value: '136****6666' },
+        { label: '价格等级', key: 'priceLevel', value: 'VIP1', type: 'select', options: ['VIP1', 'VIP2', 'VIP3', '普通'] },
+        { label: '信用额度', key: 'creditLimit', value: '¥ 1,000,000' },
+        { label: '状态', key: 'status', value: '合作中', type: 'select', options: ['合作中', '暂停合作', '黑名单'] },
+        { label: '地址', key: 'address', value: '深圳市南山区腾讯大厦', full: true },
+        { label: '收货人', key: 'receiver', value: '刘总' },
+        { label: '收货电话', key: 'receiverPhone', value: '136****6666' },
+        { label: '税号', key: 'taxNo', value: '91440300708461136T' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'CUS002': {
+      title: '客户详情', flow: '',
+      fields: [
+        { label: '客户编码', key: 'customerNo', value: 'CUS002', readonly: true },
+        { label: '客户名称', key: 'customerName', value: '阿里巴巴集团' },
+        { label: '联系人', key: 'contact', value: '陈总' },
+        { label: '电话', key: 'phone', value: '135****5555' },
+        { label: '价格等级', key: 'priceLevel', value: 'VIP2', type: 'select', options: ['VIP1', 'VIP2', 'VIP3', '普通'] },
+        { label: '信用额度', key: 'creditLimit', value: '¥ 2,000,000' },
+        { label: '状态', key: 'status', value: '合作中', type: 'select', options: ['合作中', '暂停合作', '黑名单'] },
+        { label: '地址', key: 'address', value: '杭州市余杭区阿里巴巴西溪园区', full: true },
+        { label: '收货人', key: 'receiver', value: '陈总' },
+        { label: '收货电话', key: 'receiverPhone', value: '135****5555' },
+        { label: '税号', key: 'taxNo', value: '91330100799655058B' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'CUS003': {
+      title: '客户详情', flow: '',
+      fields: [
+        { label: '客户编码', key: 'customerNo', value: 'CUS003', readonly: true },
+        { label: '客户名称', key: 'customerName', value: '字节跳动' },
+        { label: '联系人', key: 'contact', value: '周总' },
+        { label: '电话', key: 'phone', value: '134****4444' },
+        { label: '价格等级', key: 'priceLevel', value: 'VIP1', type: 'select', options: ['VIP1', 'VIP2', 'VIP3', '普通'] },
+        { label: '信用额度', key: 'creditLimit', value: '¥ 1,500,000' },
+        { label: '状态', key: 'status', value: '合作中', type: 'select', options: ['合作中', '暂停合作', '黑名单'] },
+        { label: '地址', key: 'address', value: '北京市海淀区知春路字节跳动', full: true },
+        { label: '收货人', key: 'receiver', value: '周总' },
+        { label: '收货电话', key: 'receiverPhone', value: '134****4444' },
+        { label: '税号', key: 'taxNo', value: '91110108551385082Q' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    }
+  },
+  material: {
+    'M001': {
+      title: '物料详情', flow: '',
+      fields: [
+        { label: '物料编码', key: 'materialNo', value: 'M001', readonly: true },
+        { label: '物料名称', key: 'materialName', value: '螺丝M4' },
+        { label: '规格', key: 'spec', value: 'M4×10mm' },
+        { label: '单位', key: 'unit', value: '个' },
+        { label: '分类', key: 'category', value: '原料', type: 'select', options: ['原料', '半成品', '产成品', '包装材料'] },
+        { label: '安全库存', key: 'safetyStock', value: '200' },
+        { label: '参考进价', key: 'refPurchasePrice', value: '¥ 0.5' },
+        { label: '参考售价', key: 'refSalePrice', value: '-' },
+        { label: '供应商', key: 'supplier', value: '小米科技有限责任公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '仓库', key: 'warehouse', value: '主仓库', type: 'select', options: ['主仓库', '备件仓', '成品仓'] },
+        { label: '当前库存', key: 'currentStock', value: '50', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'M002': {
+      title: '物料详情', flow: '',
+      fields: [
+        { label: '物料编码', key: 'materialNo', value: 'M002', readonly: true },
+        { label: '物料名称', key: 'materialName', value: '芯片RK3588' },
+        { label: '规格', key: 'spec', value: 'BGA封装' },
+        { label: '单位', key: 'unit', value: '片' },
+        { label: '分类', key: 'category', value: '原料', type: 'select', options: ['原料', '半成品', '产成品', '包装材料'] },
+        { label: '安全库存', key: 'safetyStock', value: '500' },
+        { label: '参考进价', key: 'refPurchasePrice', value: '¥ 80' },
+        { label: '参考售价', key: 'refSalePrice', value: '-' },
+        { label: '供应商', key: 'supplier', value: '华为技术有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '仓库', key: 'warehouse', value: '主仓库', type: 'select', options: ['主仓库', '备件仓', '成品仓'] },
+        { label: '当前库存', key: 'currentStock', value: '1,200', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'M003': {
+      title: '物料详情', flow: '',
+      fields: [
+        { label: '物料编码', key: 'materialNo', value: 'M003', readonly: true },
+        { label: '物料名称', key: 'materialName', value: '钢材Q235' },
+        { label: '规格', key: 'spec', value: '10mm×1500mm' },
+        { label: '单位', key: 'unit', value: 'kg' },
+        { label: '分类', key: 'category', value: '原料', type: 'select', options: ['原料', '半成品', '产成品', '包装材料'] },
+        { label: '安全库存', key: 'safetyStock', value: '500' },
+        { label: '参考进价', key: 'refPurchasePrice', value: '¥ 5.6' },
+        { label: '参考售价', key: 'refSalePrice', value: '-' },
+        { label: '供应商', key: 'supplier', value: '比亚迪股份有限公司', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '仓库', key: 'warehouse', value: '主仓库', type: 'select', options: ['主仓库', '备件仓', '成品仓'] },
+        { label: '当前库存', key: 'currentStock', value: '180', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'P001': {
+      title: '物料详情', flow: '',
+      fields: [
+        { label: '物料编码', key: 'materialNo', value: 'P001', readonly: true },
+        { label: '物料名称', key: 'materialName', value: '智能网关' },
+        { label: '规格', key: 'spec', value: 'GW-1000' },
+        { label: '单位', key: 'unit', value: '台' },
+        { label: '分类', key: 'category', value: '产成品', type: 'select', options: ['原料', '半成品', '产成品', '包装材料'] },
+        { label: '安全库存', key: 'safetyStock', value: '50' },
+        { label: '参考进价', key: 'refPurchasePrice', value: '-' },
+        { label: '参考售价', key: 'refSalePrice', value: '¥ 1,200' },
+        { label: '供应商', key: 'supplier', value: '-', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '仓库', key: 'warehouse', value: '成品仓', type: 'select', options: ['主仓库', '备件仓', '成品仓'] },
+        { label: '当前库存', key: 'currentStock', value: '50', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'P002': {
+      title: '物料详情', flow: '',
+      fields: [
+        { label: '物料编码', key: 'materialNo', value: 'P002', readonly: true },
+        { label: '物料名称', key: 'materialName', value: '智能摄像头' },
+        { label: '规格', key: 'spec', value: 'SC-200' },
+        { label: '单位', key: 'unit', value: '台' },
+        { label: '分类', key: 'category', value: '产成品', type: 'select', options: ['原料', '半成品', '产成品', '包装材料'] },
+        { label: '安全库存', key: 'safetyStock', value: '30' },
+        { label: '参考进价', key: 'refPurchasePrice', value: '-' },
+        { label: '参考售价', key: 'refSalePrice', value: '¥ 1,285' },
+        { label: '供应商', key: 'supplier', value: '-', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '仓库', key: 'warehouse', value: '成品仓', type: 'select', options: ['主仓库', '备件仓', '成品仓'] },
+        { label: '当前库存', key: 'currentStock', value: '30', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'P003': {
+      title: '物料详情', flow: '',
+      fields: [
+        { label: '物料编码', key: 'materialNo', value: 'P003', readonly: true },
+        { label: '物料名称', key: 'materialName', value: '智能音箱' },
+        { label: '规格', key: 'spec', value: 'SP-100' },
+        { label: '单位', key: 'unit', value: '台' },
+        { label: '分类', key: 'category', value: '产成品', type: 'select', options: ['原料', '半成品', '产成品', '包装材料'] },
+        { label: '安全库存', key: 'safetyStock', value: '100' },
+        { label: '参考进价', key: 'refPurchasePrice', value: '-' },
+        { label: '参考售价', key: 'refSalePrice', value: '¥ 1,200' },
+        { label: '供应商', key: 'supplier', value: '-', type: 'select', options: ['华为技术有限公司', '小米科技有限责任公司', '比亚迪股份有限公司'] },
+        { label: '仓库', key: 'warehouse', value: '成品仓', type: 'select', options: ['主仓库', '备件仓', '成品仓'] },
+        { label: '当前库存', key: 'currentStock', value: '0', readonly: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    }
+  },
+  warehouse: {
+    'WH001': {
+      title: '仓库详情', flow: '',
+      fields: [
+        { label: '仓库编码', key: 'warehouseNo', value: 'WH001', readonly: true },
+        { label: '仓库名称', key: 'warehouseName', value: '主仓库' },
+        { label: '地址', key: 'address', value: '深圳市南山区科技园', full: true },
+        { label: '负责人', key: 'manager', value: '李四', type: 'select', options: ['李四', '王五', '赵六'] },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '面积', key: 'area', value: '2000㎡' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'WH002': {
+      title: '仓库详情', flow: '',
+      fields: [
+        { label: '仓库编码', key: 'warehouseNo', value: 'WH002', readonly: true },
+        { label: '仓库名称', key: 'warehouseName', value: '备件仓' },
+        { label: '地址', key: 'address', value: '深圳市宝安区', full: true },
+        { label: '负责人', key: 'manager', value: '王五', type: 'select', options: ['李四', '王五', '赵六'] },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '面积', key: 'area', value: '800㎡' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'WH003': {
+      title: '仓库详情', flow: '',
+      fields: [
+        { label: '仓库编码', key: 'warehouseNo', value: 'WH003', readonly: true },
+        { label: '仓库名称', key: 'warehouseName', value: '成品仓' },
+        { label: '地址', key: 'address', value: '深圳市龙岗区', full: true },
+        { label: '负责人', key: 'manager', value: '赵六', type: 'select', options: ['李四', '王五', '赵六'] },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '面积', key: 'area', value: '1500㎡' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    }
+  },
+  user: {
+    'admin': {
+      title: '用户详情', flow: '',
+      fields: [
+        { label: '用户名', key: 'username', value: 'admin', readonly: true },
+        { label: '姓名', key: 'realName', value: '管理员' },
+        { label: '部门', key: 'dept', value: '信息部', type: 'select', options: ['信息部', '采购部', '仓储部', '生产部', '销售部', '财务部'] },
+        { label: '角色', key: 'role', value: '超级管理员', type: 'select', options: ['超级管理员', '采购员', '库管员', '车间操作员', '销售员', '财务'] },
+        { label: '手机号', key: 'phone', value: '138****0001' },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '邮箱', key: 'email', value: 'admin@company.com' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'zhangsan': {
+      title: '用户详情', flow: '',
+      fields: [
+        { label: '用户名', key: 'username', value: 'zhangsan', readonly: true },
+        { label: '姓名', key: 'realName', value: '张三' },
+        { label: '部门', key: 'dept', value: '采购部', type: 'select', options: ['信息部', '采购部', '仓储部', '生产部', '销售部', '财务部'] },
+        { label: '角色', key: 'role', value: '采购员', type: 'select', options: ['超级管理员', '采购员', '库管员', '车间操作员', '销售员', '财务'] },
+        { label: '手机号', key: 'phone', value: '138****0002' },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '邮箱', key: 'email', value: 'zhangsan@company.com' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'lisi': {
+      title: '用户详情', flow: '',
+      fields: [
+        { label: '用户名', key: 'username', value: 'lisi', readonly: true },
+        { label: '姓名', key: 'realName', value: '李四' },
+        { label: '部门', key: 'dept', value: '仓储部', type: 'select', options: ['信息部', '采购部', '仓储部', '生产部', '销售部', '财务部'] },
+        { label: '角色', key: 'role', value: '库管员', type: 'select', options: ['超级管理员', '采购员', '库管员', '车间操作员', '销售员', '财务'] },
+        { label: '手机号', key: 'phone', value: '138****0003' },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '邮箱', key: 'email', value: 'lisi@company.com' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'wangwu': {
+      title: '用户详情', flow: '',
+      fields: [
+        { label: '用户名', key: 'username', value: 'wangwu', readonly: true },
+        { label: '姓名', key: 'realName', value: '王五' },
+        { label: '部门', key: 'dept', value: '生产部', type: 'select', options: ['信息部', '采购部', '仓储部', '生产部', '销售部', '财务部'] },
+        { label: '角色', key: 'role', value: '车间操作员', type: 'select', options: ['超级管理员', '采购员', '库管员', '车间操作员', '销售员', '财务'] },
+        { label: '手机号', key: 'phone', value: '138****0004' },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '邮箱', key: 'email', value: 'wangwu@company.com' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'zhaoliu': {
+      title: '用户详情', flow: '',
+      fields: [
+        { label: '用户名', key: 'username', value: 'zhaoliu', readonly: true },
+        { label: '姓名', key: 'realName', value: '赵六' },
+        { label: '部门', key: 'dept', value: '销售部', type: 'select', options: ['信息部', '采购部', '仓储部', '生产部', '销售部', '财务部'] },
+        { label: '角色', key: 'role', value: '销售员', type: 'select', options: ['超级管理员', '采购员', '库管员', '车间操作员', '销售员', '财务'] },
+        { label: '手机号', key: 'phone', value: '138****0005' },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '邮箱', key: 'email', value: 'zhaoliu@company.com' },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    }
+  },
+  role: {
+    'admin': {
+      title: '角色详情', flow: '',
+      fields: [
+        { label: '角色名称', key: 'roleName', value: '超级管理员' },
+        { label: '权限字符', key: 'roleKey', value: 'admin', readonly: true },
+        { label: '数据范围', key: 'dataScope', value: '全部数据', type: 'select', options: ['全部数据', '本部门', '仅本人'] },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '菜单权限', key: 'menuPerms', value: '全部菜单', full: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'purchaser': {
+      title: '角色详情', flow: '',
+      fields: [
+        { label: '角色名称', key: 'roleName', value: '采购员' },
+        { label: '权限字符', key: 'roleKey', value: 'purchaser', readonly: true },
+        { label: '数据范围', key: 'dataScope', value: '仅本人', type: 'select', options: ['全部数据', '本部门', '仅本人'] },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '菜单权限', key: 'menuPerms', value: '采购管理、库存查询', full: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'warehouse': {
+      title: '角色详情', flow: '',
+      fields: [
+        { label: '角色名称', key: 'roleName', value: '库管员' },
+        { label: '权限字符', key: 'roleKey', value: 'warehouse', readonly: true },
+        { label: '数据范围', key: 'dataScope', value: '本部门', type: 'select', options: ['全部数据', '本部门', '仅本人'] },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '菜单权限', key: 'menuPerms', value: '库存管理、入库、出库', full: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'finance': {
+      title: '角色详情', flow: '',
+      fields: [
+        { label: '角色名称', key: 'roleName', value: '财务' },
+        { label: '权限字符', key: 'roleKey', value: 'finance', readonly: true },
+        { label: '数据范围', key: 'dataScope', value: '全部数据', type: 'select', options: ['全部数据', '本部门', '仅本人'] },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '菜单权限', key: 'menuPerms', value: '应收、应付、利润报表', full: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    },
+    'operator': {
+      title: '角色详情', flow: '',
+      fields: [
+        { label: '角色名称', key: 'roleName', value: '车间操作员' },
+        { label: '权限字符', key: 'roleKey', value: 'operator', readonly: true },
+        { label: '数据范围', key: 'dataScope', value: '仅本人', type: 'select', options: ['全部数据', '本部门', '仅本人'] },
+        { label: '状态', key: 'status', value: '正常', type: 'select', options: ['正常', '停用'] },
+        { label: '菜单权限', key: 'menuPerms', value: '生产领料、扫码开料、上机记录', full: true },
+        { label: '备注', key: 'remark', value: '', full: true },
+      ]
+    }
+  },
+  log: {
+    'log-001': {
+      title: '操作日志详情', flow: '',
+      fields: [
+        { label: '操作时间', key: 'time', value: '2026-10-15 10:30:00' },
+        { label: '操作人', key: 'operator', value: '张三' },
+        { label: '模块', key: 'module', value: '采购订单' },
+        { label: '操作类型', key: 'type', value: '新增' },
+        { label: '请求URL', key: 'url', value: '/purchase/order' },
+        { label: 'IP地址', key: 'ip', value: '192.168.1.100' },
+        { label: '状态', key: 'status', value: '成功' },
+        { label: '请求参数', key: 'params', value: '{"supplier":"华为","material":"芯片RK3588","qty":1000}', full: true },
+        { label: '返回结果', key: 'result', value: '{"code":200,"msg":"success","data":{"orderNo":"PO20261015-001"}}', full: true },
+      ]
+    },
+    'log-002': {
+      title: '操作日志详情', flow: '',
+      fields: [
+        { label: '操作时间', key: 'time', value: '2026-10-15 10:25:00' },
+        { label: '操作人', key: 'operator', value: '李四' },
+        { label: '模块', key: 'module', value: '采购入库' },
+        { label: '操作类型', key: 'type', value: '新增' },
+        { label: '请求URL', key: 'url', value: '/inventory/inbound' },
+        { label: 'IP地址', key: 'ip', value: '192.168.1.101' },
+        { label: '状态', key: 'status', value: '成功' },
+        { label: '请求参数', key: 'params', value: '{"purchaseNo":"PO20261014-003","arrivalQty":5000}', full: true },
+        { label: '返回结果', key: 'result', value: '{"code":200,"msg":"success","data":{"inboundNo":"IN20261015-001"}}', full: true },
+      ]
+    },
+    'log-003': {
+      title: '操作日志详情', flow: '',
+      fields: [
+        { label: '操作时间', key: 'time', value: '2026-10-15 09:50:00' },
+        { label: '操作人', key: 'operator', value: '王五' },
+        { label: '模块', key: 'module', value: '生产领料' },
+        { label: '操作类型', key: 'type', value: '新增' },
+        { label: '请求URL', key: 'url', value: '/production/requisition' },
+        { label: 'IP地址', key: 'ip', value: '192.168.1.102' },
+        { label: '状态', key: 'status', value: '失败' },
+        { label: '请求参数', key: 'params', value: '{"material":"螺丝M4","qty":150,"workOrder":"WO20261015-001"}', full: true },
+        { label: '返回结果', key: 'result', value: '{"code":500,"msg":"库存不足，可用库存：50"}', full: true },
+      ]
+    },
+    'log-004': {
+      title: '操作日志详情', flow: '',
+      fields: [
+        { label: '操作时间', key: 'time', value: '2026-10-15 09:15:00' },
+        { label: '操作人', key: 'operator', value: '王五' },
+        { label: '模块', key: 'module', value: '打纱开料' },
+        { label: '操作类型', key: 'type', value: '扫码' },
+        { label: '请求URL', key: 'url', value: '/mes/warping' },
+        { label: 'IP地址', key: 'ip', value: '192.168.1.103' },
+        { label: '状态', key: 'status', value: '成功' },
+        { label: '请求参数', key: 'params', value: '{"workOrder":"WO20261015-001","qty":50}', full: true },
+        { label: '返回结果', key: 'result', value: '{"code":200,"msg":"success"}', full: true },
+      ]
+    },
+    'log-005': {
+      title: '操作日志详情', flow: '',
+      fields: [
+        { label: '操作时间', key: 'time', value: '2026-10-15 10:00:00' },
+        { label: '操作人', key: 'operator', value: '李四' },
+        { label: '模块', key: 'module', value: 'QC检验' },
+        { label: '操作类型', key: 'type', value: '提交' },
+        { label: '请求URL', key: 'url', value: '/quality/qc' },
+        { label: 'IP地址', key: 'ip', value: '192.168.1.104' },
+        { label: '状态', key: 'status', value: '成功' },
+        { label: '请求参数', key: 'params', value: '{"workOrder":"WO20261014-002","passQty":95,"failQty":5}', full: true },
+        { label: '返回结果', key: 'result', value: '{"code":200,"msg":"success"}', full: true },
+      ]
+    }
+  }
+};
+
+// ========== 页面切换 ==========
+const pageTitles = {
+  dashboard: '数据看板',
+  sales: '销售订单',
+  stockCheck: '库存对比查询',
+  outbound: '销售出库',
+  purchase: '采购订单',
+  inbound: '采购入库 / IQC',
+  purReturn: '采购退货',
+  requisition: '生产领料/发料',
+  warping: '打纱/扫码开料',
+  machine: '上机生产记录',
+  binding: '打号绑定/上卷',
+  qc: 'QC 质量检验',
+  rework: '欠数重订/补单',
+  packing: '装箱资料录入',
+  customs: '报关出货',
+  receivable: '应收账款 AR',
+  profit: '利润报表',
+  supplier: '供应商档案',
+  customer: '客户档案',
+  material: '物料/商品',
+  warehouse: '仓库管理',
+  user: '用户管理',
+  role: '角色管理',
+  log: '操作日志'
+};
+
+function switchPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('page-title').innerText = el.innerText.trim();
+  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+  document.getElementById('content').scrollTop = 0;
 }
-function openBill(id){
-  document.querySelectorAll('.list-page,.bill-page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+
+// ========== 弹窗 ==========
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// ========== 详情弹窗 ==========
+function openDetail(module, id) {
+  const data = DB[module] && DB[module][id];
+  if (!data) { alert('暂无详情数据'); return; }
+  
+  const flowBadge = data.flow ? `<span class="flow-badge flow-purple">${data.flow}</span>` : '';
+  let html = `<h3><span>${data.title} ${flowBadge}</span><span class="modal-close" onclick="closeModal('modalDetail')">×</span></h3>`;
+  
+  // 详情区域
+  html += '<div class="detail-section">';
+  html += '<div class="section-title">基本信息</div>';
+  html += '<div class="detail-grid">';
+  data.fields.forEach(f => {
+    if (f.full) {
+      html += `<div class="detail-item full"><span class="label">${f.label}</span><span class="value">${f.value || '-'}</span></div>`;
+    } else {
+      html += `<div class="detail-item"><span class="label">${f.label}</span><span class="value">${f.value || '-'}</span></div>`;
+    }
+  });
+  html += '</div></div>';
+  
+  html += `<div class="modal-footer">
+    <button class="btn btn-default" onclick="closeModal('modalDetail')">关闭</button>
+    <button class="btn btn-primary" onclick="closeModal('modalDetail'); openEdit('${module}', '${id}')">编辑</button>
+  </div>`;
+  
+  document.getElementById('modalDetailContent').innerHTML = html;
+  openModal('modalDetail');
 }
-function closeBill(listId){
-  document.querySelectorAll('.list-page,.bill-page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(listId).classList.add('active');
+
+// ========== 编辑弹窗 ==========
+function openEdit(module, id) {
+  const data = DB[module] && DB[module][id];
+  if (!data) { alert('暂无编辑数据'); return; }
+  
+  const flowBadge = data.flow ? `<span class="flow-badge flow-purple">${data.flow}</span>` : '';
+  let html = `<h3><span>编辑${data.title.replace('详情', '')} ${flowBadge}</span><span class="modal-close" onclick="closeModal('modalEdit')">×</span></h3>`;
+  
+  // 编辑表单
+  data.fields.forEach(f => {
+    if (f.readonly) {
+      html += `<div class="form-item"><label>${f.label}</label><div class="readonly-value">${f.value || '-'}</div></div>`;
+    } else if (f.type === 'select') {
+      const options = f.options.map(o => `<option ${o === f.value ? 'selected' : ''}>${o}</option>`).join('');
+      html += `<div class="form-item"><label>${f.label}</label><select>${options}</select></div>`;
+    } else if (f.full) {
+      html += `<div class="form-item"><label>${f.label}</label><textarea>${f.value || ''}</textarea></div>`;
+    } else {
+      html += `<div class="form-item"><label>${f.label}</label><input type="${f.type || 'text'}" value="${f.value || ''}"></div>`;
+    }
+  });
+  
+  html += `<div class="modal-footer">
+    <button class="btn btn-default" onclick="closeModal('modalEdit')">取消</button>
+    <button class="btn btn-primary" onclick="submitEdit('${module}', '${id}')">保存</button>
+  </div>`;
+  
+  document.getElementById('modalEditContent').innerHTML = html;
+  openModal('modalEdit');
 }
-document.querySelectorAll('.bill-table input[type="number"]').forEach(inp=>{
-  inp.addEventListener('input', function(){
-    const row = this.closest('tr');
-    const price = parseFloat(row.cells[6]?.querySelector('input')?.value)||0;
-    const qty = parseFloat(row.cells[8]?.querySelector('input')?.value)||0;
-    if(row.cells[9]?.querySelector('input')) row.cells[9].querySelector('input').value = (price*qty).toFixed(2);
+
+// ========== 提交编辑 ==========
+function submitEdit(module, id) {
+  alert(`✅ ${module} - ${id} 编辑已保存！\n\n系统将自动更新关联数据。`);
+  closeModal('modalEdit');
+  // 刷新详情数据（模拟）
+  if (DB[module] && DB[module][id]) {
+    // 实际项目中这里会调用后端API更新
+  }
+}
+
+// ========== 提交动作 ==========
+function submitPurchase() {
+  alert('✅ 采购单已提交，等待审批！\n\n系统将自动发送通知给审批人。');
+  closeModal('modalPurchase');
+}
+
+function submitSales() {
+  alert('✅ 销售订单已创建！\n\n系统将自动进行库存对比，并生成应收账款记录。');
+  closeModal('modalSales');
+}
+
+// ========== 库存对比查询 ==========
+function doStockCheck() {
+  const orderNo = document.getElementById('stockCheckOrder').value.trim();
+  if (!orderNo) { alert('请输入销售订单号'); return; }
+  alert(`🔍 正在对比订单 ${orderNo} 的库存情况...\n\n系统将自动比对成品仓与原料仓库存。`);
+  // 模拟刷新表格
+  document.getElementById('stockCheckBody').innerHTML = `
+    <tr><td>智能网关 GW-1000</td><td>50</td><td>50</td><td>0</td><td>-</td><td><span class="tag tag-green">成品充足</span></td><td><button class="btn btn-success btn-sm" onclick="alert('跳转按单装箱')">按单装箱</button></td></tr>
+    <tr><td>智能摄像头 SC-200</td><td>100</td><td>30</td><td>-70</td><td>芯片充足，外壳缺200</td><td><span class="tag tag-orange">需生产</span></td><td><button class="btn btn-warning btn-sm" onclick="alert('跳转采购申请')">生成采购</button></td></tr>
+    <tr><td>智能音箱 SP-100</td><td>200</td><td>0</td><td>-200</td><td>无原料</td><td><span class="tag tag-red">缺料严重</span></td><td><button class="btn btn-danger btn-sm" onclick="alert('跳转紧急采购')">紧急采购</button></td></tr>
+  `;
+}
+
+// ========== 点击遮罩关闭弹窗 ==========
+document.querySelectorAll('.modal-mask').forEach(mask => {
+  mask.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
   });
 });
+
+// ========== 模拟流程自动通知 ==========
+setTimeout(() => {
+  console.log('🔔 流程1：订单与库存对比 — SO20261013-003 缺料，已生成采购建议。');
+}, 2000);
+setTimeout(() => {
+  console.log('🔔 流程2：采购与来料管理 — IQC-20261015-001 待检验，已通知质检员。');
+}, 4000);
+setTimeout(() => {
+  console.log('🔔 流程3：车间扫码 — WO20261015-003 上机生产已扫码记录。');
+}, 6000);
+setTimeout(() => {
+  console.log('🔔 流程4：品质控制 — WO20261014-002 发现5件次品，已生成补单。');
+}, 8000);
+setTimeout(() => {
+  console.log('🔔 流程5：装箱报关 — PK20261015-001 已生成外箱条码，待报关出货。');
+}, 10000);
 </script>
 </body>
 </html>
