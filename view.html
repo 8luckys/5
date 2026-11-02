@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>监控指挥中心</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+    body { margin: 0; background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; padding-bottom: env(safe-area-inset-bottom); }
+    ::-webkit-scrollbar { display: none; }
+    
+    .header { padding: 8px 12px; background: #1a1a1a; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; font-size: 12px; flex-shrink: 0; z-index: 20; }
+    .stat-item { display: flex; gap: 10px; color: #0f0; align-items: center;}
+    
+    .stage { flex: 1; position: relative; background: #000; overflow: hidden; min-height: 0; touch-action: none; display: flex; }
+    .grid9 { display: grid; width: 100%; height: 100%; gap: 2px; background: #000; padding: 2px; transition: all 0.3s ease; }
+    .grid9.layout-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+    .grid9.layout-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+    .grid9.layout-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+    .grid9.layout-9 { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); }
+    .grid9.single { grid-template-columns: 1fr; grid-template-rows: 1fr; gap: 0; padding: 0; }
+    .grid9.single .cell:not(.active-cell) { display: none; }
+
+    .cell { position: relative; background: #111; overflow: hidden; display: flex; justify-content: center; align-items: center; border-radius: 2px; touch-action: none; }
+    .cell.hidden { display: none; }
+    .cell video { width: 100%; height: 100%; object-fit: contain; background: #000; touch-action: none; }
+    /* MJPEG 兼容层：不支持 MSE 的浏览器（iOS/微信内置）用它逐帧显示 */
+    .cell .rtspCanvas { display: none; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; z-index: 1; }
+    .cell.jpeg-mode .rtspCanvas { display: block; }
+    .cell.jpeg-mode video { visibility: hidden; }
+    .cell .alertCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+    
+    .cell .empty { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #444; font-size: 11px; pointer-events: none; gap: 4px; }
+    .cell.has-stream .empty { display: none; }
+    .cell .label { position: absolute; left: 0; top: 0; right: 0; padding: 2px 6px; font-size: 10px; color: #fff; background: linear-gradient(180deg, rgba(0,0,0,0.7), transparent); pointer-events: none; z-index: 2; }
+    .cell .state-mask { position: absolute; inset: 0; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.6); color: #ffc107; font-size: 12px; font-weight: bold; z-index: 4; text-align: center; flex-direction: column; gap: 4px; }
+    .cell.state-offline .state-mask { display: flex; }
+    .cell.state-offline .state-mask::before { content: '🔌'; font-size: 18px; }
+    .cell.state-offline .state-mask::after { content: '设备已掉线，等待重连...'; }
+    .cell.state-connecting .state-mask { display: flex; }
+    .cell.state-connecting .state-mask::before { content: '🔄'; font-size: 18px; animation: spin 1s linear infinite; }
+    .cell.state-connecting .state-mask::after { content: '正在连接中...'; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .overlay-controls { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(20,20,20,0.85); backdrop-filter: blur(10px); padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) 10px; display: none; flex-direction: column; gap: 8px; z-index: 5; border-top: 1px solid #333;}
+    .grid9.single .cell.active-cell .overlay-controls { display: flex; }
+    
+    .ctrl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .overlay-controls button { padding: 8px 4px; font-size: 12px; font-weight: bold; border: none; border-radius: 6px; background: #333; color: #fff; display: flex; align-items: center; justify-content: center; gap: 4px; transition: 0.2s; }
+    .overlay-controls button.primary { background: #4CAF50; }
+    .overlay-controls button.danger { background: #f44336; }
+    .overlay-controls button.on { background: #FF9800; color: #000; }
+
+    .exit-fs-btn { display: none; position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; z-index: 999; padding: 10px 16px; font-size: 13px; font-weight: bold; border-radius: 20px; background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(4px); }
+    body.fs-mode .controls { display: none; }
+    body.fs-mode .exit-fs-btn { display: block; }
+
+    .controls { background: #1a1a1a; border-top: 1px solid #333; padding: 8px 10px 12px 10px; flex-shrink: 0; z-index: 20; }
+    .room-list { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+    .room-chip { flex-shrink: 0; padding: 8px 14px; border-radius: 16px; background: #333; color: #ccc; font-size: 13px; font-weight: bold; border: 1px solid #444; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+    .room-chip.active { background: #4CAF50; color: #fff; border-color: #4CAF50; }
+    .room-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: #666; }
+    .room-chip.online .dot { background: #4CAF50; }
+    .room-empty { color: #666; font-size: 12px; padding: 6px 4px; }
+
+    #drawerPanel { position: fixed; bottom: -75vh; left: 0; width: 100%; height: 70vh; background: #141414; z-index: 1000; transition: bottom 0.35s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.6); }
+    #drawerPanel.open { bottom: 0; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #1a1a1a; border-radius: 20px 20px 0 0; border-bottom: 1px solid #222; flex-shrink: 0; }
+    .tab-group { display: flex; gap: 10px; flex: 1; }
+    .tab-group button { background: #222; color: #aaa; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    .tab-group button.active { background: #4CAF50; color: #fff; }
+    .btn-close { background: #333; color: #fff; border: none; padding: 10px 15px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-left: 10px; }
+
+    .filter-area { padding: 10px 15px; background: #141414; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+    .filter-row { display: flex; align-items: center; gap: 10px; width: 100%; flex-wrap: wrap; }
+    .filter-row select, .filter-row input { background: #333; color: #fff; border: 1px solid #444; padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; }
+    .num-input { width: 80px; text-align: center; }
+    
+    .panel-content { flex: 1; overflow-y: auto; padding: 0 15px 15px 15px; display: none; flex-direction: column; gap: 12px; }
+    .panel-content.active { display: flex; }
+    
+    .event-card { background: #222; border-radius: 12px; border: 1px solid #333; display: flex; align-items: center; padding: 10px; gap: 15px; position: relative; }
+    .event-card img { width: 100px; height: 75px; object-fit: cover; border-radius: 8px; flex-shrink: 0; cursor: pointer; background: #000; }
+    .event-info { display: flex; flex-direction: column; justify-content: center; flex: 1; overflow: hidden; }
+    .event-info .title { font-size: 15px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .event-info .time { font-size: 12px; color: #888; margin-top: 6px; }
+    
+    .rec-item { background: #222; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; position: relative;}
+    .rec-item .rec-title { font-size: 14px; font-weight: bold; color: #fff; margin-bottom: 4px;}
+    .rec-item .rec-desc { font-size: 11px; color: #888; line-height: 1.4; }
+    .rec-item button { background: #4CAF50; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold;}
+
+    .btn-delete { background: transparent; color: #f44336; border: none; font-size: 20px; padding: 5px; cursor: pointer; }
+    .btn-delete-all { background: #333; color: #fff; border: 1px solid #f44336; padding: 8px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: bold;}
+
+    #videoModal, #imageModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
+    #videoModal video { width: 100%; max-height: 80vh; object-fit: contain; }
+    #imageModal img { max-width: 95vw; max-height: 85vh; object-fit: contain; }
+    .modal-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 10px 20px; border-radius: 30px; font-weight: bold; z-index: 10001;}
+
+    .speed-controls { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 30px; z-index: 10000; backdrop-filter: blur(4px); }
+    .speed-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 12px; border-radius: 15px; font-size: 13px; cursor: pointer; transition: 0.2s; font-weight: bold;}
+    .speed-btn:hover { background: #333; color: #fff; }
+    .speed-btn.active { background: #4CAF50; border-color: #4CAF50; color: #fff; }
+
+    #alertToast { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: 20px; z-index: 99999; background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(10px); border-left: 4px solid #f44336; border-radius: 8px; padding: 15px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    #alertToast.show { transform: translateX(0); }
+    #alertToast .icon { font-size: 24px; }
+    #alertToast .content { display: flex; flex-direction: column; gap: 4px; }
+    #alertToast .title { font-size: 14px; font-weight: bold; color: #fff; }
+    #alertToast .desc { font-size: 12px; color: #aaa; }
+
+    .room-chip.rtsp { border-color: #29B6F6; }
+    .room-chip.rtsp .dot { background: #29B6F6; }
+    .room-chip.rtsp:not(.online) .dot { background: #666; }
+    .room-chip.offline-src { opacity: 0.55; }
+
+    /* RTSP 画面不提供 WebRTC 专属控制项 */
+    .cell.type-rtsp .overlay-controls > .ctrl-grid:nth-of-type(2),
+    .cell.type-rtsp .overlay-controls > .ctrl-grid:nth-of-type(3) { display: none; }
+
+    /* ---------- RTSP 管理面板 ---------- */
+    #rtspModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 12000; justify-content: center; align-items: center; padding: 16px; }
+    #rtspModal.show { display: flex; }
+    .rtsp-panel { background: #161616; border: 1px solid #333; border-radius: 16px; width: 100%; max-width: 680px; max-height: 86vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.7); }
+    .rtsp-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1e1e1e; border-bottom: 1px solid #2c2c2c; font-size: 15px; font-weight: bold; }
+    .rtsp-head button { background: #333; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .rtsp-body { padding: 14px 16px 18px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    .rtsp-tip { font-size: 12px; padding: 8px 10px; border-radius: 8px; line-height: 1.5; }
+    .rtsp-tip.ok { background: rgba(76,175,80,0.12); color: #8bc34a; border: 1px solid rgba(76,175,80,0.3); }
+    .rtsp-tip.bad { background: rgba(244,67,54,0.12); color: #ff8a80; border: 1px solid rgba(244,67,54,0.35); }
+    .rtsp-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #1e1e1e; padding: 12px; border-radius: 10px; border: 1px solid #2c2c2c; }
+    .rtsp-form input, .rtsp-form select { background: #2a2a2a; color: #fff; border: 1px solid #3d3d3d; border-radius: 6px; padding: 9px 10px; font-size: 13px; outline: none; width: 100%; }
+    .rtsp-form .full { grid-column: 1 / -1; }
+    .rtsp-form .ops { grid-column: 1 / -1; display: flex; gap: 8px; }
+    .rtsp-form button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; }
+    .rtsp-form .btn-primary { background: #29B6F6; color: #04141c; }
+    .rtsp-form .btn-cancel { background: #444; color: #ddd; }
+    .rtsp-card { background: #1e1e1e; border: 1px solid #2c2c2c; border-radius: 10px; padding: 11px 12px; display: flex; flex-direction: column; gap: 7px; }
+    .rtsp-card.disabled { opacity: 0.6; border-style: dashed; }
+    .rtsp-row1 { display: flex; align-items: center; gap: 8px; }
+    .rtsp-dot { width: 8px; height: 8px; border-radius: 50%; background: #666; flex-shrink: 0; }
+    .rtsp-dot.on { background: #4CAF50; box-shadow: 0 0 6px #4CAF50; }
+    .rtsp-dot.warn { background: #FF9800; box-shadow: 0 0 6px #FF9800; }
+    .rtsp-dot.off { background: #777; }
+    .rtsp-name { font-size: 14px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rtsp-status { margin-left: auto; font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #2b2b2b; color: #aaa; white-space: nowrap; }
+    .rtsp-status.on { color: #8bc34a; background: rgba(76,175,80,0.15); }
+    .rtsp-status.warn { color: #ffb74d; background: rgba(255,152,0,0.15); }
+    .rtsp-url { font-size: 11px; color: #888; word-break: break-all; line-height: 1.4; }
+    .rtsp-err { font-size: 11px; color: #ff8a80; background: rgba(244,67,54,0.1); padding: 5px 8px; border-radius: 6px; word-break: break-all; line-height: 1.4; }
+    .rtsp-ops { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rtsp-ops .op { flex: 1; min-width: 76px; background: #2c2c2c; color: #ddd; border: 1px solid #3a3a3a; padding: 7px 6px; border-radius: 7px; font-size: 12px; cursor: pointer; font-weight: bold; }
+    .rtsp-ops .op.play { background: #29B6F6; color: #04141c; border-color: #29B6F6; }
+    .rtsp-ops .op.del { background: rgba(244,67,54,0.15); color: #ff8a80; border-color: rgba(244,67,54,0.4); }
+    .rtsp-empty { text-align: center; color: #666; font-size: 13px; padding: 30px 0; }
+    .rtsp-sec-title { font-size: 12px; color: #888; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="stat-item">
+    <span id="connState">未连接</span>
+    <span id="onlineCount">在线: 0</span>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button onclick="openRtspPanel()" style="background:#222; border:1px solid #333; color:#29B6F6; font-size:14px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px;">
+      📡 RTSP
+    </button>
+    <button onclick="openDrawer()" style="background:#222; border:1px solid #333; color:#4CAF50; font-size:14px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px;">
+      📊 事件与回放
+    </button>
+  </div>
+</div>
+
+<div class="stage" id="stage">
+  <div class="grid9 layout-1" id="grid9"></div>
+  <button id="btnExitFs" class="exit-fs-btn" onclick="toggleFullscreen()">✖ 退出全屏</button>
+</div>
+
+<div class="controls">
+  <div class="room-list" id="roomList">
+    <div class="room-empty">暂无在线摄像头</div>
+  </div>
+</div>
+
+<div id="drawerPanel">
+  <div class="drawer-header">
+    <div class="tab-group">
+      <button id="tabBtnEvents" class="active" onclick="switchTab('events')">🚨 报警事件</button>
+      <button id="tabBtnRecords" onclick="switchTab('records')">📁 录像回放</button>
+    </div>
+    <button class="btn-close" onclick="closeDrawer()">✖ 关闭</button>
+  </div>
+  
+  <div class="filter-area">
+    <div class="filter-row">
+      <span style="font-size:13px; color:#aaa;">设备:</span>
+      <select id="filterDevice" onchange="onFilterChange()" style="flex:1; max-width:120px;">
+        <option value="all">全部设备</option>
+      </select>
+      
+      <span style="font-size:13px; color:#aaa;">日期:</span>
+      <input type="date" id="filterDate" onchange="loadData()" style="flex:1; max-width:140px;">
+
+      <button class="btn-delete-all" onclick="deleteAll()" style="margin-left:auto;">🗑️ 清空</button>
+    </div>
+    
+    <div class="filter-row" id="deviceSettings" style="display:none;">
+      <span style="font-size:13px; color:#aaa;">容量(MB):</span>
+      <input type="number" id="maxStorageMB" class="num-input" onchange="saveStorageLimit()">
+      <span style="font-size:13px; color:#aaa; margin-left:10px;">报警(秒):</span>
+      <input type="number" id="motionCooldown" class="num-input" onchange="saveMotionCooldown()">
+    </div>
+  </div>
+
+  <div class="panel-content active" id="tabContentEvents"></div>
+  <div class="panel-content" id="tabContentRecords"></div>
+</div>
+
+<div id="videoModal">
+  <button class="modal-close" onclick="closeVideoModal()">✖ 关闭</button>
+  <video id="modalVideo" controls playsinline></video>
+  
+  <div class="speed-controls">
+    <button class="speed-btn" onclick="changeSpeed(0.5, this)">0.5x</button>
+    <button class="speed-btn active" onclick="changeSpeed(1, this)">1x</button>
+    <button class="speed-btn" onclick="changeSpeed(2, this)">2x</button>
+    <button class="speed-btn" onclick="changeSpeed(4, this)">4x</button>
+  </div>
+</div>
+
+<div id="imageModal" onclick="closeImageModal()">
+  <button class="modal-close">✖ 关闭</button>
+  <img id="modalImage" src="">
+</div>
+
+<div id="rtspModal" onclick="if(event.target===this) closeRtspPanel()">
+  <div class="rtsp-panel">
+    <div class="rtsp-head">
+      <span>📡 RTSP 摄像机管理</span>
+      <button onclick="closeRtspPanel()">✖ 关闭</button>
+    </div>
+    <div class="rtsp-body">
+      <div id="rtspFfmpegTip" class="rtsp-tip">检测中...</div>
+      <div id="rtspEngineTip" class="rtsp-tip" style="margin-top:6px;"></div>
+
+      <div class="rtsp-sec-title" id="rtspFormTitle">添加摄像机</div>
+      <div class="rtsp-form">
+        <input id="rtspName" class="full" placeholder="名称（如：大门、车间A）">
+        <input id="rtspUrl" class="full" placeholder="rtsp://admin:123456@192.168.1.64:554/stream1">
+        <select id="rtspTransport">
+          <option value="tcp">TCP 传输（推荐，稳定）</option>
+          <option value="udp">UDP 传输（低延迟，易丢包）</option>
+        </select>
+        <select id="rtspMode">
+          <option value="copy">直传（省 CPU，需 H.264）</option>
+          <option value="transcode">转码（H.265 或不兼容时用）</option>
+        </select>
+        <div class="ops">
+          <button id="rtspSubmitBtn" class="btn-primary" onclick="submitRtspForm()">➕ 添加并启动</button>
+          <button id="rtspCancelBtn" class="btn-cancel" style="display:none;" onclick="resetRtspForm()">取消编辑</button>
+        </div>
+      </div>
+
+      <div class="rtsp-sec-title">摄像机列表（共 <span id="rtspCount">0</span> 路 · 支持 RTSP）</div>
+      <div id="rtspListBox"></div>
+    </div>
+  </div>
+</div>
+
+<div id="alertToast">
+  <div class="icon">🚨</div>
+  <div class="content">
+    <div class="title" id="toastTitle">检测到画面移动！</div>
+    <div class="desc" id="toastDesc">客厅 刚刚发送报警</div>
+  </div>
+</div>
+
+<script>
+const WS_URL = 'wss://' + window.location.host;
+const MAX_GRID = 9;
+let ws = null, reconnectTimer = null;
+const slots = [];
+let activeSlotIndex = 0, singleMode = false, talkSlotIndex = -1;
+let localStream = null, isMicOn = false, knownRooms = [];
+let allEvents = [], allRecords = [];
+let currentTab = 'events';
+let deviceConfigs = {};
+let lastCommandTime = 0;
+
+// ===== RTSP =====
+let rtspList = [];            // 服务端返回的摄像机列表（含运行状态）
+let rtspEditId = null;        // 当前处于编辑状态的摄像机
+let rtspFfmpegOk = false;     // 服务端 ffmpeg 是否可用
+let rtspTimer = null;         // 状态轮询定时器
+
+const stageEl = document.getElementById('stage');
+const grid9El = document.getElementById('grid9');
+const roomListEl = document.getElementById('roomList');
+const connStateEl = document.getElementById('connState');
+const onlineCountEl = document.getElementById('onlineCount');
+const iceConfig = { iceServers: [] };
+
+function formatTimeObj(timestamp) {
+  if (!timestamp) return null;
+  const d = new Date(timestamp);
+  return {
+    dateStr: `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`,
+    timeStr: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
+  };
+}
+
+connectWS(); 
+fetchConfig();
+
+function buildGrid() {
+  grid9El.innerHTML = '';
+  for (let i = 0; i < MAX_GRID; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell hidden';
+    cell.dataset.index = i;
+    cell.innerHTML = `
+      <video autoplay playsinline muted></video>
+      <canvas class="alertCanvas"></canvas>
+      <div class="label"></div>
+      <div class="empty"><div>📷</div><div>空闲</div></div>
+      <div class="state-mask"></div>
+      <div class="overlay-controls">
+        <div class="ctrl-grid">
+          <button data-act="talk">🎤 对讲</button>
+          <button data-act="sound">🔇 声音</button>
+          <button data-act="snapshot">📸 截图</button>
+          <button data-act="fullscreen">⛶ 全屏</button>
+        </div>
+        <div class="ctrl-grid" style="margin-top: 4px; border-top: 1px solid #444; padding-top: 4px;">
+          <button data-ctrl="toggle-cam">📷 开关</button>
+          <button data-ctrl="switch-cam">🔄 切换</button>
+          <button data-ctrl="night-mode">🌙 夜视</button>
+          <button data-ctrl="mirror">🪞 镜像</button>
+          <button data-ctrl="mic">🎤 环境音</button>
+          <button data-ctrl="speaker">🔊 外放</button>
+          <button data-ctrl="motion">🚨 报警</button>
+          <button data-ctrl="record">🔴 录像</button>
+        </div>
+        <div class="ctrl-grid" style="margin-top: 4px; border-top: 1px solid #444; padding-top: 4px;">
+          <button data-ctrl="set-quality-hd" style="background: #2196F3;">高清</button>
+          <button data-ctrl="set-quality-sd" style="background: #2196F3;">流畅</button>
+          <button data-ctrl="change-name" style="background: #FF9800; color: #000;">✏️ 改名</button>
+          <button data-ctrl="sleep" style="background: #607D8B;">🌙 息屏</button>
+        </div>
+      </div>
+    `;
+    const videoEl = cell.querySelector('video');
+    const canvasEl = cell.querySelector('.alertCanvas');
+    
+    const slot = { 
+      index: i, roomId: null, type: null, pc: null, remoteStream: null, el: cell, videoEl, canvasEl, 
+      labelEl: cell.querySelector('.label'), wantSound: false, retryTimer: null, retryCount: 0, 
+      watchdogTimer: null, lastFrameTime: performance.now(), epoch: 0, cameraState: {},
+      // RTSP 专用
+      rtspId: null, mediaSource: null, sourceBuffer: null, rtspObjectUrl: null,
+      pendingSegments: [], sbUpdating: false, sbReady: false,
+      rtspWatchdog: null, rtspLastData: 0, rtspFirstData: 0, rtspPlaying: false,
+      // RTSP 兼容：playMode = 'mse' | 'jpeg'，jpeg 画布
+      playMode: null, jpegCanvas: null, jpegCtx: null, jpegImg: null, jpegBusy: false, rtspFallbackJpeg: false
+    };
+    slots.push(slot);
+    
+    // ★ 点击画面本身直接退出单屏
+    cell.onclick = (e) => { 
+      if (e.target.closest('button')) return; 
+      if (slot.roomId) {
+        if (!singleMode) enterSingleMode(i);
+        else exitSingleMode(); 
+      } else if (singleMode) exitSingleMode(); 
+    };
+    
+    cell.querySelector('[data-act="talk"]').onclick = (e) => { e.stopPropagation(); toggleMic(i); };
+    cell.querySelector('[data-act="sound"]').onclick = (e) => { e.stopPropagation(); toggleCellSound(i); };
+    cell.querySelector('[data-act="snapshot"]').onclick = (e) => { e.stopPropagation(); takeSnapshot(i); };
+    cell.querySelector('[data-act="fullscreen"]').onclick = (e) => { e.stopPropagation(); toggleFullscreen(); };
+    
+    cell.querySelectorAll('[data-ctrl]').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        if (!slot.roomId || !ws || ws.readyState !== WebSocket.OPEN) return;
+        
+        const action = btn.dataset.ctrl;
+        if (action === 'change-name') {
+          const newName = prompt("请输入新的设备名称：", slot.roomId);
+          if (!newName || newName.trim() === '' || newName.trim() === slot.roomId) return;
+          ws.send(JSON.stringify({ type: 'control-command', roomId: slot.roomId, action: action, value: newName.trim() }));
+          return;
+        }
+
+        const now = Date.now();
+        if (now - lastCommandTime < 500) return;
+        lastCommandTime = now;
+
+        let value = null;
+        if (action === 'set-quality-hd') value = 'hd';
+        if (action === 'set-quality-sd') value = 'sd';
+        ws.send(JSON.stringify({ type: 'control-command', roomId: slot.roomId, action: action, value: value }));
+      };
+    });
+    
+    grid9El.appendChild(cell);
+  }
+}
+
+function updateCtrlUI(slot) {
+  if (!slot || !slot.el || slot.type === 'rtsp') return; // RTSP 流没有这些设备控制项
+  const state = slot.cameraState || {};
+  const getBtn = (act) => slot.el.querySelector(`[data-ctrl="${act}"]`);
+  
+  if (getBtn('toggle-cam')) {
+    getBtn('toggle-cam').className = state.isCameraOn ? 'danger' : 'primary';
+    getBtn('toggle-cam').textContent = state.isCameraOn ? '🛑 关镜' : '📷 开镜';
+  }
+  if (getBtn('night-mode')) getBtn('night-mode').className = state.isNightMode ? 'on' : '';
+  if (getBtn('mirror')) getBtn('mirror').className = state.isMirrored ? 'on' : '';
+  if (getBtn('mic')) {
+    getBtn('mic').className = state.isMicMuted ? 'danger' : 'primary';
+    getBtn('mic').textContent = state.isMicMuted ? '🔇 静音' : '🎤 环境音';
+  }
+  if (getBtn('speaker')) {
+    getBtn('speaker').className = state.isSpeakerMuted ? 'danger' : 'primary';
+    getBtn('speaker').textContent = state.isSpeakerMuted ? '🔇 禁外放' : '🔊 外放';
+  }
+  if (getBtn('motion')) {
+    getBtn('motion').className = state.isMotionEnabled ? 'on' : '';
+    getBtn('motion').textContent = state.isMotionEnabled ? '🚨 报警: 开' : '🚨 报警: 关';
+  }
+  if (getBtn('record')) {
+    getBtn('record').className = state.isRecording ? 'danger' : '';
+    getBtn('record').textContent = state.isRecording ? '⏹️ 停止' : '🔴 录像';
+  }
+  if (getBtn('set-quality-hd')) getBtn('set-quality-hd').className = state.currentQuality === 'hd' ? 'on' : '';
+  if (getBtn('set-quality-sd')) getBtn('set-quality-sd').className = state.currentQuality === 'sd' ? 'on' : '';
+}
+
+function updateLayout() {
+  const activeCount = slots.filter(s => s.roomId).length;
+  let layoutClass = 'layout-9', visibleCount = 9;
+  if (activeCount <= 1) { layoutClass = 'layout-1'; visibleCount = 1; }
+  else if (activeCount === 2) { layoutClass = 'layout-2'; visibleCount = 2; }
+  else if (activeCount <= 4) { layoutClass = 'layout-4'; visibleCount = 4; }
+  grid9El.className = `grid9 ${layoutClass}` + (singleMode ? ' single' : '');
+  slots.forEach((slot, i) => { if (i < visibleCount || singleMode) slot.el.classList.remove('hidden'); else slot.el.classList.add('hidden'); });
+}
+
+function enterSingleMode(index) {
+  singleMode = true; activeSlotIndex = index;
+  grid9El.classList.add('single');
+  slots.forEach((s, i) => s.el.classList.toggle('active-cell', i === index));
+  if (slots[index].remoteStream || slots[index].type === 'rtsp') slots[index].wantSound = true;
+  applySoundPolicy(); updateButtons(); updateLayout();
+  updateCtrlUI(slots[index]);
+}
+
+function exitSingleMode() {
+  singleMode = false;
+  if (slots[activeSlotIndex]) slots[activeSlotIndex].wantSound = false;
+  grid9El.classList.remove('single');
+  slots.forEach(s => s.el.classList.remove('active-cell'));
+  applySoundPolicy(); updateLayout();
+}
+
+function applySoundPolicy() {
+  slots.forEach((slot, i) => {
+    const shouldUnmute = singleMode && i === activeSlotIndex && slot.wantSound;
+    const hasSound = (slot.type === 'rtsp') ? slot.hasAudio : !!slot.remoteStream;
+    slot.videoEl.muted = !shouldUnmute || !hasSound;
+    const btn = slot.el.querySelector('[data-act="sound"]');
+    if (btn) {
+      const playing = !slot.videoEl.muted;
+      btn.textContent = playing ? '🔊 声音' : '🔇 声音';
+      btn.className = playing ? 'primary' : '';
+      // RTSP 没检测到音频轨（或 MJPEG 兜底模式）时置灰并提示，点了也不会响
+      const noAudio = slot.type === 'rtsp' && (!slot.hasAudio || slot.playMode === 'jpeg');
+      btn.style.opacity = noAudio ? '0.4' : '';
+      btn.title = noAudio ? '该路未检测到音频轨' : '';
+    }
+  });
+}
+function toggleCellSound(index) {
+  const slot = slots[index];
+  if (!slot) return;
+  if (slot.type === 'rtsp' && !slot.hasAudio) return;       // RTSP 没有音频轨就不处理
+  if (slot.type !== 'rtsp' && !slot.remoteStream) return;
+  slot.wantSound = !slot.wantSound;
+  applySoundPolicy();
+}
+
+function connectWS() {
+  clearTimeout(reconnectTimer);
+  try { ws = new WebSocket(WS_URL); } catch { scheduleReconnect(); return; }
+  ws.onopen = () => { 
+    connStateEl.textContent = '在线'; 
+    try { ws.binaryType = 'arraybuffer'; } catch (e) {}
+    ws.send(JSON.stringify({ type: 'viewer' })); 
+    
+    // ★ 核心修复：刷新后自动重新请求保留的槽位
+    slots.forEach(slot => {
+      if (!slot.roomId) return;
+      if (slot.type === 'rtsp') { connectRtspStream(slot); return; }
+      if (slot.cameraState.isCameraOn !== false) {
+        connectToCamera(slot);
+      }
+    });
+    fetchRtspList();
+  };
+  ws.onclose = () => { connStateEl.textContent = '离线'; slots.forEach(s => { if (s.roomId) s.el.classList.add('state-connecting'); }); scheduleReconnect(); };
+  ws.onmessage = async (e) => {
+    // RTSP 视频数据：二进制帧，首字节为画面通道号(0-8)
+    if (typeof e.data !== 'string') {
+      if (e.data instanceof ArrayBuffer) handleRtspBinary(e.data);
+      else if (e.data instanceof Blob) e.data.arrayBuffer().then(handleRtspBinary).catch(() => {});
+      return;
+    }
+    let msg; try { msg = JSON.parse(e.data); } catch { return; }
+    switch (msg.type) {
+      case 'rtsp-list-changed': fetchRtspList(); break;
+      // 摄像机断线重连后 moov 会重建，服务端通知前端重建解码器（MJPEG 帧独立，不受影响）
+      case 'rtsp-reset': {
+        const rs = slots[msg.channel];
+        if (rs && rs.type === 'rtsp' && rs.rtspId === msg.id && rs.playMode !== 'jpeg') connectRtspStream(rs);
+        break;
+      }
+      case 'rtsp-error': {
+        const es = slots[msg.channel];
+        if (es && es.type === 'rtsp') { es.el.classList.remove('state-connecting'); es.el.classList.add('state-offline'); }
+        break;
+      }
+      case 'camera-list': onCameraList(msg.rooms || []); break;
+      case 'camera-offline': const offSlot = findSlotByRoom(msg.roomId); if (offSlot) markOffline(offSlot); break;
+      case 'offer': await onOffer(msg); break;
+      case 'answer': await onAnswer(msg); break;
+      case 'candidate': await onCandidate(msg); break;
+      case 'motion-alert': onMotionAlert(msg); break;
+      case 'camera-state-update': 
+        const stateSlot = findSlotByRoom(msg.roomId);
+        if (stateSlot) {
+          stateSlot.cameraState = msg.state;
+          updateCtrlUI(stateSlot);
+          if (!msg.state.isCameraOn && stateSlot.el.classList.contains('state-connecting')) {
+            stateSlot.el.classList.remove('state-connecting');
+            stateSlot.el.classList.add('has-stream'); 
+            if (!stateSlot.remoteStream) {
+              stateSlot.videoEl.srcObject = null;
+              stateSlot.el.querySelector('.empty').innerHTML = '<div>📷</div><div>摄像头未开启</div>';
+            }
+          }
+        }
+        break;
+    }
+  };
+}
+
+function onMotionAlert(msg) {
+  const toast = document.getElementById('alertToast');
+  document.getElementById('toastDesc').textContent = `${msg.roomId} 刚刚发送报警`;
+  toast.classList.add('show');
+  setTimeout(() => { toast.classList.remove('show'); }, 3000);
+  
+  const slot = findSlotByRoom(msg.roomId);
+  if (slot && msg.box) {
+    drawAlertBox(slot, msg.box);
+  }
+  if(document.getElementById('drawerPanel').classList.contains('open')) loadData();
+}
+
+function drawAlertBox(slot, box) {
+  const canvas = slot.canvasEl;
+  const video = slot.videoEl;
+  const rect = video.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  
+  const ctx = canvas.getContext('2d');
+  const x = box.x * rect.width;
+  const y = box.y * rect.height;
+  const w = box.w * rect.width;
+  const h = box.h * rect.height;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#f44336';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+
+  setTimeout(() => { ctx.clearRect(0, 0, canvas.width, canvas.height); }, 2000);
+}
+
+function scheduleReconnect() { clearTimeout(reconnectTimer); reconnectTimer = setTimeout(connectWS, 3000); }
+
+function onCameraList(rooms) {
+  knownRooms = rooms;
+  updateOnlineCount();
+  slots.forEach(slot => {
+    if (!slot.roomId || slot.type === 'rtsp') return;
+    if (rooms.includes(slot.roomId)) { 
+      if (!slot.pc && !slot.remoteStream && slot.cameraState.isCameraOn) connectToCamera(slot); 
+    } 
+    else markOffline(slot);
+  });
+  renderSourceList();
+}
+
+// 在线数 = WebRTC 采集端 + RTSP 摄像机，统一计数
+function updateOnlineCount() {
+  const rtspOnline = rtspList.filter(s => s.running && !s.disabled).length;
+  onlineCountEl.textContent = `在线: ${knownRooms.length + rtspOnline}`;
+}
+
+function markOffline(slot) {
+  if (!slot || slot.type === 'rtsp') return; // RTSP 掉线由 ffmpeg 自行重连，不走 WebRTC 逻辑
+  if (!slot.el.classList.contains('state-offline')) {
+    slot.el.classList.remove('state-connecting', 'has-stream');
+    slot.el.classList.add('state-offline');
+    if (slot.pc) { 
+      try { slot.pc.close(); } catch {} 
+      slot.pc = null; 
+    }
+    slot.remoteStream = null; 
+    if (slot.videoEl.srcObject) {
+      slot.videoEl.srcObject.getTracks().forEach(t => t.stop());
+      slot.videoEl.srcObject = null;
+    }
+    clearTimeout(slot.retryTimer); 
+    clearTimeout(slot.watchdogTimer);
+    slot.retryTimer = null;
+    slot.watchdogTimer = null;
+  }
+}
+
+function connectToCamera(slot) {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  if (slot.type === 'rtsp') { connectRtspStream(slot); return; }
+  if (slot.cameraState.isCameraOn === false) return;
+  
+  const currentEpoch = ++slot.epoch; 
+  if (slot.retryTimer) { clearTimeout(slot.retryTimer); slot.retryTimer = null; }
+  
+  slot.el.classList.remove('state-offline'); 
+  slot.el.classList.add('state-connecting');
+  slot.retryCount = 0;
+  
+  const tryConnect = () => {
+    if (slot.epoch !== currentEpoch) return;
+    if (slot.pc || slot.remoteStream) return;
+    
+    if (slot.retryCount >= 3) { 
+      freeSlot(slot.index); 
+      updateLayout(); 
+      renderSourceList(); 
+      return; 
+    }
+    slot.retryCount++;
+    
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'viewer-request-camera', roomId: slot.roomId }));
+    }
+    
+    clearTimeout(slot.retryTimer);
+    slot.retryTimer = setTimeout(() => { 
+      if (slot.epoch === currentEpoch && !slot.remoteStream && !slot.pc && slot.cameraState.isCameraOn !== false) tryConnect(); 
+    }, 3000);
+  };
+  tryConnect();
+}
+
+// 底部条：WebRTC 采集端与 RTSP 摄像机统一列出，点击统一投到九宫格
+function renderSourceList() {
+  const sources = [];
+  knownRooms.forEach(id => sources.push({ id, name: id, kind: 'webrtc', online: true, disabled: false }));
+  // 观看端首页只展示「已启用」的 RTSP 摄像机；已禁用的不出现在首页设备条，
+  // 但仍可在顶部「📡 RTSP」管理面板里看到并重新启用。
+  rtspList.forEach(s => { if (!s.disabled) sources.push({ id: s.id, name: s.name || s.id, kind: 'rtsp', online: s.running, disabled: false }); });
+
+  if (sources.length === 0) {
+    roomListEl.innerHTML = '<div class="room-empty">暂无摄像头，可在顶部「📡 RTSP」添加网络摄像机</div>';
+    return;
+  }
+  roomListEl.innerHTML = '';
+  sources.forEach(src => {
+    const occ = slots.find(s => s.roomId === src.id);
+    const chip = document.createElement('button');
+    chip.className = 'room-chip'
+      + (src.online && !src.disabled ? ' online' : '')
+      + (src.kind === 'rtsp' ? ' rtsp' : '')
+      + (!src.online || src.disabled ? ' offline-src' : '')
+      + (occ ? ' active' : '');
+    const tag = src.kind === 'rtsp' ? '📡 ' : '';
+    const suffix = src.disabled ? '（禁用）' : (src.kind === 'rtsp' && !src.online ? '（离线）' : '');
+    chip.innerHTML = `<span class="dot"></span>${tag}${escapeHtml(src.name)}${suffix}`;
+    chip.onclick = () => {
+      if (occ) { freeSlot(occ.index); }
+      else if (src.kind === 'rtsp') { toggleRtspToGrid(src.id); return; }
+      else {
+        const idx = slots.findIndex(s => !s.roomId);
+        if (idx !== -1) {
+          freeSlot(idx);
+          slots[idx].roomId = src.id;
+          slots[idx].labelEl.textContent = src.id;
+          connectToCamera(slots[idx]);
+        }
+        else alert('宫格已满');
+      }
+      renderSourceList(); updateLayout();
+    };
+    roomListEl.appendChild(chip);
+  });
+}
+
+function escapeHtml(str) {
+  return String(str === undefined || str === null ? '' : str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function freeSlot(index) {
+  const slot = slots[index]; if (!slot) return;
+  slot.epoch++;
+
+  // 释放 RTSP 占用的资源
+  if (slot.type === 'rtsp') {
+    if (slot.rtspId) unsubscribeRtsp(slot.index, slot.rtspId);
+    releaseRtspMedia(slot);
+    slot.type = null;
+    slot.rtspId = null;
+    slot.rtspPlaying = false;
+    slot.el.classList.remove('type-rtsp');
+    updateButtons();
+  }
+
+  clearTimeout(slot.retryTimer); 
+  clearTimeout(slot.watchdogTimer);
+  slot.retryTimer = null;
+  slot.watchdogTimer = null;
+  if (slot.pc) { 
+    try { 
+      slot.pc.onicecandidate = null;
+      slot.pc.ontrack = null;
+      slot.pc.onconnectionstatechange = null;
+      slot.pc.close(); 
+    } catch {} 
+    slot.pc = null; 
+  }
+  if (slot.videoEl.srcObject) {
+    slot.videoEl.srcObject.getTracks().forEach(t => t.stop());
+    slot.videoEl.srcObject = null;
+  }
+  slot.remoteStream = null; 
+  slot.videoEl.muted = true; 
+  slot.roomId = null; 
+  slot.wantSound = false; 
+  slot.labelEl.textContent = '';
+  slot.retryCount = 0;
+  slot.el.classList.remove('has-stream', 'state-connecting', 'state-offline');
+  slot.el.querySelector('.empty').innerHTML = '<div>📷</div><div>空闲</div>';
+  if (talkSlotIndex === index) stopTalk();
+  applySoundPolicy(); 
+  if (singleMode && activeSlotIndex === index) exitSingleMode();
+}
+
+function findSlotByRoom(roomId) { return slots.find(s => s.roomId === roomId); }
+
+async function onOffer(msg) {
+  const slot = findSlotByRoom(msg.roomId); 
+  if (!slot) return;
+  
+  const currentEpoch = slot.epoch;
+  clearTimeout(slot.retryTimer);
+  slot.retryTimer = null;
+  
+  if (slot.pc) { 
+    try { 
+      slot.pc.onicecandidate = null;
+      slot.pc.ontrack = null;
+      slot.pc.onconnectionstatechange = null;
+      slot.pc.close(); 
+    } catch {} 
+  }
+  
+  const pc = new RTCPeerConnection(iceConfig);
+  slot.pc = pc; 
+  slot.lastFrameTime = performance.now();
+  
+  pc.ontrack = (event) => {
+    if (slot.epoch !== currentEpoch) return;
+    slot.remoteStream = event.streams[0]; 
+    slot.videoEl.srcObject = slot.remoteStream;
+    slot.el.classList.add('has-stream'); 
+    slot.el.classList.remove('state-connecting', 'state-offline');
+    clearTimeout(slot.retryTimer); 
+    slot.retryTimer = null;
+    slot.retryCount = 0;
+    applySoundPolicy();
+    
+    clearInterval(slot.watchdogTimer);
+    slot.watchdogTimer = setInterval(() => {
+      if (slot.epoch !== currentEpoch) return;
+      if (!slot.pc) return;
+      if (!slot.videoEl.paused && slot.videoEl.readyState > 2) {
+        if (slot.videoEl.currentTime === slot.lastFrameTime) { 
+          slot.el.classList.add('state-connecting'); 
+          slot.el.classList.remove('has-stream'); 
+          slot.pc.close(); 
+          slot.pc = null; 
+          slot.remoteStream = null; 
+          slot.videoEl.srcObject = null; 
+          connectToCamera(slot); 
+        } 
+        else slot.lastFrameTime = slot.videoEl.currentTime;
+      }
+    }, 5000);
+  };
+  
+  pc.onconnectionstatechange = () => {
+    if (slot.epoch !== currentEpoch) return;
+    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+      if (slot.retryCount === 0) { 
+        slot.el.classList.add('state-connecting'); 
+        slot.el.classList.remove('has-stream'); 
+        try { pc.close(); } catch {}
+        slot.pc = null; 
+        slot.remoteStream = null; 
+        slot.videoEl.srcObject = null; 
+        connectToCamera(slot); 
+      }
+    }
+  };
+  
+  if (isMicOn && localStream && talkSlotIndex === slot.index) {
+    localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+  }
+  
+  pc.onicecandidate = (e) => { 
+    if (slot.epoch !== currentEpoch) return;
+    if (e.candidate && ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'candidate', from: 'viewer', roomId: slot.roomId, candidate: e.candidate })); 
+    }
+  };
+  
+  try {
+    await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+    if (slot.epoch !== currentEpoch) return;
+    const answer = await pc.createAnswer(); 
+    await pc.setLocalDescription(answer);
+    if (slot.epoch !== currentEpoch) return;
+    
+    // ★ 核心修复：必须带上 msg.viewerId 回传
+    ws.send(JSON.stringify({ type: 'answer', from: 'viewer', roomId: slot.roomId, viewerId: msg.viewerId, sdp: answer }));
+  } catch (err) { 
+    try { pc.close(); } catch {}
+    if (slot.pc === pc) slot.pc = null; 
+  }
+}
+
+async function onAnswer(msg) { 
+  const slot = findSlotByRoom(msg.roomId); 
+  if (slot && slot.pc && msg.from === 'camera') {
+    await slot.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp)).catch(()=>{}); 
+  }
+}
+
+async function onCandidate(msg) { 
+  const slot = findSlotByRoom(msg.roomId); 
+  if (slot && slot.pc && msg.candidate) {
+    await slot.pc.addIceCandidate(new RTCIceCandidate(msg.candidate)).catch(()=>{}); 
+  }
+}
+
+async function toggleMic(index) {
+  const slot = slots[index];
+  // RTSP 画面：这里复用为"移出画面"
+  if (slot && slot.type === 'rtsp') { freeSlot(index); renderSourceList(); updateLayout(); renderRtspPanel(); return; }
+  if (!slot || !slot.roomId || !slot.pc) return;
+  if (talkSlotIndex >= 0 && talkSlotIndex !== index) await stopTalk();
+  if (talkSlotIndex === index) { await stopTalk(); return; }
+  try {
+    if (!localStream) localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    isMicOn = true; talkSlotIndex = index;
+    localStream.getAudioTracks().forEach(track => slot.pc.addTrack(track, localStream));
+    const offer = await slot.pc.createOffer(); await slot.pc.setLocalDescription(offer);
+    ws.send(JSON.stringify({ type: 'offer', from: 'viewer', roomId: slot.roomId, sdp: offer }));
+    updateButtons();
+  } catch (err) { alert('麦克风打开失败'); }
+}
+
+async function stopTalk() {
+  if (talkSlotIndex < 0) return;
+  const slot = slots[talkSlotIndex];
+  if (slot && slot.pc && localStream) {
+    slot.pc.getSenders().forEach(sender => { if (sender.track && sender.track.kind === 'audio') slot.pc.removeTrack(sender); });
+    try { const offer = await slot.pc.createOffer(); await slot.pc.setLocalDescription(offer); ws.send(JSON.stringify({ type: 'offer', from: 'viewer', roomId: slot.roomId, sdp: offer })); } catch {}
+  }
+  if (localStream) { localStream.getAudioTracks().forEach(t => t.stop()); localStream = null; }
+  isMicOn = false; talkSlotIndex = -1; updateButtons();
+}
+
+function takeSnapshot(index) {
+  const slot = slots[index]; if (!slot) return;
+  // MJPEG 模式下画面在 canvas 上，直接从 canvas 取
+  if (slot.playMode === 'jpeg' && slot.jpegCanvas && slot.jpegCanvas.width > 0) {
+    try {
+      const a = document.createElement('a');
+      a.href = slot.jpegCanvas.toDataURL('image/png');
+      a.download = `截图_${slot.roomId || 'rtsp'}_${Date.now()}.png`;
+      a.click();
+    } catch (e) {}
+    return;
+  }
+  if (!slot.remoteStream || slot.videoEl.videoWidth === 0) return;
+  const canvas = document.createElement('canvas'); canvas.width = slot.videoEl.videoWidth; canvas.height = slot.videoEl.videoHeight;
+  canvas.getContext('2d').drawImage(slot.videoEl, 0, 0);
+  const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = `截图_${slot.roomId}_${Date.now()}.png`; a.click();
+}
+
+/* =============================================================
+ *  RTSP 模块
+ *  服务端已把 RTSP 转成 WebSocket 上的分片 MP4(fMP4)，
+ *  这里用 MediaSource(MSE) 接住，投到九宫格同一批 video 元素里，
+ *  因此 RTSP 摄像机和手机采集端共用同一套布局和在线统计。
+ * ============================================================= */
+async function fetchRtspList() {
+  try {
+    const r = await fetch('/api/rtsp');
+    const d = await r.json();
+    rtspList = Array.isArray(d.streams) ? d.streams : [];
+    rtspFfmpegOk = !!d.ffmpeg;
+    updateOnlineCount();
+    renderSourceList();
+    renderRtspPanel();
+  } catch (e) {}
+}
+
+// 二进制帧：第 1 字节是通道号（=九宫格下标），后面是该帧视频数据
+function handleRtspBinary(ab) {
+  if (!ab || ab.byteLength < 2) return;
+  const head = new Uint8Array(ab);
+  const slot = slots[head[0]];
+  if (!slot || slot.type !== 'rtsp') return;
+  try {
+    const body = new Uint8Array(ab, 1);
+    if (slot.playMode === 'jpeg') onRtspJpegFrame(slot, body);
+    else onRtspSegment(slot, body);
+  } catch (e) {}
+}
+
+function subscribeRtsp(channel, id) {
+  if (!id || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: 'rtsp-subscribe', id, channel: channel & 0xff }));
+}
+function unsubscribeRtsp(channel, id) {
+  if (!id || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: 'rtsp-unsubscribe', id, channel: channel & 0xff }));
+}
+function subscribeRtspJpeg(channel, id) {
+  if (!id || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: 'rtsp-subscribe-jpeg', id, channel: channel & 0xff }));
+}
+function unsubscribeRtspJpeg(channel, id) {
+  if (!id || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: 'rtsp-unsubscribe-jpeg', id, channel: channel & 0xff }));
+}
+
+/* 播放引擎探测，优先级从高到低：
+ *   1) MediaSource        —— 桌面浏览器 / Android Chrome
+ *   2) ManagedMediaSource —— iOS 17.1+ 的受限版 MSE（Safari、微信内置浏览器）
+ *   3) MJPEG 逐帧绘制     —— 兜底，几乎所有浏览器都能显示
+ * 选择过程对使用者透明，画面不出来还会自动往下退一级。
+ */
+function detectRtspEngine() {
+  const Ctor = window.ManagedMediaSource || window.MediaSource;
+  if (Ctor) {
+    try {
+      if (!Ctor.isTypeSupported || Ctor.isTypeSupported('video/mp4; codecs="avc1.42E01E"')) {
+        return { mode: 'mse', Ctor, managed: !!window.ManagedMediaSource };
+      }
+    } catch (e) {}
+  }
+  return { mode: 'jpeg', Ctor: null, managed: false };
+}
+
+function startRtspSlot(slot, streamId, name) {
+  releaseRtspMedia(slot);
+  slot.epoch++;
+  slot.type = 'rtsp';
+  slot.rtspId = streamId;
+  slot.roomId = streamId;
+  slot.remoteStream = null;
+  slot.pc = null;
+  slot.cameraState = {};
+  slot.labelEl.textContent = name || streamId;
+  slot.el.classList.add('type-rtsp');
+  slot.el.classList.remove('has-stream', 'state-offline');
+  slot.el.classList.add('state-connecting');
+  slot.el.querySelector('.empty').innerHTML = '<div>📡</div><div>RTSP 摄像机</div>';
+  updateButtons();
+  connectRtspStream(slot);
+}
+
+function connectRtspStream(slot) {
+  if (!slot || !slot.rtspId) return;
+  // 之前用 MSE 迟迟不出画面（iOS / 微信内核常见），锁定降级到 MJPEG
+  if (slot.rtspFallbackJpeg) { startRtspJpeg(slot); return; }
+  const engine = detectRtspEngine();
+  if (engine.mode === 'jpeg') startRtspJpeg(slot);
+  else startRtspMse(slot, engine.Ctor, engine.managed);
+}
+
+function startRtspMse(slot, MSCtor, managed) {
+  releaseRtspMedia(slot);
+  slot.playMode = 'mse';
+  slot.msCtor = MSCtor;
+  slot.pendingSegments = [];
+  slot.sbUpdating = false;
+  slot.sbReady = false;
+  slot.hasAudio = false;
+  slot.rtspPlaying = false;
+  slot.rtspLastData = Date.now();
+  slot.rtspFirstData = 0;
+  slot.el.classList.remove('has-stream', 'state-offline');
+  slot.el.classList.add('state-connecting');
+
+  const ms = new MSCtor();
+  slot.mediaSource = ms;
+  const objUrl = URL.createObjectURL(ms);
+  slot.rtspObjectUrl = objUrl;
+  slot.videoEl.srcObject = null;
+  slot.videoEl.src = objUrl;
+  slot.videoEl.muted = true;
+  // iOS 的 ManagedMediaSource 必须关掉远程播放，否则画面出不来
+  if (managed) { try { slot.videoEl.disableRemotePlayback = true; } catch (e) {} }
+  try { slot.videoEl.load(); } catch (e) {}
+
+  ms.onsourceopen = () => {
+    slot.mediaSourceOpen = true;
+    // 订阅后服务端会先推初始化段(moov)，等拿到它再决定要不要建音频轨
+    subscribeRtsp(slot.index, slot.rtspId);
+    pumpRtsp(slot);
+  };
+
+  startRtspWatchdog(slot);
+}
+
+// 在 MP4 缓冲里找某个 box 的 fourcc（用于判断初始化段里有没有音频轨）
+function rtspBufHasFourcc(buf, fourcc) {
+  const u = new Uint8Array(buf);
+  const a = fourcc.charCodeAt(0), b = fourcc.charCodeAt(1), c = fourcc.charCodeAt(2), d = fourcc.charCodeAt(3);
+  for (let i = 0; i + 4 <= u.length; i++) {
+    if (u[i] === a && u[i+1] === b && u[i+2] === c && u[i+3] === d) return true;
+  }
+  return false;
+}
+
+/* MJPEG 兜底：服务端按帧推 JPEG，这里逐帧画到 canvas 上 */
+function startRtspJpeg(slot) {
+  releaseRtspMedia(slot);
+  slot.playMode = 'jpeg';
+  slot.rtspPlaying = false;
+  slot.rtspLastData = Date.now();
+  slot.rtspFirstData = 0;
+  slot.jpegBusy = false;
+  slot.el.classList.remove('has-stream', 'state-offline');
+  slot.el.classList.add('state-connecting');
+  try { slot.videoEl.removeAttribute('src'); slot.videoEl.load(); } catch (e) {}
+  ensureJpegCanvas(slot);
+  slot.el.classList.add('jpeg-mode');
+  subscribeRtspJpeg(slot.index, slot.rtspId);
+  startRtspWatchdog(slot);
+}
+
+function ensureJpegCanvas(slot) {
+  if (slot.jpegCanvas) return slot.jpegCanvas;
+  const c = document.createElement('canvas');
+  c.className = 'rtspCanvas';
+  slot.jpegCanvas = c;
+  slot.jpegCtx = c.getContext('2d');
+  slot.el.insertBefore(c, slot.videoEl.nextSibling);
+  return c;
+}
+
+function onRtspJpegFrame(slot, bytes) {
+  slot.rtspLastData = Date.now();
+  if (!slot.rtspFirstData) slot.rtspFirstData = slot.rtspLastData;
+  if (slot.jpegBusy) return; // 上一帧还没落地，丢帧保实时
+  if (slot.type !== 'rtsp' || !slot.jpegCtx) return;
+  slot.jpegBusy = true;
+  let url = '';
+  try {
+    url = URL.createObjectURL(new Blob([bytes], { type: 'image/jpeg' }));
+    const img = slot.jpegImg || (slot.jpegImg = new Image());
+    img.onload = () => {
+      try {
+        if (slot.jpegCanvas.width !== img.naturalWidth || slot.jpegCanvas.height !== img.naturalHeight) {
+          slot.jpegCanvas.width = img.naturalWidth;
+          slot.jpegCanvas.height = img.naturalHeight;
+        }
+        slot.jpegCtx.drawImage(img, 0, 0);
+        if (!slot.rtspPlaying) {
+          slot.rtspPlaying = true;
+          slot.el.classList.remove('state-connecting', 'state-offline');
+          slot.el.classList.add('has-stream');
+        }
+      } catch (e) {}
+      clearJpegFrame(url, slot);
+    };
+    img.onerror = () => clearJpegFrame(url, slot);
+    img.src = url;
+  } catch (e) { clearJpegFrame(url, slot); }
+}
+
+function clearJpegFrame(url, slot) {
+  if (url) { try { URL.revokeObjectURL(url); } catch (e) {} }
+  slot.jpegBusy = false;
+}
+
+function startRtspWatchdog(slot) {
+  clearInterval(slot.rtspWatchdog);
+  slot.rtspWatchdog = setInterval(() => {
+    if (slot.type !== 'rtsp') { clearInterval(slot.rtspWatchdog); return; }
+    maybeRtspPlaying(slot);
+    // 直播追帧：缓冲积压超过 3 秒说明播放已落后于实时，直接跳到最新画面，
+    // 否则卡顿一次延迟就永久累积（“画面越来越慢”的主要原因）
+    if (slot.playMode === 'mse' && slot.sourceBuffer && slot.videoEl && !slot.videoEl.seeking) {
+      try {
+        const buf = slot.sourceBuffer.buffered;
+        if (buf.length) {
+          const end = buf.end(buf.length - 1);
+          if (end - slot.videoEl.currentTime > 3) slot.videoEl.currentTime = end - 0.4;
+        }
+      } catch (e) {}
+    }
+    const idle = Date.now() - slot.rtspLastData;
+    if (idle > 10000 && slot.rtspPlaying) {
+      slot.rtspPlaying = false;
+      slot.el.classList.remove('has-stream');
+      slot.el.classList.add('state-connecting');
+    }
+    // MSE 收到了数据却一直解不出画面 —— 内核其实不支持，换成 MJPEG
+    if (slot.playMode === 'mse' && !slot.rtspFallbackJpeg && slot.rtspFirstData &&
+        Date.now() - slot.rtspFirstData > 8000 && !slot.rtspPlaying) {
+      console.log('[rtsp] MSE 无画面，自动降级 MJPEG');
+      slot.rtspFallbackJpeg = true;
+      connectRtspStream(slot);
+      return;
+    }
+    if (idle > 20000) { // 长时间没数据，重新订阅一次
+      slot.rtspLastData = Date.now();
+      if (slot.playMode === 'jpeg') subscribeRtspJpeg(slot.index, slot.rtspId);
+      else subscribeRtsp(slot.index, slot.rtspId);
+    }
+  }, 2000);
+}
+
+function onRtspSegment(slot, unit) {
+  slot.rtspLastData = Date.now();
+  if (!slot.rtspFirstData) slot.rtspFirstData = slot.rtspLastData;
+  if (!Array.isArray(slot.pendingSegments)) slot.pendingSegments = [];
+  if (slot.pendingSegments.length > 90) slot.pendingSegments.splice(0, 45); // 追帧：丢掉积压的老数据
+  slot.pendingSegments.push(unit);
+  pumpRtsp(slot);
+}
+
+function pumpRtsp(slot) {
+  // 还没建好 SourceBuffer：等拿到初始化段（含 moov、不含 moof）后先建好再喂。
+  // 关键：初始化段里若有音频轨(mp4a)，就建一个“视频+音频”双轨 SourceBuffer，
+  // 这样同一路 fMP4 既出画面也出声音。
+  if (!slot.sourceBuffer) {
+    if (!slot.mediaSource || slot.mediaSource.readyState !== 'open') return;
+    if (!slot.pendingSegments || !slot.pendingSegments.length) return;
+    const init = slot.pendingSegments[0];
+    if (!rtspBufHasFourcc(init, 'moov') || rtspBufHasFourcc(init, 'moof')) return; // 初始化段还没到齐，等
+    const audio = rtspBufHasFourcc(init, 'mp4a');
+    slot.hasAudio = audio;
+    const Ctor = slot.msCtor;
+    const check = (Ctor && Ctor.isTypeSupported) ? Ctor.isTypeSupported.bind(Ctor) : null;
+    const vidCodecs = ['avc1.42E01E', 'avc1.4D401F', 'avc1.640029'];
+    const tries = audio
+      ? vidCodecs.map(c => `video/mp4; codecs="${c}, mp4a.40.2"`).concat(vidCodecs.map(c => `video/mp4; codecs="${c}"`))
+      : vidCodecs.map(c => `video/mp4; codecs="${c}"`);
+    let mime = null;
+    for (const m of tries) { if (!check || check(m)) { mime = m; break; } }
+    if (!mime) mime = 'video/mp4';
+    try {
+      const sb = slot.mediaSource.addSourceBuffer(mime);
+      try { sb.mode = 'sequence'; } catch (e) {}
+      sb.onupdateend = () => { slot.sbUpdating = false; pumpRtsp(slot); maybeRtspPlaying(slot); };
+      sb.onerror = (e) => { slot.sbUpdating = false; console.warn('[rtsp] SourceBuffer 错误', e); };
+      slot.sourceBuffer = sb;
+      slot.sbReady = true;
+      applySoundPolicy(); // 音频轨就绪后，处于单画面且已开启声音时自动取消静音
+    } catch (e) {
+      // 建不出 SourceBuffer（老内核常见），退到 MJPEG
+      slot.el.classList.remove('state-connecting');
+      slot.rtspFallbackJpeg = true;
+      setTimeout(() => { if (slot.type === 'rtsp') startRtspJpeg(slot); }, 200);
+      return;
+    }
+  }
+
+  const sb = slot.sourceBuffer;
+  if (!sb || sb.updating || slot.sbUpdating) return;
+  if (!Array.isArray(slot.pendingSegments) || slot.pendingSegments.length === 0) return;
+
+  // 缓冲太久时裁掉旧数据，控制内存并追到最新画面
+  try {
+    const ms = slot.mediaSource;
+    if (ms && ms.readyState === 'open' && sb.buffered && sb.buffered.length > 0) {
+      const start = sb.buffered.start(0);
+      const end = sb.buffered.end(sb.buffered.length - 1);
+      if (end - start > 15) { sb.remove(start, end - 10); slot.sbUpdating = true; return; }
+    }
+  } catch (e) {}
+
+  const data = slot.pendingSegments.shift();
+  slot.sbUpdating = true;
+  try { sb.appendBuffer(data); }
+  catch (e) { slot.sbUpdating = false; setTimeout(() => pumpRtsp(slot), 60); }
+}
+
+function maybeRtspPlaying(slot) {
+  if (slot.rtspPlaying) return;
+  if (slot.videoEl && slot.videoEl.readyState >= 2 && slot.videoEl.videoWidth > 0) {
+    slot.rtspPlaying = true;
+    slot.el.classList.remove('state-connecting', 'state-offline');
+    slot.el.classList.add('has-stream');
+    slot.videoEl.play().catch(() => {});
+  }
+}
+
+function releaseRtspMedia(slot) {
+  if (!slot) return;
+  slot.pendingSegments = [];
+  slot.sbUpdating = false;
+  slot.sbReady = false;
+  slot.hasAudio = false;
+  slot.rtspPlaying = false;
+  clearInterval(slot.rtspWatchdog);
+  slot.rtspWatchdog = null;
+
+  // 退出 MJPEG 模式：撤订阅、摘掉落图层
+  if (slot.playMode === 'jpeg') {
+    if (slot.rtspId) unsubscribeRtspJpeg(slot.index, slot.rtspId);
+    slot.el.classList.remove('jpeg-mode', 'has-stream');
+    slot.jpegBusy = false;
+    if (slot.jpegImg) { try { slot.jpegImg.onload = null; slot.jpegImg.onerror = null; slot.jpegImg.src = ''; } catch (e) {} slot.jpegImg = null; }
+    if (slot.jpegCtx && slot.jpegCanvas) { try { slot.jpegCtx.clearRect(0, 0, slot.jpegCanvas.width, slot.jpegCanvas.height); } catch (e) {} }
+  } else if (slot.rtspId) {
+    unsubscribeRtsp(slot.index, slot.rtspId);
+  }
+
+  try {
+    if (slot.videoEl) { slot.videoEl.removeAttribute('src'); slot.videoEl.load(); }
+  } catch (e) {}
+  try {
+    if (slot.sourceBuffer) {
+      slot.sourceBuffer.onupdateend = null;
+      slot.sourceBuffer.onerror = null;
+      if (slot.mediaSource && slot.mediaSource.readyState === 'open') {
+        try { slot.sourceBuffer.abort(); } catch (e) {}
+        try { slot.mediaSource.removeSourceBuffer(slot.sourceBuffer); } catch (e) {}
+      }
+    }
+  } catch (e) {}
+  slot.sourceBuffer = null;
+  try {
+    if (slot.mediaSource) {
+      slot.mediaSource.onsourceopen = null;
+      if (slot.mediaSource.readyState === 'open') { try { slot.mediaSource.endOfStream(); } catch (e) {} }
+    }
+  } catch (e) {}
+  slot.mediaSource = null;
+  if (slot.rtspObjectUrl) { try { URL.revokeObjectURL(slot.rtspObjectUrl); } catch (e) {} slot.rtspObjectUrl = null; }
+}
+
+/* ---------- RTSP 管理面板 ---------- */
+function openRtspPanel() {
+  document.getElementById('rtspModal').classList.add('show');
+  fetchRtspList();
+}
+function closeRtspPanel() { document.getElementById('rtspModal').classList.remove('show'); }
+
+function renderRtspPanel() {
+  const box = document.getElementById('rtspListBox');
+  const tip = document.getElementById('rtspFfmpegTip');
+  const cnt = document.getElementById('rtspCount');
+  if (!box) return;
+  if (cnt) cnt.textContent = rtspList.length;
+  if (tip) {
+    tip.className = 'rtsp-tip ' + (rtspFfmpegOk ? 'ok' : 'bad');
+    tip.textContent = rtspFfmpegOk
+        ? '✅ ffmpeg 已就绪：RTSP 摄像机会立刻被转成 WebSocket 流，服务重启也会自动拉起。'
+        : '⚠️ 服务端未检测到 ffmpeg，RTSP 摄像机无法转推。请把 ffmpeg 加入系统 PATH，或把 ffmpeg.exe 放到程序目录后重启服务。';
+  }
+  const engTip = document.getElementById('rtspEngineTip');
+  if (engTip) {
+    const eng = detectRtspEngine();
+    if (eng.mode === 'mse') {
+      engTip.className = 'rtsp-tip ok';
+      engTip.textContent = eng.managed
+        ? '📱 当前浏览器：受限 MSE 模式（iOS ManagedMediaSource），兼容性一般，出不了画面会自动降级。'
+        : '🖥️ 当前浏览器：标准 MSE 模式，低延迟播放。';
+    } else {
+      engTip.className = 'rtsp-tip bad';
+      engTip.textContent = '📱 当前浏览器不支持 MSE，已启用 MJPEG 兼容模式（逐帧刷新，约 5 帧/秒，画面会有轻微卡顿感，属正常现象）。';
+    }
+  }
+  if (rtspList.length === 0) {
+    box.innerHTML = '<div class="rtsp-empty">还没有摄像机，在上面填好 RTSP 地址后点击「添加并启动」</div>';
+    return;
+  }
+  box.innerHTML = '';
+  rtspList.forEach(s => {
+    const statusCls = s.disabled ? 'off' : (s.running ? 'on' : 'warn');
+    const statusTxt = s.disabled ? '已禁用' : (s.running ? `运行中 · ${s.clients} 人在看` : (s.error ? '连接失败' : '连接中'));
+    const inGrid = slots.some(x => x.rtspId === s.id);
+    const card = document.createElement('div');
+    card.className = 'rtsp-card' + (s.disabled ? ' disabled' : '');
+    card.innerHTML = `
+      <div class="rtsp-row1">
+        <span class="rtsp-dot ${statusCls}"></span>
+        <span class="rtsp-name">${escapeHtml(s.name)}</span>
+        <span class="rtsp-status ${statusCls}">${statusTxt}</span>
+      </div>
+      <div class="rtsp-url">${escapeHtml(s.url)} · ${String(s.transport || 'tcp').toUpperCase()} · ${s.mode === 'transcode' ? '转码' : '直传'}</div>
+      ${s.error ? `<div class="rtsp-err">${escapeHtml(s.error)}</div>` : ''}
+      <div class="rtsp-ops">
+        <button class="op play" onclick="toggleRtspToGrid('${s.id}')">${inGrid ? '⏏ 移出画面' : '▶ 投到画面'}</button>
+        <button class="op edit" onclick="editRtsp('${s.id}')">✏️ 编辑</button>
+        <button class="op dis" onclick="toggleRtspDisabled('${s.id}', ${!s.disabled})">${s.disabled ? '✅ 启用' : '🚫 禁用'}</button>
+        <button class="op res" onclick="restartRtsp('${s.id}')">🔄 重连</button>
+        <button class="op del" onclick="removeRtsp('${s.id}')">🗑️ 删除</button>
+      </div>`;
+    box.appendChild(card);
+  });
+}
+
+function submitRtspForm() {
+  const name = document.getElementById('rtspName').value.trim();
+  const url = document.getElementById('rtspUrl').value.trim();
+  const transport = document.getElementById('rtspTransport').value;
+  const mode = document.getElementById('rtspMode').value;
+  if (!url) return alert('请填写地址');
+  if (!/^rtsp:\/\//i.test(url) && !confirm('地址不是 rtsp:// 开头，确定要添加吗？')) return;
+  const body = { name, url, transport, mode };
+  const isEdit = !!rtspEditId;
+  fetch(isEdit ? `/api/rtsp/${rtspEditId}` : '/api/rtsp', {
+    method: isEdit ? 'PUT' : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(r => r.json()).then(d => {
+    if (d.error) return alert(d.error);
+    resetRtspForm();
+    fetchRtspList();
+  }).catch(() => alert('操作失败，请检查服务是否在线'));
+}
+
+function editRtsp(id) {
+  const s = rtspList.find(x => x.id === id);
+  if (!s) return;
+  rtspEditId = id;
+  document.getElementById('rtspFormTitle').textContent = '编辑：' + s.name;
+  document.getElementById('rtspName').value = s.name || '';
+  document.getElementById('rtspUrl').value = s.url || '';
+  document.getElementById('rtspTransport').value = s.transport || 'tcp';
+  document.getElementById('rtspMode').value = s.mode || 'copy';
+  document.getElementById('rtspSubmitBtn').textContent = '💾 保存修改';
+  document.getElementById('rtspCancelBtn').style.display = 'block';
+  document.getElementById('rtspName').focus();
+}
+
+function resetRtspForm() {
+  rtspEditId = null;
+  document.getElementById('rtspFormTitle').textContent = '添加摄像机';
+  document.getElementById('rtspName').value = '';
+  document.getElementById('rtspUrl').value = '';
+  document.getElementById('rtspTransport').value = 'tcp';
+  document.getElementById('rtspMode').value = 'copy';
+  document.getElementById('rtspSubmitBtn').textContent = '➕ 添加并启动';
+  document.getElementById('rtspCancelBtn').style.display = 'none';
+}
+
+function rtspAction(url, method, body, tip) {
+  if (tip && !confirm(tip)) return Promise.resolve();
+  return fetch(url, {
+    method, headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined
+  }).then(r => r.json()).then(d => {
+    if (d && d.error) alert(d.error);
+    return d;
+  }).then(() => fetchRtspList()).catch(() => alert('操作失败'));
+}
+
+function removeRtsp(id) {
+  rtspAction(`/api/rtsp/${id}`, 'DELETE', null, '确定删除这台摄像机吗？删除后不可恢复。').then(() => {
+    const slot = slots.find(s => s.rtspId === id);
+    if (slot) { freeSlot(slot.index); renderSourceList(); updateLayout(); }
+    if (rtspEditId === id) resetRtspForm();
+  });
+}
+
+function toggleRtspDisabled(id, disabled) {
+  rtspAction(`/api/rtsp/${id}/toggle`, 'POST', { disabled }).then(() => {
+    if (disabled) {
+      const slot = slots.find(s => s.rtspId === id);
+      if (slot) { freeSlot(slot.index); renderSourceList(); updateLayout(); }
+    }
+  });
+}
+
+function restartRtsp(id) { rtspAction(`/api/rtsp/${id}/restart`, 'POST', null, null); }
+
+function toggleRtspToGrid(id) {
+  const exist = slots.find(s => s.rtspId === id);
+  if (exist) {
+    freeSlot(exist.index);
+    renderSourceList(); updateLayout(); renderRtspPanel();
+    return;
+  }
+  const info = rtspList.find(s => s.id === id);
+  if (!info) return;
+  if (info.disabled) return alert('该摄像机已禁用，请先启用再投屏');
+  if (!rtspFfmpegOk) return alert('服务端未检测到 ffmpeg，无法转发 RTSP 流');
+  const idx = slots.findIndex(s => !s.roomId);
+  if (idx === -1) return alert('九宫格已满，请先移出一个画面');
+  freeSlot(idx);
+  startRtspSlot(slots[idx], id, info.name);
+  renderSourceList(); updateLayout(); renderRtspPanel();
+}
+
+function toggleFullscreen() {
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const slot = slots[activeSlotIndex];
+  if (isIOS && slot && slot.videoEl) {
+    if (slot.videoEl.webkitDisplayingFullscreen) slot.videoEl.webkitExitFullscreen();
+    else slot.videoEl.webkitEnterFullscreen();
+    return;
+  }
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  if (!isFs) (stageEl.requestFullscreen || stageEl.webkitRequestFullscreen || (() => {})).call(stageEl);
+  else (document.exitFullscreen || document.webkitExitFullscreen || (() => {})).call(document);
+}
+['fullscreenchange', 'webkitfullscreenchange'].forEach(evt => {
+  document.addEventListener(evt, () => { document.body.classList.toggle('fs-mode', !!(document.fullscreenElement || document.webkitFullscreenElement)); });
+});
+['webkitbeginfullscreen', 'webkitendfullscreen'].forEach(evt => {
+  document.addEventListener(evt, () => { document.body.classList.toggle('fs-mode', evt === 'webkitbeginfullscreen'); }, true);
+});
+function updateButtons() {
+  slots.forEach((s, i) => {
+    const talkBtn = s.el.querySelector('[data-act="talk"]');
+    if (talkBtn) {
+      if (s.type === 'rtsp') { talkBtn.textContent = '❌ 移除'; talkBtn.className = 'danger'; }
+      else { const on = talkSlotIndex === i; talkBtn.textContent = on ? '🔴 停止' : '🎤 对讲'; talkBtn.className = on ? 'danger' : ''; }
+    }
+    applySoundPolicy();
+  });
+}
+
+function openDrawer() { document.getElementById('drawerPanel').classList.add('open'); switchTab(currentTab); loadData(); }
+function closeDrawer() { document.getElementById('drawerPanel').classList.remove('open'); }
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabBtnEvents').classList.toggle('active', tab === 'events');
+  document.getElementById('tabBtnRecords').classList.toggle('active', tab === 'records');
+  document.getElementById('tabContentEvents').classList.toggle('active', tab === 'events');
+  document.getElementById('tabContentRecords').classList.toggle('active', tab === 'records');
+  updateDeviceSettingsUI();
+}
+
+function onFilterChange() { 
+  applyFilter(); 
+  updateDeviceSettingsUI(); 
+}
+
+function updateDeviceSettingsUI() {
+  const device = document.getElementById('filterDevice').value;
+  const settingDiv = document.getElementById('deviceSettings');
+  if (device !== 'all') {
+    settingDiv.style.display = 'flex';
+    const cfg = deviceConfigs[device] || {};
+    document.getElementById('maxStorageMB').value = cfg.quota || 500;
+    document.getElementById('motionCooldown').value = cfg.cooldown || 6;
+  } else {
+    settingDiv.style.display = 'none';
+  }
+}
+
+function fetchConfig() { 
+  fetch('/api/config').then(r => r.json()).then(data => { 
+    deviceConfigs = data.deviceConfigs || {};
+    updateDeviceSettingsUI(); 
+  }).catch(()=>{}); 
+}
+
+function saveStorageLimit() {
+  const device = document.getElementById('filterDevice').value;
+  if (device === 'all') return;
+  const val = parseInt(document.getElementById('maxStorageMB').value, 10);
+  if (!val || val < 50) return alert('最小设置 50MB');
+  fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ roomId: device, maxStorageMB: val }) })
+  .then(r => r.json()).then(d => { 
+    if(d.ok) { 
+      if(!deviceConfigs[device]) deviceConfigs[device] = {};
+      deviceConfigs[device].quota = val; 
+      alert(`已设置 ${device} 的录像最大占用为 ${val} MB`); 
+    } 
+  }).catch(()=>{});
+}
+
+function saveMotionCooldown() {
+  const device = document.getElementById('filterDevice').value;
+  if (device === 'all') return;
+  const val = parseInt(document.getElementById('motionCooldown').value, 10);
+  if (!val || val < 1) return alert('最小设置 1秒');
+  fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ roomId: device, motionCooldown: val }) })
+  .then(r => r.json()).then(d => { 
+    if(d.ok) { 
+      if(!deviceConfigs[device]) deviceConfigs[device] = {};
+      deviceConfigs[device].cooldown = val; 
+      alert(`已设置 ${device} 的报警冷却时间为 ${val} 秒`); 
+    } 
+  }).catch(()=>{});
+}
+
+function updateFilterOptions() {
+  const sel = document.getElementById('filterDevice');
+  const currentVal = sel.value;
+  sel.innerHTML = '<option value="all">全部设备</option>';
+  
+  const devices = new Set(knownRooms);
+  allEvents.forEach(e => devices.add(e.roomId));
+  allRecords.forEach(r => devices.add(r.roomId));
+
+  devices.forEach(r => {
+    if (!r) return;
+    const opt = document.createElement('option');
+    opt.value = r; opt.textContent = r;
+    sel.appendChild(opt);
+  });
+  sel.value = currentVal;
+}
+
+function applyFilter() {
+  const device = document.getElementById('filterDevice').value;
+  
+  const eventContainer = document.getElementById('tabContentEvents');
+  eventContainer.innerHTML = '';
+  const filteredEvents = allEvents.filter(e => device === 'all' || e.roomId === device);
+  if (filteredEvents.length === 0) eventContainer.innerHTML = '<div style="text-align:center; color:#666; margin-top:40px; font-size:13px;">暂无报警记录</div>';
+  filteredEvents.forEach(e => {
+    const card = document.createElement('div'); card.className = 'event-card';
+    const imgUrl = `/api/snapshot/${e.roomId}/${e.name}`;
+    card.innerHTML = `
+      <img src="${imgUrl}" onclick="showBigImage('${imgUrl}')" title="点击放大">
+      <div class="event-info">
+        <div class="title">🚨 ${e.roomId} 报警</div>
+        <div class="time">${new Date(e.time).toLocaleString()}</div>
+      </div>
+      <button class="btn-delete" onclick="deleteItem('snapshot', '${e.roomId}', '${e.name}')">🗑️</button>
+    `;
+    eventContainer.appendChild(card);
+  });
+
+  const recContainer = document.getElementById('tabContentRecords');
+  recContainer.innerHTML = '';
+  const filteredRecs = allRecords.filter(r => device === 'all' || r.roomId === device);
+  if (filteredRecs.length === 0) recContainer.innerHTML = '<div style="text-align:center; color:#666; margin-top:40px; font-size:13px;">暂无录像记录</div>';
+  
+  filteredRecs.forEach(r => {
+    const item = document.createElement('div'); item.className = 'rec-item';
+    
+    const startFmt = formatTimeObj(r.startTime);
+    const endFmt = formatTimeObj(r.endTime);
+    let timeDisplay = '';
+    if (startFmt && endFmt) {
+      timeDisplay = (startFmt.dateStr === endFmt.dateStr) 
+        ? `${startFmt.dateStr} ${startFmt.timeStr} - ${endFmt.timeStr}`
+        : `${startFmt.dateStr} ${startFmt.timeStr} - ${endFmt.dateStr} ${endFmt.timeStr}`;
+    } else {
+      timeDisplay = new Date(r.time).toLocaleString();
+    }
+
+    item.innerHTML = `
+      <div>
+        <div class="rec-title">📹 ${r.roomId}</div>
+        <div class="rec-desc">${timeDisplay} <br> 大小: ${(r.size / 1024 / 1024).toFixed(1)} MB</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button onclick="playRecord('${r.roomId}', '${r.name}')">▶ 播放</button>
+        <button class="btn-delete" onclick="deleteItem('record', '${r.roomId}', '${r.name}')">🗑️</button>
+      </div>
+    `;
+    recContainer.appendChild(item);
+  });
+}
+
+function showBigImage(url) { document.getElementById('modalImage').src = url; document.getElementById('imageModal').style.display = 'flex'; }
+function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; document.getElementById('modalImage').src = ''; }
+
+function loadData() { 
+  const dateStr = document.getElementById('filterDate').value;
+  const urlSuffix = dateStr ? `?date=${dateStr}` : '';
+
+  fetch(`/api/records${urlSuffix}`).then(r => r.json()).then(files => { allRecords = files; updateFilterOptions(); applyFilter(); }).catch(()=>{});
+  fetch(`/api/snapshots${urlSuffix}`).then(r => r.json()).then(files => { allEvents = files; updateFilterOptions(); applyFilter(); }).catch(()=>{});
+}
+
+function playRecord(roomId, filename) {
+  const modal = document.getElementById('videoModal');
+  const video = document.getElementById('modalVideo');
+  modal.style.display = 'flex';
+  
+  video.playbackRate = 1;
+  document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
+  const defaultBtn = document.querySelector('.speed-btn[onclick*="changeSpeed(1"]');
+  if (defaultBtn) defaultBtn.classList.add('active');
+
+  if (video.src) { URL.revokeObjectURL(video.src); video.src = ''; }
+  fetch(`/api/record/${roomId}/${filename}`).then(res => { if (!res.ok) throw new Error('网络异常'); return res.blob(); })
+  .then(blob => { const url = URL.createObjectURL(blob); video.src = url; video.play().catch(e => console.log('自动播放受限')); })
+  .catch(err => { alert('无法加载录像: ' + err.message); closeVideoModal(); });
+}
+function closeVideoModal() {
+  const video = document.getElementById('modalVideo'); video.pause();
+  if (video.src) { URL.revokeObjectURL(video.src); video.src = ''; }
+  document.getElementById('videoModal').style.display = 'none';
+}
+
+function changeSpeed(speed, btnElement) {
+  const video = document.getElementById('modalVideo');
+  if (video) { video.playbackRate = speed; }
+  const btns = document.querySelectorAll('.speed-btn');
+  btns.forEach(btn => btn.classList.remove('active'));
+  if (btnElement) { btnElement.classList.add('active'); }
+}
+
+async function deleteItem(type, roomId, filename) {
+  if (!confirm('确定要删除这条记录吗？')) return;
+  await fetch('/api/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, roomId, filename }) });
+  loadData();
+}
+
+async function deleteAll() {
+  const device = document.getElementById('filterDevice').value;
+  const type = currentTab === 'events' ? 'snapshot' : 'record';
+  
+  let msg = device === 'all' ? `确定要清空【全部设备】的${currentTab === 'events' ? '报警截图' : '所有录像'}吗？` : `确定要清空【${device}】的${currentTab === 'events' ? '报警截图' : '所有录像'}吗？`;
+  if (!confirm(msg)) return;
+
+  await fetch('/api/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, roomId: device }) });
+  loadData();
+}
+
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, '0');
+const dd = String(today.getDate()).padStart(2, '0');
+document.getElementById('filterDate').value = `${yyyy}-${mm}-${dd}`;
+
+buildGrid(); updateLayout(); connectWS();
+fetchRtspList();
+// 定期同步 RTSP 摄像机状态，保证顶部在线数与列表实时
+rtspTimer = setInterval(fetchRtspList, 4000);
+</script>
+</body>
+</html>
