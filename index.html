@@ -1,179 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>监控指挥中心</title>
-  <style>
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
-    body { margin: 0; background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; padding-bottom: env(safe-area-inset-bottom); }
-    ::-webkit-scrollbar { display: none; }
-    
-    .header { padding: 8px 12px; background: #1a1a1a; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; font-size: 12px; flex-shrink: 0; z-index: 20; }
-    .stat-item { display: flex; gap: 10px; color: #0f0; align-items: center;}
-    
-    .stage { flex: 1; position: relative; background: #000; overflow: hidden; min-height: 0; touch-action: none; display: flex; }
-    .grid9 { display: grid; width: 100%; height: 100%; gap: 2px; background: #000; padding: 2px; transition: all 0.3s ease; }
-    .grid9.layout-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
-    .grid9.layout-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
-    .grid9.layout-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-    .grid9.layout-9 { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); }
-    .grid9.single { grid-template-columns: 1fr; grid-template-rows: 1fr; gap: 0; padding: 0; }
-    .grid9.single .cell:not(.active-cell) { display: none; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>监控指挥中心</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;overscroll-behavior:none}body{margin:0;background:#000;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}::-webkit-scrollbar{display:none}
+.header{padding:8px 12px;background:#1a1a1a;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;font-size:12px;flex-shrink:0;z-index:20}.stat-item{display:flex;gap:10px;color:#0f0;align-items:center}
+.stage{flex:1;position:relative;background:#000;overflow:hidden;min-height:0;touch-action:none;display:flex}.grid9{display:grid;width:100%;height:100%;gap:2px;background:#000;padding:2px;transition:all .3s ease}.grid9.layout-1{grid-template-columns:1fr;grid-template-rows:1fr}.grid9.layout-2{grid-template-columns:1fr 1fr;grid-template-rows:1fr}.grid9.layout-4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}.grid9.layout-9{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}.grid9.single{grid-template-columns:1fr;grid-template-rows:1fr;gap:0;padding:0}.grid9.single .cell:not(.active-cell){display:none}
+.cell{position:relative;background:#111;overflow:hidden;display:flex;justify-content:center;align-items:center;border-radius:2px;touch-action:none}.cell.hidden{display:none}.cell img{width:100%;height:100%;object-fit:contain;background:#000;touch-action:none}
+.cell .empty{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#444;font-size:11px;pointer-events:none;gap:4px}.cell.has-stream .empty{display:none}.cell .label{position:absolute;left:0;top:0;right:0;padding:4px 8px;font-size:11px;color:#fff;background:linear-gradient(180deg,rgba(0,0,0,.8),transparent);pointer-events:none;z-index:2;font-weight:bold}.cell .state-mask{position:absolute;inset:0;display:none;justify-content:center;align-items:center;background:rgba(0,0,0,.6);color:#ffc107;font-size:12px;font-weight:bold;z-index:4;text-align:center;flex-direction:column;gap:4px}
+.cell.state-offline .state-mask{display:flex}.cell.state-offline .state-mask::before{content:'🔌';font-size:18px}.cell.state-offline .state-mask::after{content:'设备已掉线，等待重连...'}.cell.state-connecting .state-mask{display:flex}.cell.state-connecting .state-mask::before{content:'🔄';font-size:18px;animation:spin 1s linear infinite}.cell.state-connecting .state-mask::after{content:'正在连接中...'}@keyframes spin{100%{transform:rotate(360deg)}}
+.overlay-controls{position:absolute;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(20,20,20,.75);backdrop-filter:blur(10px);padding:8px 12px;border-radius:30px;display:none;gap:12px;z-index:5;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 15px rgba(0,0,0,.5)}.grid9.single .cell.active-cell .overlay-controls{display:flex}
+.overlay-controls button{padding:8px 16px;font-size:13px;font-weight:bold;border:none;border-radius:20px;background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;gap:6px;transition:.2s;cursor:pointer}.overlay-controls button:hover{background:rgba(255,255,255,.2)}.overlay-controls button.primary{background:#4CAF50;color:#fff;box-shadow:0 0 10px rgba(76,175,80,.4)}
+.exit-fs-btn{display:none;position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;z-index:999;padding:10px 16px;font-size:13px;font-weight:bold;border-radius:20px;background:rgba(0,0,0,.65);color:#fff;border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(4px)}body.fs-mode .controls{display:none}body.fs-mode .exit-fs-btn{display:block}
+.controls{background:#1a1a1a;border-top:1px solid #333;padding:8px 10px 12px 10px;flex-shrink:0;z-index:20}.room-list{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.room-chip{flex-shrink:0;padding:8px 14px;border-radius:16px;background:#333;color:#ccc;font-size:13px;font-weight:bold;border:1px solid #444;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:.2s}.room-chip.active{background:#29B6F6;color:#fff;border-color:#29B6F6;box-shadow:0 0 10px rgba(41,182,246,.3)}.room-chip .dot{width:6px;height:6px;border-radius:50%;background:#666}.room-chip.online .dot{background:#4CAF50}.room-empty{color:#666;font-size:12px;padding:6px 4px}.room-chip.rtsp{border-color:#29B6F6}.room-chip.rtsp .dot{background:#29B6F6}
 
-    .cell { position: relative; background: #111; overflow: hidden; display: flex; justify-content: center; align-items: center; border-radius: 2px; touch-action: none; }
-    .cell.hidden { display: none; }
-    .cell img { width: 100%; height: 100%; object-fit: contain; background: #000; touch-action: none; }
-    
-    .cell .empty { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #444; font-size: 11px; pointer-events: none; gap: 4px; }
-    .cell.has-stream .empty { display: none; }
-    .cell .label { position: absolute; left: 0; top: 0; right: 0; padding: 4px 8px; font-size: 11px; color: #fff; background: linear-gradient(180deg, rgba(0,0,0,0.8), transparent); pointer-events: none; z-index: 2; font-weight: bold; }
-    .cell .state-mask { position: absolute; inset: 0; display: none; justify-content: center; align-items: center; background: rgba(0,0,0,0.6); color: #ffc107; font-size: 12px; font-weight: bold; z-index: 4; text-align: center; flex-direction: column; gap: 4px; }
-    
-    /* 连接中与掉线状态 */
-    .cell.state-offline .state-mask { display: flex; }
-    .cell.state-offline .state-mask::before { content: '🔌'; font-size: 18px; }
-    .cell.state-offline .state-mask::after { content: '设备已掉线，等待重连...'; }
-    .cell.state-connecting .state-mask { display: flex; }
-    .cell.state-connecting .state-mask::before { content: '🔄'; font-size: 18px; animation: spin 1s linear infinite; }
-    .cell.state-connecting .state-mask::after { content: '正在连接中...'; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+#rtspModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:12000;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(4px)}#rtspModal.show{display:flex}.rtsp-panel{background:#161616;border:1px solid #333;border-radius:16px;width:100%;max-width:680px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.7)}.rtsp-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#1e1e1e;border-bottom:1px solid #2c2c2c;font-size:15px;font-weight:bold}.rtsp-head button{background:#333;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:bold;cursor:pointer;transition:.2s}.rtsp-head button:hover{background:#444}.rtsp-body{padding:14px 16px 18px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.rtsp-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#1e1e1e;padding:12px;border-radius:10px;border:1px solid #2c2c2c}.rtsp-form input,.rtsp-form select{background:#2a2a2a;color:#fff;border:1px solid #3d3d3d;border-radius:6px;padding:9px 10px;font-size:13px;outline:none;width:100%}.rtsp-form input:focus,.rtsp-form select:focus{border-color:#29B6F6}.rtsp-form .full{grid-column:1/-1}.rtsp-form .ops{grid-column:1/-1;display:flex;gap:8px}.rtsp-form button{flex:1;padding:10px;border:none;border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;transition:.2s}.rtsp-form .btn-primary{background:#29B6F6;color:#04141c}.rtsp-form .btn-cancel{background:#444;color:#ddd}
+.rtsp-card{background:#1e1e1e;border:1px solid #2c2c2c;border-radius:10px;padding:11px 12px;display:flex;flex-direction:column;gap:7px;margin-bottom:8px}.rtsp-card.disabled{opacity:.5;border-style:dashed;background:#111}.rtsp-card.disabled .rtsp-name{color:#888;text-decoration:line-through}.rtsp-card.disabled .rtsp-dot.on{background:#666;box-shadow:none}
+.rtsp-row1{display:flex;align-items:center;gap:8px}.rtsp-dot{width:8px;height:8px;border-radius:50%;background:#666;flex-shrink:0}.rtsp-dot.on{background:#4CAF50;box-shadow:0 0 6px #4CAF50}.rtsp-name{font-size:14px;font-weight:bold;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rtsp-url{font-size:11px;color:#888;word-break:break-all;line-height:1.4}.rtsp-ops{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.rtsp-ops .op{flex:1;min-width:60px;background:#2c2c2c;color:#ddd;border:1px solid #3a3a3a;padding:7px 6px;border-radius:7px;font-size:12px;cursor:pointer;font-weight:bold;transition:.2s}.rtsp-ops .op:hover{background:#3a3a3a}.rtsp-ops .op.play{background:#29B6F6;color:#04141c;border-color:#29B6F6}.rtsp-ops .op.play:hover{background:#4fc3f7}.rtsp-ops .op.dis{background:#555;color:#fff}.rtsp-ops .op.del{background:rgba(244,67,54,.15);color:#ff8a80;border-color:rgba(244,67,54,.4)}.rtsp-ops .op.del:hover{background:rgba(244,67,54,.3)}.rtsp-empty{text-align:center;color:#666;font-size:13px;padding:40px 0;border:1px dashed #333;border-radius:10px}.rtsp-sec-title{font-size:12px;color:#888;font-weight:bold;margin-top:10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
 
-    /* 单屏控制栏优化 */
-    .overlay-controls { position: absolute; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: rgba(20,20,20,0.75); backdrop-filter: blur(10px); padding: 8px 12px; border-radius: 30px; display: none; gap: 12px; z-index: 5; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    .grid9.single .cell.active-cell .overlay-controls { display: flex; }
-    
-    .overlay-controls button { padding: 8px 16px; font-size: 13px; font-weight: bold; border: none; border-radius: 20px; background: rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; cursor: pointer; }
-    .overlay-controls button:hover { background: rgba(255,255,255,0.2); }
-    .overlay-controls button.primary { background: #4CAF50; color: #fff; box-shadow: 0 0 10px rgba(76,175,80,0.4); }
-
-    .exit-fs-btn { display: none; position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; z-index: 999; padding: 10px 16px; font-size: 13px; font-weight: bold; border-radius: 20px; background: rgba(0,0,0,0.65); color: #fff; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(4px); }
-    body.fs-mode .controls { display: none; }
-    body.fs-mode .exit-fs-btn { display: block; }
-
-    .controls { background: #1a1a1a; border-top: 1px solid #333; padding: 8px 10px 12px 10px; flex-shrink: 0; z-index: 20; }
-    .room-list { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-    .room-chip { flex-shrink: 0; padding: 8px 14px; border-radius: 16px; background: #333; color: #ccc; font-size: 13px; font-weight: bold; border: 1px solid #444; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
-    .room-chip.active { background: #29B6F6; color: #fff; border-color: #29B6F6; box-shadow: 0 0 10px rgba(41,182,246,0.3); }
-    .room-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: #666; }
-    .room-chip.online .dot { background: #4CAF50; }
-    .room-empty { color: #666; font-size: 12px; padding: 6px 4px; }
-    .room-chip.rtsp { border-color: #29B6F6; }
-    .room-chip.rtsp .dot { background: #29B6F6; }
-
-    #rtspModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 12000; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px); }
-    #rtspModal.show { display: flex; }
-    .rtsp-panel { background: #161616; border: 1px solid #333; border-radius: 16px; width: 100%; max-width: 680px; max-height: 86vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.7); }
-    .rtsp-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1e1e1e; border-bottom: 1px solid #2c2c2c; font-size: 15px; font-weight: bold; }
-    .rtsp-head button { background: #333; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .rtsp-head button:hover { background: #444; }
-    .rtsp-body { padding: 14px 16px 18px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-    
-    /* 表单区加了回放地址 */
-    .rtsp-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #1e1e1e; padding: 12px; border-radius: 10px; border: 1px solid #2c2c2c; }
-    .rtsp-form input { background: #2a2a2a; color: #fff; border: 1px solid #3d3d3d; border-radius: 6px; padding: 9px 10px; font-size: 13px; outline: none; width: 100%; }
-    .rtsp-form input:focus { border-color: #29B6F6; }
-    .rtsp-form .full { grid-column: 1 / -1; }
-    .rtsp-form .ops { grid-column: 1 / -1; display: flex; gap: 8px; }
-    .rtsp-form button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
-    .rtsp-form .btn-primary { background: #29B6F6; color: #04141c; }
-    .rtsp-form .btn-cancel { background: #444; color: #ddd; }
-    .rtsp-card { background: #1e1e1e; border: 1px solid #2c2c2c; border-radius: 10px; padding: 11px 12px; display: flex; flex-direction: column; gap: 7px; }
-    
-    /* 禁用样式 */
-    .rtsp-card.disabled { opacity: 0.5; border-style: dashed; background: #111; }
-    .rtsp-card.disabled .rtsp-name { color: #888; text-decoration: line-through; }
-    .rtsp-card.disabled .rtsp-dot.on { background: #666; box-shadow: none; }
-
-    .rtsp-row1 { display: flex; align-items: center; gap: 8px; }
-    .rtsp-dot { width: 8px; height: 8px; border-radius: 50%; background: #666; flex-shrink: 0; }
-    .rtsp-dot.on { background: #4CAF50; box-shadow: 0 0 6px #4CAF50; }
-    .rtsp-name { font-size: 14px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .rtsp-url { font-size: 11px; color: #888; word-break: break-all; line-height: 1.4; }
-    .rtsp-ops { display: flex; flex-wrap: wrap; gap: 6px; }
-    .rtsp-ops .op { flex: 1; min-width: 60px; background: #2c2c2c; color: #ddd; border: 1px solid #3a3a3a; padding: 7px 6px; border-radius: 7px; font-size: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-    .rtsp-ops .op:hover { background: #3a3a3a; }
-    .rtsp-ops .op.play { background: #29B6F6; color: #04141c; border-color: #29B6F6; }
-    .rtsp-ops .op.play:hover { background: #4fc3f7; }
-    .rtsp-ops .op.dis { background: #555; color: #fff; }
-    .rtsp-ops .op.del { background: rgba(244,67,54,0.15); color: #ff8a80; border-color: rgba(244,67,54,0.4); }
-    .rtsp-ops .op.del:hover { background: rgba(244,67,54,0.3); }
-    
-    /* 新增回放按钮样式 */
-    .rtsp-ops .op.playback { background: #FF9800; color: #000; border-color: #FF9800; }
-    .rtsp-ops .op.playback:hover { background: #ffb74d; }
-
-    .rtsp-empty { text-align: center; color: #666; font-size: 13px; padding: 30px 0; }
-    .rtsp-sec-title { font-size: 12px; color: #888; font-weight: bold; margin-top: 5px; }
-
-    /* 回放内嵌窗口 */
-    #playbackModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 13000; flex-direction: column; }
-    #playbackModal.show { display: flex; }
-    .playback-header { padding: 10px 15px; background: #1a1a1a; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-    .playback-header button { background: #f44336; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-    .playback-iframe { flex: 1; width: 100%; border: none; background: #fff; }
-  </style>
+#globalModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:13000;flex-direction:column}#globalModal.show{display:flex}.global-header{padding:12px 15px;background:#1a1a1a;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333}.global-tabs{display:flex;gap:10px}.global-tabs button{background:#333;color:#aaa;border:none;padding:8px 16px;border-radius:6px;font-weight:bold;cursor:pointer;transition:.2s}.global-tabs button.active{background:#29B6F6;color:#fff}.global-header .btn-close-global{background:#f44336;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-weight:bold;cursor:pointer}
+.global-body{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#141414}.global-filter{padding:10px 15px;background:#1a1a1a;display:flex;align-items:center;gap:10px;border-bottom:1px solid #222}.global-filter select{background:#2a2a2a;color:#fff;border:1px solid #444;padding:8px 12px;border-radius:6px;outline:none;flex:1;max-width:200px;font-size:13px}
+.global-content{flex:1;overflow-y:auto;padding:15px;position:relative}.iframe-container{width:100%;height:100%;border:none;background:#fff;display:none;position:absolute;inset:0}
+</style>
 </head>
 <body>
+<div class="header"><div class="stat-item"><span id="connState">本地模式</span><span>在线: <span id="onlineCount">0</span></span></div>
+<div style="display:flex; gap:8px;"><button onclick="openGlobalModal()" style="background:#222; border:1px solid #333; color:#FF9800; font-size:14px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px;">📺 回放/侦测</button>
+<button onclick="openRtspPanel()" style="background:#222; border:1px solid #333; color:#29B6F6; font-size:14px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px;">📡 流媒体管理</button></div></div>
 
-<div class="header">
-  <div class="stat-item">
-    <span id="connState">本地模式</span>
-    <span>在线: <span id="onlineCount">0</span></span>
-  </div>
-  <div style="display:flex; gap:8px;">
-    <button onclick="openRtspPanel()" style="background:#222; border:1px solid #333; color:#29B6F6; font-size:14px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px;">📡 流媒体管理</button>
-  </div>
-</div>
+<div class="stage" id="stage"><div class="grid9 layout-1" id="grid9"></div><button id="btnExitFs" class="exit-fs-btn" onclick="toggleFullscreen()">✖ 退出全屏</button></div>
+<div class="controls"><div class="room-list" id="roomList"></div></div>
 
-<div class="stage" id="stage">
-  <div class="grid9 layout-1" id="grid9"></div>
-  <button id="btnExitFs" class="exit-fs-btn" onclick="toggleFullscreen()">✖ 退出全屏</button>
-</div>
+<div id="rtspModal" onclick="if(event.target===this) closeRtspPanel()"><div class="rtsp-panel"><div class="rtsp-head"><span>📡 流媒体管理</span><button onclick="closeRtspPanel()">✖ 关闭</button></div><div class="rtsp-body">
+<div class="rtsp-sec-title" id="rtspFormTitle">添加设备</div>
+<div class="rtsp-form"><input id="rtspName" class="full" placeholder="名称（如：客厅、大门）"><select id="rtspProtocol" style="grid-column: span 1;"><option value="http://">http://</option><option value="https://">https://</option></select><input id="rtspPort" type="number" placeholder="端口 (默认 8080)" value="8080" style="grid-column: span 1;"><input id="rtspIp" class="full" placeholder="设备IP或域名（如：192.168.0.82）">
+<div class="ops"><button id="rtspSubmitBtn" class="btn-primary" onclick="submitRtspForm()">➕ 添加</button><button id="rtspCancelBtn" class="btn-cancel" style="display:none;" onclick="resetRtspForm()">取消编辑</button></div></div>
+<div class="rtsp-sec-title"><span>设备列表（共 <span id="rtspCount">0</span> 路）</span><button onclick="renderRtspPanel()" style="background:none; border:none; color:#29B6F6; cursor:pointer; font-size:12px;">🔄 刷新</button></div><div id="rtspListBox"></div>
+</div></div></div>
 
-<div class="controls">
-  <div class="room-list" id="roomList">
-    <div class="room-empty">暂无设备，点击右上角添加</div>
-  </div>
-</div>
-
-<div id="rtspModal" onclick="if(event.target===this) closeRtspPanel()">
-  <div class="rtsp-panel">
-    <div class="rtsp-head">
-      <span>📡 流媒体管理</span>
-      <button onclick="closeRtspPanel()">✖ 关闭</button>
-    </div>
-    <div class="rtsp-body">
-      <div class="rtsp-sec-title" id="rtspFormTitle">添加设备</div>
-      <div class="rtsp-form">
-        <input id="rtspName" class="full" placeholder="名称（如：客厅、大门）">
-        <input id="rtspUrl" class="full" placeholder="视频流地址（如：http://IP:8080/stream）">
-        <input id="rtspAudioUrl" class="full" placeholder="音频流地址（可选，如：http://IP:8080/audio）">
-        <input id="rtspPlaybackUrl" class="full" placeholder="回放页面地址（可选，如：http://IP:8080/recordings）">
-        <div class="ops">
-          <button id="rtspSubmitBtn" class="btn-primary" onclick="submitRtspForm()">➕ 添加</button>
-          <button id="rtspCancelBtn" class="btn-cancel" style="display:none;" onclick="resetRtspForm()">取消编辑</button>
-        </div>
-      </div>
-
-      <div class="rtsp-sec-title">设备列表（共 <span id="rtspCount">0</span> 路）</div>
-      <div id="rtspListBox"></div>
-    </div>
-  </div>
-</div>
-
-<!-- 回放内嵌弹窗 -->
-<div id="playbackModal">
-  <div class="playback-header">
-    <span>📺 录像回放</span>
-    <button onclick="closePlayback()">✖ 关闭</button>
-  </div>
-  <iframe id="playbackIframe" class="playback-iframe" src=""></iframe>
-</div>
+<div id="globalModal"><div class="global-header"><div class="global-tabs"><button id="tabBtnPlayback" class="active" onclick="switchGlobalTab('playback')">📺 录像回放</button><button id="tabBtnShots" onclick="switchGlobalTab('shots')">🚨 侦测截图</button></div><button class="btn-close-global" onclick="closeGlobalModal()">✖ 关闭</button></div>
+<div class="global-body"><div class="global-filter"><span style="font-size:13px; color:#aaa;">筛选设备:</span><select id="globalFilterDevice" onchange="onGlobalFilterChange()"><option value="all">全部设备</option></select></div>
+<div class="global-content"><div id="playbackIframeWrap" class="iframe-container"><iframe id="globalPlaybackIframe" style="width:100%; height:100%; border:none;"></iframe></div><div id="shotsIframeWrap" class="iframe-container"><iframe id="globalShotsIframe" style="width:100%; height:100%; border:none;"></iframe></div></div></div></div>
 
 <script>
-let devices = JSON.parse(localStorage.getItem('local_devices') || '[]');
+let devices = [];
+try { const raw = localStorage.getItem('local_devices'); if (raw) { devices = JSON.parse(raw).filter(d => d.baseUrl).map(d => { if (!d.playbackUrl && d.baseUrl) d.playbackUrl = d.baseUrl + '/recordings'; if (!d.shotsUrl && d.baseUrl) d.shotsUrl = d.baseUrl + '/shots'; return d; }); } } catch(e) { devices = []; }
 let rtspEditId = null;
 const MAX_GRID = 9;
 const grid9El = document.getElementById('grid9');
@@ -181,338 +55,116 @@ const roomListEl = document.getElementById('roomList');
 const slots = [];
 let singleMode = false;
 let activeSlotIndex = 0;
+let currentGlobalTab = 'playback';
 
-// 初始化九宫格
 for (let i = 0; i < MAX_GRID; i++) {
-  const cell = document.createElement('div');
-  cell.className = 'cell hidden';
-  cell.innerHTML = `
-    <img src="" style="display:none;">
-    <audio></audio>
-    <div class="label"></div>
-    <div class="empty"><div>📷</div><div>空闲</div></div>
-    <div class="state-mask"></div>
-    <div class="overlay-controls">
-      <button data-act="sound">🔇 声音</button>
-      <button data-act="snapshot">📸 截图</button>
-      <button data-act="fullscreen">⛶ 全屏</button>
-    </div>
-  `;
-  
-  const slot = {
-    index: i, roomId: null, el: cell,
-    imgEl: cell.querySelector('img'), audioEl: cell.querySelector('audio'), labelEl: cell.querySelector('.label'),
-    wantSound: false
-  };
+  const cell = document.createElement('div'); cell.className = 'cell hidden';
+  cell.innerHTML = `<img src="" style="display:none;"><audio></audio><div class="label"></div><div class="empty"><div>📷</div><div>空闲</div></div><div class="state-mask"></div><div class="overlay-controls"><button data-act="sound">🔇 声音</button><button data-act="snapshot">📸 截图</button><button data-act="fullscreen">⛶ 全屏</button></div>`;
+  const slot = { index: i, roomId: null, el: cell, playbackUrl: '', imgEl: cell.querySelector('img'), audioEl: cell.querySelector('audio'), labelEl: cell.querySelector('.label'), wantSound: false };
   slots.push(slot);
-  
   cell.onclick = (e) => {
     if (e.target.closest('button')) return;
     if (!slot.roomId) return;
-    if (!singleMode) {
-      singleMode = true;
-      activeSlotIndex = i;
-      grid9El.classList.add('single');
-      slots.forEach((s, idx) => s.el.classList.toggle('active-cell', idx === i));
-      applySoundPolicy();
-    } else {
-      singleMode = false;
-      slot.wantSound = false;
-      grid9El.classList.remove('single');
-      slots.forEach(s => s.el.classList.remove('active-cell'));
-      applySoundPolicy();
-    }
+    if (!singleMode) { singleMode = true; activeSlotIndex = i; grid9El.classList.add('single'); slots.forEach((s, idx) => s.el.classList.toggle('active-cell', idx === i)); applySoundPolicy(); } 
+    else { singleMode = false; slot.wantSound = false; grid9El.classList.remove('single'); slots.forEach(s => s.el.classList.remove('active-cell')); applySoundPolicy(); }
   };
-
   cell.querySelector('[data-act="sound"]').onclick = (e) => { e.stopPropagation(); toggleCellSound(i); };
   cell.querySelector('[data-act="snapshot"]').onclick = (e) => { e.stopPropagation(); takeSnapshot(i); };
   cell.querySelector('[data-act="fullscreen"]').onclick = (e) => { e.stopPropagation(); toggleFullscreen(); };
-
   grid9El.appendChild(cell);
 }
 
 function applySoundPolicy() {
   slots.forEach((slot, i) => {
     const shouldUnmute = singleMode && i === activeSlotIndex && slot.wantSound;
-    if (slot.audioEl.src) {
-      slot.audioEl.muted = !shouldUnmute;
-    }
+    if (slot.audioEl.src) slot.audioEl.muted = !shouldUnmute;
     const btn = slot.el.querySelector('[data-act="sound"]');
-    if (btn) {
-      const playing = shouldUnmute && slot.audioEl.src;
-      btn.textContent = playing ? '🔊 关闭声音' : '🔇 开启声音';
-      btn.className = playing ? 'primary' : '';
-      const noAudio = !slot.audioEl.src;
-      btn.style.display = noAudio ? 'none' : 'flex';
-    }
+    if (btn) { const playing = shouldUnmute && slot.audioEl.src; btn.textContent = playing ? '🔊 关闭声音' : '🔇 开启声音'; btn.className = playing ? 'primary' : ''; btn.style.display = !slot.audioEl.src ? 'none' : 'flex'; }
   });
 }
 
-function toggleCellSound(index) {
-  const slot = slots[index];
-  if (!slot || !slot.audioEl.src) return;
-  slot.wantSound = !slot.wantSound;
-  applySoundPolicy();
-}
+function toggleCellSound(index) { const slot = slots[index]; if (!slot || !slot.audioEl.src) return; slot.wantSound = !slot.wantSound; applySoundPolicy(); }
+function takeSnapshot(index) { const slot = slots[index]; if (!slot || !slot.imgEl.src) return; try { const canvas = document.createElement('canvas'); canvas.width = slot.imgEl.naturalWidth || slot.imgEl.width; canvas.height = slot.imgEl.naturalHeight || slot.imgEl.height; canvas.getContext('2d').drawImage(slot.imgEl, 0, 0); const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = `截图_${slot.labelEl.textContent}_${Date.now()}.png`; a.click(); } catch(e) { alert('截图失败，可能是跨域限制'); } }
+function toggleFullscreen() { if (/iPhone|iPad|iPod/.test(navigator.userAgent)) return; const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement); if (!isFs) (document.getElementById('stage').requestFullscreen || document.getElementById('stage').webkitRequestFullscreen || (() => {})).call(document.getElementById('stage')); else (document.exitFullscreen || document.webkitExitFullscreen || (() => {})).call(document); }
+['fullscreenchange', 'webkitfullscreenchange'].forEach(evt => { document.addEventListener(evt, () => { document.body.classList.toggle('fs-mode', !!(document.fullscreenElement || document.webkitFullscreenElement)); }); });
 
-function takeSnapshot(index) {
-  const slot = slots[index];
-  if (!slot || !slot.imgEl.src) return;
-  try {
-    const canvas = document.createElement('canvas');
-    canvas.width = slot.imgEl.naturalWidth || slot.imgEl.width;
-    canvas.height = slot.imgEl.naturalHeight || slot.imgEl.height;
-    canvas.getContext('2d').drawImage(slot.imgEl, 0, 0);
-    const a = document.createElement('a'); 
-    a.href = canvas.toDataURL('image/png'); 
-    a.download = `截图_${slot.labelEl.textContent}_${Date.now()}.png`; 
-    a.click();
-  } catch(e) { alert('截图失败，可能是跨域限制'); }
-}
-
-function toggleFullscreen() {
-  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-  if (isIOS) return;
-  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
-  if (!isFs) (document.getElementById('stage').requestFullscreen || document.getElementById('stage').webkitRequestFullscreen || (() => {})).call(document.getElementById('stage'));
-  else (document.exitFullscreen || document.webkitExitFullscreen || (() => {})).call(document);
-}
-['fullscreenchange', 'webkitfullscreenchange'].forEach(evt => {
-  document.addEventListener(evt, () => { document.body.classList.toggle('fs-mode', !!(document.fullscreenElement || document.webkitFullscreenElement)); });
-});
-
-// 渲染管理面板
 function renderRtspPanel() {
-  const box = document.getElementById('rtspListBox');
-  document.getElementById('rtspCount').textContent = devices.length;
-  if (devices.length === 0) { box.innerHTML = '<div class="rtsp-empty">暂无设备</div>'; return; }
+  const box = document.getElementById('rtspListBox'); document.getElementById('rtspCount').textContent = devices.length;
+  if (devices.length === 0) { box.innerHTML = '<div class="rtsp-empty">暂无设备，请在上方添加</div>'; return; }
   box.innerHTML = '';
   devices.forEach(s => {
-    const inGrid = slots.some(x => x.rtspId === s.id);
-    const isDis = s.disabled;
-    
-    // 如果填了回放地址，就显示回放按钮
-    const playbackBtn = s.playbackUrl ? `<button class="op playback" onclick="openPlayback('${s.playbackUrl}')">📺 回放</button>` : '';
-
-    const card = document.createElement('div');
-    card.className = 'rtsp-card' + (isDis ? ' disabled' : '');
-    card.innerHTML = `
-      <div class="rtsp-row1">
-        <span class="rtsp-dot ${isDis ? '' : 'on'}"></span>
-        <span class="rtsp-name">${s.name}</span>
-        ${isDis ? '<span style="font-size:10px; color:#f44336; margin-left:auto;">已禁用</span>' : ''}
-      </div>
-      <div class="rtsp-url">
-        视频: ${s.url}
-        ${s.audioUrl ? '<br>音频: ' + s.audioUrl : ''}
-        ${s.playbackUrl ? '<br>回放: ' + s.playbackUrl : ''}
-      </div>
-      <div class="rtsp-ops">
-        <button class="op play" onclick="toggleRtspToGrid('${s.id}')">${inGrid ? '⏏ 移出' : '▶ 上屏'}</button>
-        ${playbackBtn}
-        <button class="op edit" onclick="editRtsp('${s.id}')">✏️ 编辑</button>
-        <button class="op dis" onclick="toggleDisable('${s.id}')">${isDis ? '✅ 启用' : '🚫 禁用'}</button>
-        <button class="op del" onclick="removeRtsp('${s.id}')">🗑️ 删除</button>
-      </div>`;
+    const inGrid = slots.some(x => x.rtspId === s.id); const isDis = s.disabled;
+    const card = document.createElement('div'); card.className = 'rtsp-card' + (isDis ? ' disabled' : '');
+    card.innerHTML = `<div class="rtsp-row1"><span class="rtsp-dot ${isDis ? '' : 'on'}"></span><span class="rtsp-name">${s.name}</span>${isDis ? '<span style="font-size:10px; color:#f44336; margin-left:auto;">已禁用</span>' : ''}</div><div class="rtsp-url">基础地址: ${s.baseUrl}</div><div class="rtsp-ops"><button class="op play" onclick="toggleRtspToGrid('${s.id}')">${inGrid ? '⏏ 移出' : '▶ 上屏'}</button><button class="op edit" onclick="editRtsp('${s.id}')">✏️ 编辑</button><button class="op dis" onclick="toggleDisable('${s.id}')">${isDis ? '✅ 启用' : '🚫 禁用'}</button><button class="op del" onclick="removeRtsp('${s.id}')">🗑️ 删除</button></div>`;
     box.appendChild(card);
   });
 }
 
-function toggleDisable(id) {
-  const idx = devices.findIndex(d => d.id === id);
-  if (idx === -1) return;
-  devices[idx].disabled = !devices[idx].disabled;
-  if (devices[idx].disabled) {
-    const occ = slots.find(x => x.rtspId === id);
-    if (occ) closeCell(occ.index);
-  }
-  localStorage.setItem('local_devices', JSON.stringify(devices));
-  renderRtspPanel();
-  renderSourceList();
-}
-
+function toggleDisable(id) { const idx = devices.findIndex(d => d.id === id); if (idx === -1) return; devices[idx].disabled = !devices[idx].disabled; if (devices[idx].disabled) { const occ = slots.find(x => x.rtspId === id); if (occ) closeCell(occ.index); } localStorage.setItem('local_devices', JSON.stringify(devices)); renderRtspPanel(); renderSourceList(); }
 function submitRtspForm() {
-  const name = document.getElementById('rtspName').value.trim();
-  const url = document.getElementById('rtspUrl').value.trim();
-  const audioUrl = document.getElementById('rtspAudioUrl').value.trim();
-  const playbackUrl = document.getElementById('rtspPlaybackUrl').value.trim(); // 新增
-  
-  if (!url) return alert('请填写视频流地址');
-  
-  let fullUrl = url.startsWith('http') ? url : 'http://' + url + (url.includes(':') ? '' : ':8080') + '/stream';
-  let fullAudio = audioUrl ? (audioUrl.startsWith('http') ? audioUrl : 'http://' + audioUrl + (audioUrl.includes(':') ? '' : ':8080') + '/audio') : '';
-
-  if (rtspEditId) {
-    const idx = devices.findIndex(d => d.id === rtspEditId);
-    if (idx > -1) devices[idx] = { ...devices[idx], name, url: fullUrl, audioUrl: fullAudio, playbackUrl };
-    const occ = slots.find(x => x.rtspId === rtspEditId);
-    if (occ) startRtspSlot(occ, rtspEditId, name); 
-  } else {
-    devices.push({ id: Date.now().toString(), name, url: fullUrl, audioUrl: fullAudio, playbackUrl, disabled: false });
-  }
-  
-  localStorage.setItem('local_devices', JSON.stringify(devices));
-  resetRtspForm(); 
-  renderRtspPanel(); 
-  renderSourceList();
+  const name = document.getElementById('rtspName').value.trim(); const protocol = document.getElementById('rtspProtocol').value; const port = document.getElementById('rtspPort').value.trim() || '8080'; const ip = document.getElementById('rtspIp').value.trim();
+  if (!ip) return alert('请填写设备IP或域名');
+  const cleanBase = `${protocol}${ip}:${port}`; const fullUrl = cleanBase + '/stream'; const fullAudio = cleanBase + '/audio'; const fullPlayback = cleanBase + '/recordings'; const fullShots = cleanBase + '/shots'; 
+  if (rtspEditId) { const idx = devices.findIndex(d => d.id === rtspEditId); if (idx > -1) devices[idx] = { ...devices[idx], name, baseUrl: cleanBase, url: fullUrl, audioUrl: fullAudio, playbackUrl: fullPlayback, shotsUrl: fullShots }; const occ = slots.find(x => x.rtspId === rtspEditId); if (occ) startRtspSlot(occ, rtspEditId, name); } 
+  else { devices.push({ id: Date.now().toString(), name, baseUrl: cleanBase, url: fullUrl, audioUrl: fullAudio, playbackUrl: fullPlayback, shotsUrl: fullShots, disabled: false }); }
+  localStorage.setItem('local_devices', JSON.stringify(devices)); resetRtspForm(); renderRtspPanel(); renderSourceList();
 }
 
-function editRtsp(id) {
-  const s = devices.find(x => x.id === id);
-  if (!s) return;
-  rtspEditId = id;
-  document.getElementById('rtspFormTitle').textContent = '编辑：' + s.name;
-  document.getElementById('rtspName').value = s.name || '';
-  document.getElementById('rtspUrl').value = s.url || '';
-  document.getElementById('rtspAudioUrl').value = s.audioUrl || '';
-  document.getElementById('rtspPlaybackUrl').value = s.playbackUrl || ''; // 新增
-  document.getElementById('rtspSubmitBtn').textContent = '💾 保存修改';
-  document.getElementById('rtspCancelBtn').style.display = 'block';
-}
-
-function resetRtspForm() {
-  rtspEditId = null;
-  document.getElementById('rtspFormTitle').textContent = '添加设备';
-  document.getElementById('rtspName').value = ''; 
-  document.getElementById('rtspUrl').value = ''; 
-  document.getElementById('rtspAudioUrl').value = '';
-  document.getElementById('rtspPlaybackUrl').value = ''; // 新增
-  document.getElementById('rtspSubmitBtn').textContent = '➕ 添加'; 
-  document.getElementById('rtspCancelBtn').style.display = 'none';
-}
-
-function removeRtsp(id) {
-  if (!confirm('确定删除吗？')) return;
-  devices = devices.filter(d => d.id !== id);
-  localStorage.setItem('local_devices', JSON.stringify(devices));
-  const occ = slots.find(x => x.rtspId === id);
-  if (occ) closeCell(occ.index);
-  renderRtspPanel(); 
-  renderSourceList();
-}
-
-function toggleRtspToGrid(id) {
-  const exist = slots.find(s => s.rtspId === id);
-  if (exist) { closeCell(exist.index); return; }
-  
-  const info = devices.find(s => s.id === id);
-  if (!info) return;
-  if (info.disabled) return alert('该设备已禁用，请先启用！');
-  
-  const idx = slots.findIndex(s => !s.roomId);
-  if (idx === -1) return alert('九宫格已满，请先关闭一个画面');
-  
-  closeCell(idx); 
-  startRtspSlot(slots[idx], id, info.name);
-  renderSourceList(); 
-  updateLayout();
-}
-
+function editRtsp(id) { const s = devices.find(x => x.id === id); if (!s) return; rtspEditId = id; document.getElementById('rtspFormTitle').textContent = '编辑：' + s.name; document.getElementById('rtspName').value = s.name || ''; try { const urlObj = new URL(s.baseUrl); document.getElementById('rtspProtocol').value = urlObj.protocol + '//'; document.getElementById('rtspIp').value = urlObj.hostname; document.getElementById('rtspPort').value = urlObj.port || '8080'; } catch(e) { document.getElementById('rtspProtocol').value = 'http://'; document.getElementById('rtspIp').value = s.baseUrl || ''; document.getElementById('rtspPort').value = '8080'; } document.getElementById('rtspSubmitBtn').textContent = '💾 保存修改'; document.getElementById('rtspCancelBtn').style.display = 'block'; }
+function resetRtspForm() { rtspEditId = null; document.getElementById('rtspFormTitle').textContent = '添加设备'; document.getElementById('rtspName').value = ''; document.getElementById('rtspProtocol').value = 'http://'; document.getElementById('rtspIp').value = ''; document.getElementById('rtspPort').value = '8080'; document.getElementById('rtspSubmitBtn').textContent = '➕ 添加'; document.getElementById('rtspCancelBtn').style.display = 'none'; }
+function removeRtsp(id) { if (!confirm('确定删除吗？')) return; devices = devices.filter(d => d.id !== id); localStorage.setItem('local_devices', JSON.stringify(devices)); const occ = slots.find(x => x.rtspId === id); if (occ) closeCell(occ.index); renderRtspPanel(); renderSourceList(); }
+function toggleRtspToGrid(id) { const exist = slots.find(s => s.rtspId === id); if (exist) { closeCell(exist.index); return; } const info = devices.find(s => s.id === id); if (!info) return; if (info.disabled) return alert('该设备已禁用，请先启用！'); const idx = slots.findIndex(s => !s.roomId); if (idx === -1) return alert('九宫格已满，请先关闭一个画面'); closeCell(idx); startRtspSlot(slots[idx], id, info.name); renderSourceList(); updateLayout(); }
 function startRtspSlot(slot, id, name) {
-  slot.rtspId = id;
-  slot.roomId = id;
-  slot.labelEl.textContent = name;
-  slot.el.querySelector('.empty').style.display = 'none';
-  slot.el.classList.add('state-connecting');
-  slot.el.classList.remove('has-stream', 'state-offline');
-  
-  const info = devices.find(s => s.id === id);
-  slot.imgEl.src = info.url;
-  slot.imgEl.style.display = 'block';
-  
-  slot.imgEl.onload = () => {
-    slot.el.classList.remove('state-connecting');
-    slot.el.classList.add('has-stream');
-  };
-  slot.imgEl.onerror = () => {
-    slot.el.classList.remove('state-connecting');
-    slot.el.classList.add('state-offline');
-  };
-  
-  if (info.audioUrl) {
-    slot.audioEl.src = info.audioUrl;
-    slot.audioEl.play().catch(()=>{});
-  }
-  applySoundPolicy();
+  slot.rtspId = id; slot.roomId = id; slot.labelEl.textContent = name; slot.el.querySelector('.empty').style.display = 'none'; slot.el.classList.add('state-connecting'); slot.el.classList.remove('has-stream', 'state-offline');
+  const info = devices.find(s => s.id === id); slot.playbackUrl = info.playbackUrl; slot.imgEl.src = info.url; slot.imgEl.style.display = 'block';
+  slot.imgEl.onload = () => { slot.el.classList.remove('state-connecting'); slot.el.classList.add('has-stream'); }; slot.imgEl.onerror = () => { slot.el.classList.remove('state-connecting'); slot.el.classList.add('state-offline'); };
+  if (info.audioUrl) { slot.audioEl.src = info.audioUrl; slot.audioEl.play().catch(()=>{}); } applySoundPolicy();
 }
-
 function closeCell(index) {
-  const slot = slots[index];
-  if (!slot) return;
-  slot.roomId = null;
-  slot.rtspId = null;
-  slot.imgEl.src = '';
-  slot.imgEl.style.display = 'none';
-  slot.imgEl.onload = null;
-  slot.imgEl.onerror = null;
-  slot.audioEl.pause();
-  slot.audioEl.removeAttribute('src');
-  slot.labelEl.textContent = '';
-  slot.el.querySelector('.empty').style.display = 'flex';
-  slot.el.classList.remove('has-stream', 'state-connecting', 'state-offline');
-  
-  if (singleMode) {
-    singleMode = false;
-    grid9El.classList.remove('single');
-    slots.forEach(s => s.el.classList.remove('active-cell'));
-  }
-  applySoundPolicy();
-  renderSourceList();
-  updateLayout();
+  const slot = slots[index]; if (!slot) return; slot.roomId = null; slot.rtspId = null; slot.playbackUrl = ''; slot.imgEl.src = ''; slot.imgEl.style.display = 'none'; slot.imgEl.onload = null; slot.imgEl.onerror = null; slot.audioEl.pause(); slot.audioEl.removeAttribute('src'); slot.labelEl.textContent = ''; slot.el.querySelector('.empty').style.display = 'flex'; slot.el.classList.remove('has-stream', 'state-connecting', 'state-offline');
+  if (singleMode) { singleMode = false; grid9El.classList.remove('single'); slots.forEach(s => s.el.classList.remove('active-cell')); } applySoundPolicy(); renderSourceList(); updateLayout();
 }
-
 function renderSourceList() {
-  const activeDevices = devices.filter(d => !d.disabled);
-  document.getElementById('onlineCount').textContent = activeDevices.length;
-  
-  if (activeDevices.length === 0) {
-    roomListEl.innerHTML = '<div class="room-empty">暂无可用设备</div>';
-    return;
-  }
+  const activeDevices = devices.filter(d => !d.disabled); document.getElementById('onlineCount').textContent = activeDevices.length;
+  if (activeDevices.length === 0) { roomListEl.innerHTML = '<div class="room-empty">暂无可用设备</div>'; return; }
   roomListEl.innerHTML = '';
-  activeDevices.forEach(src => {
-    const occ = slots.find(s => s.roomId === src.id);
-    const chip = document.createElement('button');
-    chip.className = 'room-chip rtsp' + (occ ? ' active' : '');
-    chip.innerHTML = `<span class="dot"></span>${src.name}`;
-    chip.onclick = () => {
-      if (occ) closeCell(occ.index);
-      else toggleRtspToGrid(src.id);
-    };
-    roomListEl.appendChild(chip);
-  });
+  activeDevices.forEach(src => { const occ = slots.find(s => s.roomId === src.id); const chip = document.createElement('button'); chip.className = 'room-chip rtsp' + (occ ? ' active' : ''); chip.innerHTML = `<span class="dot"></span>${src.name}`; chip.onclick = () => { if (occ) closeCell(occ.index); else toggleRtspToGrid(src.id); }; roomListEl.appendChild(chip); });
 }
-
 function updateLayout() {
-  const activeCount = slots.filter(s => s.roomId).length;
-  let layoutClass = 'layout-9', visibleCount = 9;
-  if (activeCount <= 1) { layoutClass = 'layout-1'; visibleCount = 1; }
-  else if (activeCount === 2) { layoutClass = 'layout-2'; visibleCount = 2; }
-  else if (activeCount <= 4) { layoutClass = 'layout-4'; visibleCount = 4; }
-  grid9El.className = `grid9 ${layoutClass}` + (singleMode ? ' single' : '');
-  slots.forEach((slot, i) => { if (i < visibleCount || singleMode) slot.el.classList.remove('hidden'); else slot.el.classList.add('hidden'); });
+  const activeCount = slots.filter(s => s.roomId).length; let layoutClass = 'layout-9', visibleCount = 9;
+  if (activeCount <= 1) { layoutClass = 'layout-1'; visibleCount = 1; } else if (activeCount === 2) { layoutClass = 'layout-2'; visibleCount = 2; } else if (activeCount <= 4) { layoutClass = 'layout-4'; visibleCount = 4; }
+  grid9El.className = `grid9 ${layoutClass}` + (singleMode ? ' single' : ''); slots.forEach((slot, i) => { if (i < visibleCount || singleMode) slot.el.classList.remove('hidden'); else slot.el.classList.add('hidden'); });
 }
-
 function openRtspPanel() { document.getElementById('rtspModal').classList.add('show'); renderRtspPanel(); }
 function closeRtspPanel() { document.getElementById('rtspModal').classList.remove('show'); }
 
-// ===== 回放页面的弹窗逻辑 =====
-function openPlayback(url) {
-  if (!url) return;
-  const modal = document.getElementById('playbackModal');
-  const iframe = document.getElementById('playbackIframe');
-  iframe.src = url;
-  modal.classList.add('show');
+function openGlobalModal() {
+  const modal = document.getElementById('globalModal'); modal.classList.add('show');
+  const sel = document.getElementById('globalFilterDevice'); sel.innerHTML = '<option value="all">全部设备</option>';
+  devices.forEach(d => { if (!d.disabled) { const opt = document.createElement('option'); opt.value = d.id; opt.textContent = d.name; sel.appendChild(opt); } });
+  switchGlobalTab(currentGlobalTab);
+}
+function closeGlobalModal() { document.getElementById('globalModal').classList.remove('show'); document.getElementById('globalPlaybackIframe').src = ''; document.getElementById('globalShotsIframe').src = ''; }
+function switchGlobalTab(tab) {
+  currentGlobalTab = tab; document.getElementById('tabBtnPlayback').className = tab === 'playback' ? 'active' : ''; document.getElementById('tabBtnShots').className = tab === 'shots' ? 'active' : '';
+  document.getElementById('playbackIframeWrap').style.display = tab === 'playback' ? 'block' : 'none'; document.getElementById('shotsIframeWrap').style.display = tab === 'shots' ? 'block' : 'none';
+  onGlobalFilterChange();
+}
+function onGlobalFilterChange() {
+  const deviceId = document.getElementById('globalFilterDevice').value;
+  const selectedDev = deviceId === 'all' ? null : devices.find(d => d.id === deviceId);
+  const iframePlayback = document.getElementById('globalPlaybackIframe'); const iframeShots = document.getElementById('globalShotsIframe');
+  let targetPlaybackUrl = ''; let targetShotsUrl = '';
+  if (selectedDev) { targetPlaybackUrl = selectedDev.playbackUrl; targetShotsUrl = selectedDev.shotsUrl; } 
+  else if (devices.length > 0) { targetPlaybackUrl = devices[0].playbackUrl; targetShotsUrl = devices[0].shotsUrl; }
+  if (currentGlobalTab === 'playback') {
+    if (targetPlaybackUrl) iframePlayback.src = targetPlaybackUrl; else iframePlayback.srcdoc = "<h2 style='text-align:center; margin-top:50px; color:#666; font-family:sans-serif;'>暂无回放地址</h2>";
+  }
+  if (currentGlobalTab === 'shots') {
+    if (targetShotsUrl) iframeShots.src = targetShotsUrl; else iframeShots.srcdoc = "<h2 style='text-align:center; margin-top:50px; color:#666; font-family:sans-serif;'>暂无截图页面</h2>";
+  }
 }
 
-function closePlayback() {
-  const modal = document.getElementById('playbackModal');
-  const iframe = document.getElementById('playbackIframe');
-  iframe.src = '';
-  modal.classList.remove('show');
-}
-
-// 初始化
 renderSourceList();
 updateLayout();
 </script>
