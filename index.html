@@ -2,8 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8">
-<!-- ★ 核心修复：强制允许 HTTPS 页面加载 HTTP 的图片和音视频资源 -->
-<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; img-src * data: blob:; media-src * data: blob:; frame-src *;">
+<!-- ★ 核心：强制要求浏览器放行 HTTP 资源，绝不升级到 HTTPS，绝不拦截 -->
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob: http: https:; img-src * data: blob: http: https:; media-src * data: blob: http: https:; frame-src * http: https:; connect-src * http: https:;">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>监控指挥中心</title>
 <style>
@@ -35,7 +35,7 @@
 </style>
 </head>
 <body>
-<div class="header"><div class="stat-item"><span id="connState">本地模式</span><span>在线: <span id="onlineCount">0</span></span></div>
+<div class="header"><div class="stat-item"><span id="connState">本地直连</span><span>在线: <span id="onlineCount">0</span></span></div>
 <div style="display:flex; gap:8px;"><button onclick="openGlobalModal()" style="background:#222; border:1px solid #333; color:#FF9800; font-size:14px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px;">📺 回放/侦测</button>
 <button onclick="openRtspPanel()" style="background:#222; border:1px solid #333; color:#29B6F6; font-size:14px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px;">📡 流媒体管理</button></div></div>
 
@@ -54,8 +54,15 @@
 <div class="global-content"><div id="playbackIframeWrap" class="iframe-container"><iframe id="globalPlaybackIframe" style="width:100%; height:100%; border:none;"></iframe></div><div id="shotsIframeWrap" class="iframe-container"><iframe id="globalShotsIframe" style="width:100%; height:100%; border:none;"></iframe></div></div></div></div>
 
 <script>
+// 彻底回归原始纯本地直连逻辑，不经过任何第三方代理
 let devices = [];
-try { const raw = localStorage.getItem('local_devices'); if (raw) { devices = JSON.parse(raw).filter(d => d.baseUrl).map(d => { if (!d.playbackUrl && d.baseUrl) d.playbackUrl = d.baseUrl + '/recordings'; if (!d.shotsUrl && d.baseUrl) d.shotsUrl = d.baseUrl + '/shots'; return d; }); } } catch(e) { devices = []; }
+try { 
+    const raw = localStorage.getItem('local_devices'); 
+    if (raw) { 
+        devices = JSON.parse(raw).filter(d => d.baseUrl); 
+    } 
+} catch(e) { devices = []; }
+
 let rtspEditId = null;
 const MAX_GRID = 9;
 const grid9El = document.getElementById('grid9');
@@ -125,7 +132,8 @@ function toggleRtspToGrid(id) { const exist = slots.find(s => s.rtspId === id); 
 function startRtspSlot(slot, id, name) {
   slot.rtspId = id; slot.roomId = id; slot.labelEl.textContent = name; slot.el.querySelector('.empty').style.display = 'none'; slot.el.classList.add('state-connecting'); slot.el.classList.remove('has-stream', 'state-offline');
   const info = devices.find(s => s.id === id); slot.playbackUrl = info.playbackUrl; slot.imgEl.src = info.url; slot.imgEl.style.display = 'block';
-  slot.imgEl.onload = () => { slot.el.classList.remove('state-connecting'); slot.el.classList.add('has-stream'); }; slot.imgEl.onerror = () => { slot.el.classList.remove('state-connecting'); slot.el.classList.add('state-offline'); };
+  slot.imgEl.onload = () => { slot.el.classList.remove('state-connecting'); slot.el.classList.add('has-stream'); }; 
+  slot.imgEl.onerror = () => { slot.el.classList.remove('state-connecting'); slot.el.classList.add('state-offline'); };
   if (info.audioUrl) { slot.audioEl.src = info.audioUrl; slot.audioEl.play().catch(()=>{}); } applySoundPolicy();
 }
 function closeCell(index) {
